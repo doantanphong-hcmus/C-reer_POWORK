@@ -62,6 +62,7 @@ Tài liệu này quy định chi tiết các API Contracts thuộc phạm vi MVP
   {
     "title": "Tối ưu Thuật toán Xử lý Bản đồ",
     "description": "Mô tả chi tiết...",
+    "industry": "Công nghệ thông tin",
     "deadline": "2026-06-30T23:59:59Z",
     "rubrics": [
       {
@@ -80,7 +81,7 @@ Tài liệu này quy định chi tiết các API Contracts thuộc phạm vi MVP
 * **Response (201 Created):** Trả về object challenge vừa tạo kèm list criteria có `criteria_id` (UUID).
 
 #### [GET] `/api/v1/challenges`
-* **Mô tả:** Lấy danh sách thử thách công khai cho ứng viên.
+* **Mô tả:** Lấy danh sách thử thách công khai cho ứng viên. Hỗ trợ query params `?industry=...` để lọc theo ngành nghề (IT, Thiết kế, Marketing...).
 * **Response (200 OK):**
   ```json
   {
@@ -90,6 +91,7 @@ Tài liệu này quy định chi tiết các API Contracts thuộc phạm vi MVP
         "challenge_id": "403bf47b-231a-4d22-9214-722a4669812a",
         "title": "Tối ưu Thuật toán Xử lý Bản đồ",
         "company_name": "MTech Solutions",
+        "industry": "Công nghệ thông tin",
         "deadline": "2026-06-30T23:59:59Z"
       }
     ]
@@ -160,7 +162,7 @@ Tài liệu này quy định chi tiết các API Contracts thuộc phạm vi MVP
   ```
 
 #### [POST] `/api/v1/assessment/submissions/{submission_id}/unlock`
-* **Mô tả:** Duyệt bài và Mở khóa danh tính (Bắn event sang Profile).
+* **Mô tả:** Duyệt bài và Mở khóa danh tính (Bắn Event chứa `user_id`, `challenge_id` sang Profile Module xử lý).
 * **Auth:** `Bearer <Employer_Token>`
 * **Request Body:**
   ```json
@@ -200,6 +202,7 @@ Tài liệu này quy định chi tiết các API Contracts thuộc phạm vi MVP
           "evidence_id": "7712aaeb-...",
           "challenge_name": "Tối ưu Thuật toán Xử lý Bản đồ Geolocation Grid-Defense",
           "company_name": "MTech Solutions",
+          "industry": "Công nghệ thông tin",
           "total_score": 8.6,
           "unlocked_at": "2026-06-10T02:16:45Z"
         }
