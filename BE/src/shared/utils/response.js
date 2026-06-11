@@ -1,12 +1,10 @@
 /**
- * Chuẩn hóa response format theo API Contracts
+ * Chuẩn hóa response format theo Coding Convention POWORK
  *
- * Format chuẩn:
- *   { status: "success", data: { ... } }
- *   { status: "success", message: "...", data: { ... } }   ← khi có message
- *   { status: "error", message: "..." }                    ← lỗi (error.middleware xử lý)
+ * Success: { status: "success", data: { ... } }
+ * Error:   { status: "error", error_code: "AUTH_001", message: "..." }
+ *          (error format được xử lý bởi error.middleware.js)
  */
-
 export const sendSuccess = (res, data, message = null, statusCode = 200) => {
   const body = { status: 'success', data }
   if (message) body.message = message
