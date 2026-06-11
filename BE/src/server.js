@@ -1,14 +1,14 @@
 import 'dotenv/config'
 import app from './app.js'
-import { config } from './config/index.js'
-import prisma from './config/prisma.js'
+import { config } from './shared/config/index.js'
+import prisma from './shared/config/prisma.js'
 
 const start = async () => {
   try {
     await prisma.$connect()
     console.log('✅ Database connected')
   } catch (err) {
-    console.warn('⚠️ Database not available - running in MOCK mode:', err.message)
+    console.warn('⚠️  Database not available - running in MOCK mode:', err.message)
   }
 
   app.listen(config.port, () => {
