@@ -1,0 +1,62 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg: #141414;
+    --bg2: #1e1e1e;
+    --bg3: #272727;
+    --border: rgba(255, 255, 255, 0.08);
+    --border2: rgba(255, 255, 255, 0.14);
+    --text: #f0ede8;
+    --text2: #9c9a92;
+    --text3: #5e5d58;
+    --accent: #7c6ff7;
+    --green: #22c55e;
+    --amber: #f59e0b;
+    --blue: #60a5fa;
+    --red: #f87171;
+  }
+
+  * {
+    @apply box-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family:
+      Inter,
+      system-ui,
+      -apple-system,
+      sans-serif;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer components {
+  .btn-base {
+    @apply px-4 py-2 rounded-lg font-medium transition-colors duration-200;
+  }
+
+  .btn-primary {
+    @apply btn-base bg-accent text-white hover:bg-opacity-90;
+  }
+
+  .btn-secondary {
+    @apply btn-base bg-background-secondary text-foreground border border-border-secondary hover:bg-background-tertiary;
+  }
+
+  .card {
+    @apply bg-background-secondary border border-border-secondary rounded-lg p-6;
+  }
+
+  .input-base {
+    @apply w-full px-3 py-2 bg-background-secondary border border-border-secondary rounded-lg text-foreground placeholder-foreground-tertiary focus:outline-none focus:border-accent transition-colors;
+  }
+}
