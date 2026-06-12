@@ -210,3 +210,50 @@ Tài liệu này quy định chi tiết các API Contracts thuộc phạm vi MVP
     }
   }
   ```
+
+---
+
+### 3.5 Talent Pool Module - Lưu trữ ứng viên (Dành cho Employer)
+
+#### [POST] `/api/v1/talent-pool`
+* **Mô tả:** Thêm một ứng viên đã được mở khóa (unlock) vào Talent Pool của công ty.
+* **Auth:** `Bearer <Employer_Token>`
+* **Request Body:**
+  ```json
+  {
+    "user_id": "de305d54-75b4-431b-adb2-eb6b9e546014"
+  }
+  ```
+* **Response (201 Created):**
+  ```json
+  {
+    "status": "success",
+    "message": "Candidate added to Talent Pool"
+  }
+  ```
+
+#### [GET] `/api/v1/talent-pool`
+* **Mô tả:** Lấy danh sách ứng viên trong Talent Pool của công ty hiện tại.
+* **Auth:** `Bearer <Employer_Token>`
+* **Response (200 OK):**
+  ```json
+  {
+    "status": "success",
+    "data": [
+      {
+        "pool_id": "8b9e67a1-1234-421c-a32e-11bc9aef4421",
+        "candidate": {
+          "user_id": "de305d54-75b4-431b-adb2-eb6b9e546014",
+          "full_name": "Đoàn Tấn Phong",
+          "university": "HCMUS",
+          "year": "Năm 4",
+          "primary_skills": ["System Design", "Redis"]
+        },
+        "highest_score": 92.0,
+        "challenges_taken": ["Caching", "API Design"],
+        "status": "INVITED",
+        "added_at": "2026-06-12T10:00:00Z"
+      }
+    ]
+  }
+  ```
