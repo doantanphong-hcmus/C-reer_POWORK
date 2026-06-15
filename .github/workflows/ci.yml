@@ -1,0 +1,76 @@
+name: POWORK CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  # Job kiểm thử tự động cho Backend
+  backend-ci:
+    name: Backend CI (Node.js & Prisma)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout mã nguồn
+        uses: actions/checkout@v4
+
+      - name: Cài đặt Node.js v20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: Backend/package-lock.json
+
+      - name: Cài đặt Dependencies
+        working-directory: ./Backend
+        run: npm ci
+
+      - name: Kiểm tra Format Code (Prettier)
+        working-directory: ./Backend
+        run: npx prettier --check src/
+
+      - name: Kiểm tra Lỗi Cú Pháp (ESLint)
+        working-directory: ./Backend
+        run: npm run lint
+
+      - name: Sinh Prisma Client
+        working-directory: ./Backend
+        run: npx prisma generate
+
+  # Job kiểm thử tự động cho Frontend
+  frontend-ci:
+    name: Frontend CI (Next.js & React)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout mã nguồn
+        uses: actions/checkout@v4
+
+      - name: Cài đặt Node.js v20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Cài đặt Dependencies
+        working-directory: ./frontend
+        run: npm ci
+
+      - name: Kiểm tra Format Code (Prettier)
+        working-directory: ./frontend
+        run: npx prettier --check "**/*.{js,jsx,ts,tsx,json,md,css}"
+
+      - name: Kiểm tra Lỗi Cú Pháp (Next Lint)
+        working-directory: ./frontend
+        run: npm run lint
+
+      - name: Build ứng dụng Next.js (Compile Check)
+        working-directory: ./frontend
+        run: npm run build
