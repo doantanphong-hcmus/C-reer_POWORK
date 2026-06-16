@@ -170,3 +170,28 @@ enum SubmissionStatus {
   APPROVED
   REJECTED
 }
+
+// ══════════════════════════════════════════════════════
+// TALENT POOL MODULE — Lưu trữ ứng viên tiềm năng
+// ══════════════════════════════════════════════════════
+
+// Employer lưu ứng viên đã unlock để tiện theo dõi
+// company_id và user_id lưu dạng DATA FIELD — không FK cứng sang IAM Module
+// Tuân thủ Loosely Coupling: không ràng buộc FK xuyên domain
+model TalentPool {
+  id          String          @id @default(uuid()) @map("pool_id")
+  companyId   String          @map("company_id")   // Data field — không FK sang companies
+  userId      String          @map("user_id")       // Data field — không FK sang users
+  status      TalentPoolStatus @default(IN_POOL)
+  addedAt     DateTime        @default(now()) @map("added_at")
+  updatedAt   DateTime        @updatedAt @map("updated_at")
+
+  @@unique([companyId, userId])   // Mỗi cặp company+candidate chỉ xuất hiện 1 lần
+  @@map("talent_pools")
+}
+
+enum TalentPoolStatus {
+  IN_POOL
+  INVITED
+  CONSIDERING
+}
