@@ -1,15 +1,13 @@
-# Stage 1: Cài đặt dependencies
-FROM node:20-alpine AS deps
-# Thêm libc6-compat để xử lý một số dependency native của Node.js
-RUN apk add --no-cache libc6-compat
+FROM node:20-slim AS base
 WORKDIR /app
 
+# Stage 1: Cài đặt dependencies
+FROM base AS deps
 COPY package*.json ./
 RUN npm ci
 
 # Stage 2: Build mã nguồn
-FROM node:20-alpine AS builder
-WORKDIR /app
+FROM base AS builder
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
@@ -19,15 +17,15 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN npm run build
 
 # Stage 3: Production runner
-FROM node:20-alpine AS runner
+FROM base AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
 # Bảo mật: Không chạy container dưới quyền root
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
+RUN groupadd --system --gid 1001 nodejs
+RUN useradd --system --uid 1001 --gid 1001 nextjs
 
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next ./.next

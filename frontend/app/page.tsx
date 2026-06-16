@@ -8,13 +8,13 @@ export default function Home() {
         </p>
         <div className="flex gap-4 justify-center">
           <a
-            href="/auth/login"
+            href="/login"
             className="px-6 py-3 bg-accent text-white rounded-lg hover:bg-opacity-90 transition-colors"
           >
             Đăng nhập
           </a>
           <a
-            href="/auth/register"
+            href="/register"
             className="px-6 py-3 bg-background-secondary border border-border-secondary text-foreground rounded-lg hover:bg-background-tertiary transition-colors"
           >
             Đăng ký
