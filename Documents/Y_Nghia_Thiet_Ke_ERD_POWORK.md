@@ -56,6 +56,14 @@ Xây dựng và hiển thị biểu đồ radar năng lực thực chiến công
     * Bảng này lưu `user_id` để biết hồ sơ thuộc về ai. Tuy nhiên, nó áp dụng chiến lược **Snapshot Data**: copy trực tiếp chuỗi văn bản tĩnh như `challenge_name`, `company_name`, và `industry` tại thời điểm mở khóa để lưu trữ. Điều này phục vụ việc vẽ biểu đồ radar năng lực đa ngành.
 * **Ranh giới cô lập:** Profile Module không JOIN ngược về Challenge Module hay IAM Module để lấy tên bài toán hay tên công ty. Việc lưu trữ Snapshot giúp Profile Module hoàn toàn độc lập, đảm bảo tốc độ truy vấn hiển thị cực kỳ nhanh, đồng thời bảo vệ dữ liệu hồ sơ vĩnh viễn kể cả khi bài Challenge gốc bị doanh nghiệp xóa hoặc sửa đổi.
 
+### 2.5 Talent Pool Module (Lưu trữ ứng viên)
+Module mở rộng cho phép doanh nghiệp lưu lại danh sách các ứng viên đã được mở khóa danh tính để tiện liên hệ về sau.
+
+* **Bảng `Talent_Pools`:**
+    * Lưu trữ `company_id` và `user_id` (của ứng viên).
+    * Trường `status` (Enum: `IN_POOL`, `INVITED`, `CONSIDERING`) để theo dõi trạng thái tuyển dụng.
+* **Ranh giới cô lập:** Bảng này lưu trữ độc lập, tuân thủ nguyên tắc không sử dụng Khóa ngoại (FK) chéo sang IAM Module. `company_id` và `user_id` chỉ được lưu dưới dạng Data Field để đảm bảo sự lỏng lẻo (Loosely Coupling) giữa các service.
+
 ---
 
 ## 3. QUY QUYẾT ĐỊNH KỸ THUẬT QUAN TRỌNG: TẠI SAO DÙNG UUID?

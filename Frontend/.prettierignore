@@ -1,0 +1,9 @@
+node_modules
+.next
+dist
+build
+.git
+*.lock
+pnpm-lock.yaml
+yarn.lock
+public/mockServiceWorker.js
