@@ -42,7 +42,7 @@ services:
   # 3. Dịch vụ Frontend Next.js
   frontend:
     build:
-      context: ./frontend
+      context: ./Frontend
       dockerfile: Dockerfile
     container_name: powork_frontend
     restart: unless-stopped
@@ -52,6 +52,8 @@ services:
       NODE_ENV: production
       # Trỏ Next.js API URL đến Backend chạy ở localhost:3001 dưới góc nhìn của trình duyệt người dùng
       NEXT_PUBLIC_API_URL: http://localhost:3001
+      # Cấu hình gọi nội mạng Docker cho Server-Side Rendering (SSR) trong Next.js
+      INTERNAL_API_URL: http://backend:3001
     depends_on:
       - backend
 
