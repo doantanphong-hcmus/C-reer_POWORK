@@ -18,12 +18,16 @@ export const errorHandler = (err, req, res, next) => {
 
   // Prisma: record not found
   if (err.code === 'P2025') {
-    return res.status(404).json({ status: 'error', error_code: 'NOT_FOUND', message: 'Không tìm thấy dữ liệu' })
+    return res
+      .status(404)
+      .json({ status: 'error', error_code: 'NOT_FOUND', message: 'Không tìm thấy dữ liệu' })
   }
 
   // Prisma: unique constraint
   if (err.code === 'P2002') {
-    return res.status(409).json({ status: 'error', error_code: 'CONFLICT', message: 'Dữ liệu đã tồn tại' })
+    return res
+      .status(409)
+      .json({ status: 'error', error_code: 'CONFLICT', message: 'Dữ liệu đã tồn tại' })
   }
 
   // Zod validation
@@ -37,9 +41,15 @@ export const errorHandler = (err, req, res, next) => {
   }
 
   console.error('[UNHANDLED ERROR]', err)
-  res.status(500).json({ status: 'error', error_code: 'SERVER_ERROR', message: 'Lỗi hệ thống Backend' })
+  res
+    .status(500)
+    .json({ status: 'error', error_code: 'SERVER_ERROR', message: 'Lỗi hệ thống Backend' })
 }
 
 export const notFoundHandler = (req, res) => {
-  res.status(404).json({ status: 'error', error_code: 'NOT_FOUND', message: `Route ${req.originalUrl} không tồn tại` })
+  res.status(404).json({
+    status: 'error',
+    error_code: 'NOT_FOUND',
+    message: `Route ${req.originalUrl} không tồn tại`,
+  })
 }

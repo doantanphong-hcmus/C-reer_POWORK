@@ -13,7 +13,12 @@ export const login = async (req, res) => {
   return sendSuccess(res, {
     access_token: MOCK_TOKEN,
     token_type: 'Bearer',
-    user: { user_id: 'de305d54-75b4-431b-adb2-eb6b9e546014', full_name: 'Trương Minh Quang', role: 'Candidate', email },
+    user: {
+      user_id: 'de305d54-75b4-431b-adb2-eb6b9e546014',
+      full_name: 'Trương Minh Quang',
+      role: 'Candidate',
+      email,
+    },
   })
 }
 
@@ -21,11 +26,20 @@ export const login = async (req, res) => {
 export const register = async (req, res) => {
   const { email, role, full_name } = req.body
   // TODO Sprint 1: const result = await AuthService.register(req.body)
-  return sendCreated(res, {
-    access_token: MOCK_TOKEN,
-    token_type: 'Bearer',
-    user: { user_id: `mock-${Date.now()}`, full_name: full_name ?? 'New User', role: role ?? 'Candidate', email },
-  }, 'Đăng ký thành công')
+  return sendCreated(
+    res,
+    {
+      access_token: MOCK_TOKEN,
+      token_type: 'Bearer',
+      user: {
+        user_id: `mock-${Date.now()}`,
+        full_name: full_name ?? 'New User',
+        role: role ?? 'Candidate',
+        email,
+      },
+    },
+    'Đăng ký thành công',
+  )
 }
 
 // GET /api/v1/auth/me
