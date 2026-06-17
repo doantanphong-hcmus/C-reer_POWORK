@@ -47,11 +47,9 @@ export const errorHandler = (err, req, res, next) => {
 }
 
 export const notFoundHandler = (req, res) => {
-  res
-    .status(404)
-    .json({
-      status: 'error',
-      error_code: 'NOT_FOUND',
-      message: `Route ${req.originalUrl} không tồn tại`,
-    })
+  res.status(404).json({
+    status: 'error',
+    error_code: 'NOT_FOUND',
+    message: `Route ${req.originalUrl} không tồn tại`,
+  })
 }
