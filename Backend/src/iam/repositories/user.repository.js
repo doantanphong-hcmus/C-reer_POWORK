@@ -27,9 +27,7 @@ export const createUser = ({ email, passwordHash, fullName, role, companyName })
       passwordHash,
       fullName,
       role,
-      ...(role === 'Employer' && companyName
-        ? { company: { create: { companyName } } }
-        : {}),
+      ...(role === 'Employer' && companyName ? { company: { create: { companyName } } } : {}),
     },
     include: { company: true },
   })

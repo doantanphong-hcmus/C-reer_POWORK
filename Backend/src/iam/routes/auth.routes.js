@@ -7,7 +7,7 @@ import { loginSchema, registerSchema } from '../models/auth.schema.js'
 const router = Router()
 
 router.post('/register', validateBody(registerSchema), register)
-router.post('/login',    validateBody(loginSchema),    login)
-router.get('/me',        authenticate, getMe)
+router.post('/login', validateBody(loginSchema), login)
+router.get('/me', authenticate, getMe)
 
 export default router

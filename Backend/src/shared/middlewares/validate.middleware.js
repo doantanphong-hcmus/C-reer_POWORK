@@ -4,7 +4,7 @@
  */
 export const validateBody = (schema) => {
   return (req, res, next) => {
-    req.body = schema.parse(req.body)  // parse() throw ZodError nếu sai
+    req.body = schema.parse(req.body) // parse() throw ZodError nếu sai
     next()
   }
 }

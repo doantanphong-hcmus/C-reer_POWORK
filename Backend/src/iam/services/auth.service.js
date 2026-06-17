@@ -79,7 +79,7 @@ export const login = async ({ email, password }) => {
       companyId: user.company?.id ?? null,
     },
     config.jwt.secret,
-    { expiresIn: config.jwt.expiresIn }
+    { expiresIn: config.jwt.expiresIn },
   )
 
   // 4. Trả về theo đúng format API Contracts

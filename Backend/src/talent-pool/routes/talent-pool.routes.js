@@ -7,6 +7,6 @@ const router = Router()
 // Prefix: /api/v1/talent-pool
 // Chỉ EMPLOYER mới được dùng Talent Pool
 router.post('/', authenticate, authorize('EMPLOYER'), addToTalentPool)
-router.get('/',  authenticate, authorize('EMPLOYER'), getTalentPool)
+router.get('/', authenticate, authorize('EMPLOYER'), getTalentPool)
 
 export default router
