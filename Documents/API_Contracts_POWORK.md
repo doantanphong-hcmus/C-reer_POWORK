@@ -1,22 +1,25 @@
-# TÀI LIỆU QUY CHUẨN API CONTRACTS 
+# TÀI LIỆU QUY CHUẨN API CONTRACTS
 
 ---
 
 ## 1. NGUYÊN TẮC THIẾT KẾ KỸ THUẬT HỆ THỐNG
+
 Tài liệu này quy định chi tiết các API Contracts thuộc phạm vi MVP của dự án POWORK. Toàn bộ đội ngũ kỹ thuật bắt buộc phải tuân thủ:
-* **Định dạng dữ liệu:** Toàn bộ Request/Response Body dùng định dạng JSON chuẩn. Naming convention: `snake_case`.
-* **Kiến trúc định danh:** 100% các trường khóa chính (PK) và khóa ngoại (FK) phải dùng **UUIDv4 (36 ký tự)** để chống lỗ hổng IDOR.
-* **Bảo mật luồng ẩn danh:** Server tuyệt đối không trả về thông tin cá nhân (`user_id`, tên, trường học...) tại các Endpoint duyệt bài. Danh tính ứng viên chỉ được đại diện bằng `hash_id` cho đến khi có lệnh Unlock.
+
+- **Định dạng dữ liệu:** Toàn bộ Request/Response Body dùng định dạng JSON chuẩn. Naming convention: `snake_case`.
+- **Kiến trúc định danh:** 100% các trường khóa chính (PK) và khóa ngoại (FK) phải dùng **UUIDv4 (36 ký tự)** để chống lỗ hổng IDOR.
+- **Bảo mật luồng ẩn danh:** Server tuyệt đối không trả về thông tin cá nhân (`user_id`, tên, trường học...) tại các Endpoint duyệt bài. Danh tính ứng viên chỉ được đại diện bằng `hash_id` cho đến khi có lệnh Unlock.
 
 ---
 
 ## 2. MODULE INTEGRATION & ROUTING TABLE
-| Module Hệ thống | Prefix URL Nghiệp vụ | Trách nhiệm |
-| :--- | :--- | :--- |
-| **1. IAM Module** | `/api/v1/auth` | Backend Core (Quang) |
-| **2. Challenge Module** | `/api/v1/challenges` | Backend Core (Quang) |
+
+| Module Hệ thống          | Prefix URL Nghiệp vụ | Trách nhiệm            |
+| :----------------------- | :------------------- | :--------------------- |
+| **1. IAM Module**        | `/api/v1/auth`       | Backend Core (Quang)   |
+| **2. Challenge Module**  | `/api/v1/challenges` | Backend Core (Quang)   |
 | **3. Assessment Module** | `/api/v1/assessment` | BE & FE (Quang & Khoa) |
-| **4. Profile Module** | `/api/v1/profiles` | Frontend Lead (Nhân) |
+| **4. Profile Module**    | `/api/v1/profiles`   | Frontend Lead (Nhân)   |
 
 ---
 
@@ -25,8 +28,9 @@ Tài liệu này quy định chi tiết các API Contracts thuộc phạm vi MVP
 ### 3.1 IAM Module - Định danh & Xác thực
 
 #### [POST] `/api/v1/auth/register`
-* **Mô tả:** Đăng ký tài khoản mới cho Ứng viên (Candidate) hoặc Doanh nghiệp (Employer).
-* **Request Body:**
+
+- **Mô tả:** Đăng ký tài khoản mới cho Ứng viên (Candidate) hoặc Doanh nghiệp (Employer).
+- **Request Body:**
   ```json
   {
     "email": "string (required)",
@@ -36,7 +40,7 @@ Tài liệu này quy định chi tiết các API Contracts thuộc phạm vi MVP
     "company_name": "string (optional, bắt buộc nếu role là Employer)"
   }
   ```
-* **Response (201 Created):**
+- **Response (201 Created):**
   ```json
   {
     "status": "success",
@@ -56,15 +60,16 @@ Tài liệu này quy định chi tiết các API Contracts thuộc phạm vi MVP
 ---
 
 #### [POST] `/api/v1/auth/login`
-* **Mô tả:** Xác thực tài khoản, trả về JWT Access Token.
-* **Request Body:**
+
+- **Mô tả:** Xác thực tài khoản, trả về JWT Access Token.
+- **Request Body:**
   ```json
   {
     "email": "string (required)",
     "password": "string (required)"
   }
   ```
-* **Response (200 OK):**
+- **Response (200 OK):**
   ```json
   {
     "status": "success",
@@ -85,10 +90,11 @@ Tài liệu này quy định chi tiết các API Contracts thuộc phạm vi MVP
 ### 3.2 Challenge Module - Quản lý thử thách
 
 #### [POST] `/api/v1/challenges`
-* **Mô tả:** Doanh nghiệp tạo bài toán kèm bộ tiêu chí chấm điểm.
-* **Auth:** `Bearer <Employer_Token>`
-* **Rule:** Tổng `weight` của mảng `rubrics` bắt buộc = 100.
-* **Request Body:**
+
+- **Mô tả:** Doanh nghiệp tạo bài toán kèm bộ tiêu chí chấm điểm.
+- **Auth:** `Bearer <Employer_Token>`
+- **Rule:** Tổng `weight` của mảng `rubrics` bắt buộc = 100.
+- **Request Body:**
   ```json
   {
     "title": "Tối ưu Thuật toán Xử lý Bản đồ",
@@ -109,11 +115,12 @@ Tài liệu này quy định chi tiết các API Contracts thuộc phạm vi MVP
     ]
   }
   ```
-* **Response (201 Created):** Trả về object challenge vừa tạo kèm list criteria có `criteria_id` (UUID).
+- **Response (201 Created):** Trả về object challenge vừa tạo kèm list criteria có `criteria_id` (UUID).
 
 #### [GET] `/api/v1/challenges`
-* **Mô tả:** Lấy danh sách thử thách công khai cho ứng viên. Hỗ trợ query params `?industry=...` để lọc theo ngành nghề (IT, Thiết kế, Marketing...).
-* **Response (200 OK):**
+
+- **Mô tả:** Lấy danh sách thử thách công khai cho ứng viên. Hỗ trợ query params `?industry=...` để lọc theo ngành nghề (IT, Thiết kế, Marketing...).
+- **Response (200 OK):**
   ```json
   {
     "status": "success",
@@ -134,16 +141,17 @@ Tài liệu này quy định chi tiết các API Contracts thuộc phạm vi MVP
 ### 3.3 Assessment Module - Lõi Ẩn Danh (KHU VỰC CÁCH LY)
 
 #### [POST] `/api/v1/assessment/submissions`
-* **Mô tả:** Ứng viên nộp bài. Backend tự động bóc `user_id` từ Token, sinh `hash_id` và cất vào bảng kín.
-* **Auth:** `Bearer <Candidate_Token>`
-* **Request Body:**
+
+- **Mô tả:** Ứng viên nộp bài. Backend tự động bóc `user_id` từ Token, sinh `hash_id` và cất vào bảng kín.
+- **Auth:** `Bearer <Candidate_Token>`
+- **Request Body:**
   ```json
   {
     "challenge_id": "403bf47b-231a-4d22-9214-722a4669812a",
     "solution_url": "https://github.com/..."
   }
   ```
-* **Response (201 Created):** > **Lưu ý:** Tuyệt đối không có `user_id`. Chỉ trả về `hash_id`.
+- **Response (201 Created):** > **Lưu ý:** Tuyệt đối không có `user_id`. Chỉ trả về `hash_id`.
   ```json
   {
     "status": "success",
@@ -157,9 +165,10 @@ Tài liệu này quy định chi tiết các API Contracts thuộc phạm vi MVP
   ```
 
 #### [GET] `/api/v1/assessment/challenges/{challenge_id}/submissions`
-* **Mô tả:** Doanh nghiệp lấy danh sách bài nộp để chấm.
-* **Auth:** `Bearer <Employer_Token>`
-* **Response (200 OK):**
+
+- **Mô tả:** Doanh nghiệp lấy danh sách bài nộp để chấm.
+- **Auth:** `Bearer <Employer_Token>`
+- **Response (200 OK):**
   > **NGHIÊM CẤM:** Trả về data dính dáng đến profile ứng viên. Chỉ trả list chứa `hash_id` và link file.
   ```json
   {
@@ -176,9 +185,10 @@ Tài liệu này quy định chi tiết các API Contracts thuộc phạm vi MVP
   ```
 
 #### [POST] `/api/v1/assessment/submissions/{submission_id}/evaluate`
-* **Mô tả:** Gửi kết quả chấm điểm Rubric.
-* **Auth:** `Bearer <Employer_Token>`
-* **Request Body:**
+
+- **Mô tả:** Gửi kết quả chấm điểm Rubric.
+- **Auth:** `Bearer <Employer_Token>`
+- **Request Body:**
   ```json
   {
     "evaluations": [
@@ -193,15 +203,16 @@ Tài liệu này quy định chi tiết các API Contracts thuộc phạm vi MVP
   ```
 
 #### [POST] `/api/v1/assessment/submissions/{submission_id}/unlock`
-* **Mô tả:** Duyệt bài và Mở khóa danh tính (Bắn Event chứa `user_id`, `challenge_id` sang Profile Module xử lý).
-* **Auth:** `Bearer <Employer_Token>`
-* **Request Body:**
+
+- **Mô tả:** Duyệt bài và Mở khóa danh tính (Bắn Event chứa `user_id`, `challenge_id` sang Profile Module xử lý).
+- **Auth:** `Bearer <Employer_Token>`
+- **Request Body:**
   ```json
   {
-    "action": "APPROVE" 
+    "action": "APPROVE"
   }
   ```
-* **Response (200 OK):**
+- **Response (200 OK):**
   > Giai đoạn này mới được phép lột mặt nạ, trả về `unlocked_candidate_profile` thật.
   ```json
   {
@@ -217,11 +228,12 @@ Tài liệu này quy định chi tiết các API Contracts thuộc phạm vi MVP
 
 ---
 
-### 3.4 Profile Module - Hồ sơ năng lực 
+### 3.4 Profile Module - Hồ sơ năng lực
 
 #### [GET] `/api/v1/profiles/{user_id}`
-* **Mô tả:** Lấy thông tin chứng nhận thực chiến của ứng viên (Công khai).
-* **Response (200 OK):**
+
+- **Mô tả:** Lấy thông tin chứng nhận thực chiến của ứng viên (Công khai).
+- **Response (200 OK):**
   ```json
   {
     "status": "success",
@@ -247,15 +259,16 @@ Tài liệu này quy định chi tiết các API Contracts thuộc phạm vi MVP
 ### 3.5 Talent Pool Module - Lưu trữ ứng viên (Dành cho Employer)
 
 #### [POST] `/api/v1/talent-pool`
-* **Mô tả:** Thêm một ứng viên đã được mở khóa (unlock) vào Talent Pool của công ty.
-* **Auth:** `Bearer <Employer_Token>`
-* **Request Body:**
+
+- **Mô tả:** Thêm một ứng viên đã được mở khóa (unlock) vào Talent Pool của công ty.
+- **Auth:** `Bearer <Employer_Token>`
+- **Request Body:**
   ```json
   {
     "user_id": "de305d54-75b4-431b-adb2-eb6b9e546014"
   }
   ```
-* **Response (201 Created):**
+- **Response (201 Created):**
   ```json
   {
     "status": "success",
@@ -264,9 +277,10 @@ Tài liệu này quy định chi tiết các API Contracts thuộc phạm vi MVP
   ```
 
 #### [GET] `/api/v1/talent-pool`
-* **Mô tả:** Lấy danh sách ứng viên trong Talent Pool của công ty hiện tại.
-* **Auth:** `Bearer <Employer_Token>`
-* **Response (200 OK):**
+
+- **Mô tả:** Lấy danh sách ứng viên trong Talent Pool của công ty hiện tại.
+- **Auth:** `Bearer <Employer_Token>`
+- **Response (200 OK):**
   ```json
   {
     "status": "success",
