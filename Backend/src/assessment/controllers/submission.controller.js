@@ -60,7 +60,10 @@ export const evaluateSubmission = async (req, res) => {
 
   // TODO Sprint 1: await SubmissionService.evaluate(submission_id, req.user.userId, { evaluations, general_comment })
   return sendCreated(res, {
-    submission_id, evaluations, general_comment, total_score,
+    submission_id,
+    evaluations,
+    general_comment,
+    total_score,
     evaluated_at: new Date().toISOString(),
   })
 }

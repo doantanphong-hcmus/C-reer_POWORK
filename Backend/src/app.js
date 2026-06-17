@@ -5,10 +5,10 @@ import helmet from 'helmet'
 import morgan from 'morgan'
 
 import { errorHandler, notFoundHandler } from './shared/middlewares/error.middleware.js'
-import authRoutes       from './iam/routes/auth.routes.js'
-import challengeRoutes  from './challenge/routes/challenge.routes.js'
+import authRoutes from './iam/routes/auth.routes.js'
+import challengeRoutes from './challenge/routes/challenge.routes.js'
 import assessmentRoutes from './assessment/routes/submission.routes.js'
-import profileRoutes    from './profile/routes/profile.routes.js'
+import profileRoutes from './profile/routes/profile.routes.js'
 
 const app = express()
 
@@ -25,10 +25,10 @@ app.get('/health', (req, res) => {
 })
 
 // ─── API v1 — Module Routing Table (theo API Contracts) ───────────────────────
-app.use('/api/v1/auth',       authRoutes)
+app.use('/api/v1/auth', authRoutes)
 app.use('/api/v1/challenges', challengeRoutes)
 app.use('/api/v1/assessment', assessmentRoutes)
-app.use('/api/v1/profiles',   profileRoutes)
+app.use('/api/v1/profiles', profileRoutes)
 
 // ─── Error Handling ───────────────────────────────────────────────────────────
 app.use(notFoundHandler)

@@ -90,9 +90,7 @@ export default function RegisterPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-foreground mb-2">
-              Bạn là
-            </label>
+            <label className="block text-sm font-medium text-foreground mb-2">Bạn là</label>
             <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"

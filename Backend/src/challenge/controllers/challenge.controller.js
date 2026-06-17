@@ -9,12 +9,22 @@ const MOCK_CHALLENGE = {
   title: 'Tối ưu Thuật toán Xử lý Bản đồ',
   description: 'Thiết kế và tối ưu thuật toán xử lý bản đồ địa lý...',
   industry: 'Công nghệ thông tin',
-  company_name: 'MTech Solutions',   // Snapshot — không JOIN sang IAM
+  company_name: 'MTech Solutions', // Snapshot — không JOIN sang IAM
   deadline: '2026-06-30T23:59:59Z',
   status: 'Open',
   rubrics: [
-    { criteria_id: 'aa152d43-014b-4892-ba21-cb9e443101d2', criteria_name: 'Kiến trúc mã nguồn', weight: 40, max_score: 10 },
-    { criteria_id: 'bb263e54-125c-5903-cb32-dc0f554212e3', criteria_name: 'Tối ưu bộ nhớ', weight: 60, max_score: 10 },
+    {
+      criteria_id: 'aa152d43-014b-4892-ba21-cb9e443101d2',
+      criteria_name: 'Kiến trúc mã nguồn',
+      weight: 40,
+      max_score: 10,
+    },
+    {
+      criteria_id: 'bb263e54-125c-5903-cb32-dc0f554212e3',
+      criteria_name: 'Tối ưu bộ nhớ',
+      weight: 60,
+      max_score: 10,
+    },
   ],
   created_at: new Date().toISOString(),
 }
@@ -28,7 +38,11 @@ export const getChallenges = async (req, res) => {
     : [MOCK_CHALLENGE]
 
   const summaries = challenges.map(({ challenge_id, title, company_name, industry, deadline }) => ({
-    challenge_id, title, company_name, industry, deadline,
+    challenge_id,
+    title,
+    company_name,
+    industry,
+    deadline,
   }))
   return sendSuccess(res, summaries)
 }
@@ -46,13 +60,17 @@ export const createChallenge = async (req, res) => {
   // company_name lấy từ Employer profile — không để FE tự gửi
   // TODO Sprint 1: const employer = await IAMService.getCompanyByUserId(req.user.userId)
   const rubrics_with_id = rubrics?.map((r, i) => ({
-    criteria_id: `mock-criteria-${Date.now()}-${i}`, ...r,
+    criteria_id: `mock-criteria-${Date.now()}-${i}`,
+    ...r,
   }))
   return sendCreated(res, {
     challenge_id: `mock-${Date.now()}`,
-    title, description, industry,
-    company_name: 'MTech Solutions',  // mock snapshot
-    deadline, status: 'Open',
+    title,
+    description,
+    industry,
+    company_name: 'MTech Solutions', // mock snapshot
+    deadline,
+    status: 'Open',
     rubrics: rubrics_with_id,
     created_at: new Date().toISOString(),
   })

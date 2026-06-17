@@ -20,9 +20,9 @@ export const getProfile = async (req, res) => {
     verified_evidences: [
       {
         evidence_id: '7712aaeb-3a1c-4e8d-9f2b-123456789abc',
-        challenge_name: 'Tối ưu Thuật toán Xử lý Bản đồ',  // Snapshot
-        company_name: 'MTech Solutions',                      // Snapshot
-        industry: 'Công nghệ thông tin',                      // Snapshot
+        challenge_name: 'Tối ưu Thuật toán Xử lý Bản đồ', // Snapshot
+        company_name: 'MTech Solutions', // Snapshot
+        industry: 'Công nghệ thông tin', // Snapshot
         total_score: 8.6,
         unlocked_at: '2026-06-10T02:16:45Z',
       },
