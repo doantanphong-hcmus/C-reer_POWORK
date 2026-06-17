@@ -4,7 +4,7 @@ import { authAPI } from '@/lib/api/endpoints';
 import type { LoginRequest, RegisterRequest } from '@/lib/types';
 
 export function useAuth() {
-  const { user, accessToken, isAuthenticated, setUser, setAccessToken} = useAuthStore();
+  const { user, accessToken, isAuthenticated, setUser, setAccessToken } = useAuthStore();
 
   const login = useCallback(
     async (payload: LoginRequest) => {
@@ -30,11 +30,11 @@ export function useAuth() {
 
   const logout = useCallback(async () => {
     try {
-      await authAPI.logout();      // báo BE (best-effort)
+      await authAPI.logout(); // báo BE (best-effort)
     } catch {
       // kệ luôn
     } finally {
-      logoutStore();               // clear token + user + state
+      logoutStore(); // clear token + user + state
     }
   }, [logoutStore]);
   return {
