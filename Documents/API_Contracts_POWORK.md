@@ -24,6 +24,37 @@ Tài liệu này quy định chi tiết các API Contracts thuộc phạm vi MVP
 
 ### 3.1 IAM Module - Định danh & Xác thực
 
+#### [POST] `/api/v1/auth/register`
+* **Mô tả:** Đăng ký tài khoản mới cho Ứng viên (Candidate) hoặc Doanh nghiệp (Employer).
+* **Request Body:**
+  ```json
+  {
+    "email": "string (required)",
+    "password": "string (required, min 8 chars)",
+    "full_name": "string (required)",
+    "role": "string (Enum: Candidate, Employer) (required)",
+    "company_name": "string (optional, bắt buộc nếu role là Employer)"
+  }
+  ```
+* **Response (201 Created):**
+  ```json
+  {
+    "status": "success",
+    "message": "User registered successfully",
+    "data": {
+      "user": {
+        "user_id": "de305d54-75b4-431b-adb2-eb6b9e546014",
+        "email": "phong.dt@gmail.com",
+        "full_name": "Đoàn Tấn Phong",
+        "role": "Candidate",
+        "company_id": "null hoặc UUID nếu là Employer"
+      }
+    }
+  }
+  ```
+
+---
+
 #### [POST] `/api/v1/auth/login`
 * **Mô tả:** Xác thực tài khoản, trả về JWT Access Token.
 * **Request Body:**
