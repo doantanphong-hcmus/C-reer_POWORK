@@ -6,3 +6,4 @@ build
 *.lock
 pnpm-lock.yaml
 yarn.lock
+public/mockServiceWorker.js
