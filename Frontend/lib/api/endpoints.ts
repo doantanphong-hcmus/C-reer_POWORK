@@ -1,6 +1,6 @@
-import { apiClient, unwrap } from './client';
+import { apiClient, authClient, unwrap } from './client';
 import type {
-  AuthSession,
+  AuthResponse,
   User,
   LoginRequest,
   RegisterRequest,
@@ -19,13 +19,13 @@ import type {
   AddToTalentPoolRequest,
 } from '@/lib/types';
 
-// IAM Module — /api/v1/auth
+// IAM Module — BFF same-origin /api/auth (set/clear cookie httpOnly)
 export const authAPI = {
-  login: (payload: LoginRequest) => unwrap<AuthSession>(apiClient.post('/auth/login', payload)),
+  login: (payload: LoginRequest) => unwrap<AuthResponse>(authClient.post('/login', payload)),
   register: (payload: RegisterRequest) =>
-    unwrap<AuthSession>(apiClient.post('/auth/register', payload)),
-  logout: () => unwrap<{ message: string }>(apiClient.post('/auth/logout')),
-  getMe: () => unwrap<User>(apiClient.get('/auth/me')),
+    unwrap<AuthResponse>(authClient.post('/register', payload)),
+  logout: () => unwrap<{ message: string }>(authClient.post('/logout')),
+  getMe: () => unwrap<User>(authClient.get('/me')),
 };
 
 // Challenge Module — /api/v1/challenges

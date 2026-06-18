@@ -1,48 +1,40 @@
 import { create } from 'zustand';
 import type { User } from '@/lib/types';
-import { TOKEN_STORAGE_KEY } from '@/lib/api/client';
+
+/**
+ * Trạng thái auth phía client. LƯU Ý: access token KHÔNG nằm ở đây — nó được
+ * giữ trong cookie httpOnly (JS không đọc được). Store này chỉ phản chiếu user
+ * hiện tại để render UI; nguồn sự thật về "đã đăng nhập" là cookie + middleware.
+ *
+ * status:
+ *  - 'loading': đang khôi phục phiên (gọi /api/auth/me lúc khởi động)
+ *  - 'authenticated' | 'unauthenticated': đã xác định
+ */
+type AuthStatus = 'loading' | 'authenticated' | 'unauthenticated';
 
 interface AuthStore {
   user: User | null;
-  accessToken: string | null;
+  status: AuthStatus;
   isAuthenticated: boolean;
 
   setUser: (user: User | null) => void;
-  setAccessToken: (accessToken: string | null) => void;
-  logout: () => void;
-  hydrate: () => void;
+  setStatus: (status: AuthStatus) => void;
+  reset: () => void;
 }
 
 export const useAuthStore = create<AuthStore>((set) => ({
   user: null,
-  accessToken: null,
+  status: 'loading',
   isAuthenticated: false,
 
-  setUser: (user) => set({ user, isAuthenticated: user !== null }),
-  setAccessToken: (accessToken) => {
-    if (typeof window !== 'undefined') {
-      if (accessToken) {
-        localStorage.setItem(TOKEN_STORAGE_KEY, accessToken);
-      } else {
-        localStorage.removeItem(TOKEN_STORAGE_KEY);
-      }
-    }
-    set({ accessToken });
-  },
+  setUser: (user) =>
+    set({
+      user,
+      isAuthenticated: user !== null,
+      status: user !== null ? 'authenticated' : 'unauthenticated',
+    }),
 
-  logout: () => {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem(TOKEN_STORAGE_KEY);
-    }
-    set({ user: null, accessToken: null, isAuthenticated: false });
-  },
+  setStatus: (status) => set({ status }),
 
-  hydrate: () => {
-    if (typeof window !== 'undefined') {
-      const accessToken = localStorage.getItem(TOKEN_STORAGE_KEY);
-      if (accessToken) {
-        set({ accessToken, isAuthenticated: true });
-      }
-    }
-  },
+  reset: () => set({ user: null, isAuthenticated: false, status: 'unauthenticated' }),
 }));
