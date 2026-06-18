@@ -14,7 +14,9 @@ COPY . .
 # Vô hiệu hóa tính năng gửi telemetry của Next.js
 ENV NEXT_TELEMETRY_DISABLED=1
 
-RUN npm run build
+# Next 16 dùng Turbopack mặc định cho `next build`, nhưng Turbopack cần native
+# SWC bindings (không có trong image này -> chỉ có WASM). Dùng Webpack để build.
+RUN npx next build --webpack
 
 # Stage 3: Production runner
 FROM base AS runner

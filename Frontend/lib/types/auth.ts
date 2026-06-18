@@ -26,3 +26,11 @@ export interface AuthSession {
   token_type: 'Bearer';
   user: User;
 }
+
+/**
+ * Phản hồi mà BFF (app/api/auth/*) trả về cho client. Access token KHÔNG nằm
+ * trong body — nó được set dưới dạng cookie httpOnly. Client chỉ nhận user.
+ */
+export interface AuthResponse {
+  user: User;
+}

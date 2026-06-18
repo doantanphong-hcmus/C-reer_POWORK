@@ -1,59 +1,66 @@
-
 'use client';
 
-import { useState, useEffect } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/lib/hooks/useAuth';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { loginSchema, type LoginFormValues } from '@/lib/validations/auth';
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
-  const { login } = useAuth();
-
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
   const searchParams = useSearchParams();
-  const role = searchParams.get("role");
+  const { login } = useAuth();
+  const {
+    register: registerField,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginFormValues>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { email: '', password: '' },
+  });
 
+  const [error, setError] = useState('');
+  const role = searchParams.get('role');
+
+  // Vai trò bắt buộc và phải hợp lệ — nếu không, quay lại trang chọn vai trò.
   useEffect(() => {
-    if (role !== "employer" && role !== "candidate") {
-      // Invalid or missing role, redirect to role selection
-      router.push("/?error=invalid_role");
+    if (role !== 'employer' && role !== 'candidate') {
+      router.push('/?error=invalid_role');
     }
   }, [role, router]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (data: LoginFormValues) => {
     setError('');
-    setLoading(true);
-
     if (!role) {
-      setError("Vui lòng chọn một vai trò trước khi đăng nhập.");
-      setLoading(false);
+      setError('Vui lòng chọn một vai trò trước khi đăng nhập.');
       return;
     }
-
     try {
-      await login({ email, password });
-      if (role === "employer") {
-        router.push("/employer/dashboard");
-      } else if (role === "candidate") {
-        // For now, redirect candidates back to home with a message
-        router.push("/?message=candidate_flow_not_implemented");
+      await login(data);
+      // Ưu tiên param ?redirect (do middleware gắn khi chặn route bảo vệ),
+      // sau đó mới điều hướng theo vai trò.
+      const redirect = searchParams.get('redirect');
+      if (redirect && redirect.startsWith('/')) {
+        router.push(redirect);
+      } else if (role === 'employer') {
+        router.push('/employer/dashboard');
+      } else if (role === 'candidate') {
+        // Luồng candidate chưa triển khai — tạm đưa về trang chủ kèm thông báo.
+        router.push('/?message=candidate_flow_not_implemented');
       } else {
-        router.push("/"); // Fallback to home
+        router.push('/dashboard');
       }
     } catch (err: unknown) {
       const axiosErr = err as { response?: { data?: { message?: string } } };
       setError(axiosErr?.response?.data?.message || 'Email hoặc mật khẩu không đúng.');
-    } finally {
-      setLoading(false);
     }
   };
 
-  const loginTitle = role === "employer" ? "Đăng nhập doanh nghiệp" : "Chào mừng trở lại";
-  const loginSubtitle = role === "employer" ? "Quản lý Challenge và tìm kiếm nhân tài" : "Đăng nhập để tiếp tục hành trình của bạn";
+  const loginSubtitle =
+    role === 'employer'
+      ? 'Quản lý Challenge và tìm kiếm nhân tài'
+      : 'Đăng nhập để tiếp tục hành trình của bạn';
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4">
@@ -63,27 +70,26 @@ export default function LoginPage() {
           <p className="text-foreground-secondary text-sm">{loginSubtitle}</p>
         </div>
 
-        {role === "candidate" && (
+        {role === 'candidate' && (
           <div className="bg-amber-500/10 border border-amber-500/30 text-amber-400 text-sm rounded-lg px-4 py-3 mb-4">
             Chức năng Candidate hiện chưa được triển khai. Vui lòng thử lại với vai trò Employer.
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-foreground mb-1">
-              Email {role === "employer" && "doanh nghiệp"}
+              Email {role === 'employer' && 'doanh nghiệp'}
             </label>
             <input
               id="email"
-              type="email"
+              type="text"
               autoComplete="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder={role === "employer" ? "hr@company.com" : "you@example.com"}
+              {...registerField('email')}
+              placeholder={role === 'employer' ? 'hr@company.com' : 'you@example.com'}
               className="input-base"
             />
+            {errors.email && <p className="text-red-400 text-sm mt-1">{errors.email.message}</p>}
           </div>
 
           <div>
@@ -94,12 +100,13 @@ export default function LoginPage() {
               id="password"
               type="password"
               autoComplete="current-password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              {...registerField('password')}
               placeholder="••••••••"
               className="input-base"
             />
+            {errors.password && (
+              <p className="text-red-400 text-sm mt-1">{errors.password.message}</p>
+            )}
           </div>
 
           {error && (
@@ -110,10 +117,10 @@ export default function LoginPage() {
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={isSubmitting}
             className="btn-primary w-full py-3 mt-2 disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
+            {isSubmitting ? 'Đang đăng nhập...' : 'Đăng nhập'}
           </button>
         </form>
 
@@ -125,5 +132,19 @@ export default function LoginPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-background flex items-center justify-center text-foreground-secondary">
+          Đang tải...
+        </div>
+      }
+    >
+      <LoginForm />
+    </Suspense>
   );
 }

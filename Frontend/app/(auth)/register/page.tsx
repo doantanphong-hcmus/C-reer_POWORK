@@ -3,31 +3,36 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/hooks/useAuth';
-import type { UserRole } from '@/lib/types';
+import { useForm, useWatch } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { registerSchema, type RegisterFormValues } from '@/lib/validations/auth';
 
 export default function RegisterPage() {
   const router = useRouter();
   const { register } = useAuth();
+  const {
+    register: registerField,
+    handleSubmit,
+    setValue,
+    control,
+    formState: { errors, isSubmitting },
+  } = useForm<RegisterFormValues>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: { full_name: '', email: '', password: '', role: 'Candidate' },
+  });
 
-  const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [role, setRole] = useState<UserRole>('Candidate');
+  const selectedRole = useWatch({ control, name: 'role' });
+
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (data: RegisterFormValues) => {
     setError('');
-    setLoading(true);
     try {
-      await register({ email, password, full_name: fullName, role });
-      router.push('/');
+      await register(data);
+      router.push('/dashboard');
     } catch (err: unknown) {
       const axiosErr = err as { response?: { data?: { message?: string } } };
       setError(axiosErr?.response?.data?.message || 'Đăng ký thất bại. Vui lòng thử lại.');
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -39,7 +44,7 @@ export default function RegisterPage() {
           <p className="text-foreground-secondary text-sm">Tạo tài khoản mới</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
           <div>
             <label htmlFor="fullName" className="block text-sm font-medium text-foreground mb-1">
               Họ và tên
@@ -48,12 +53,13 @@ export default function RegisterPage() {
               id="fullName"
               type="text"
               autoComplete="name"
-              required
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
+              {...registerField('full_name')}
               placeholder="Nguyễn Văn A"
               className="input-base"
             />
+            {errors.full_name && (
+              <p className="text-red-400 text-sm mt-1">{errors.full_name.message}</p>
+            )}
           </div>
 
           <div>
@@ -62,14 +68,13 @@ export default function RegisterPage() {
             </label>
             <input
               id="email"
-              type="email"
+              type="text"
               autoComplete="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              {...registerField('email')}
               placeholder="you@example.com"
               className="input-base"
             />
+            {errors.email && <p className="text-red-400 text-sm mt-1">{errors.email.message}</p>}
           </div>
 
           <div>
@@ -80,13 +85,13 @@ export default function RegisterPage() {
               id="password"
               type="password"
               autoComplete="new-password"
-              required
-              minLength={6}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              {...registerField('password')}
               placeholder="Tối thiểu 6 ký tự"
               className="input-base"
             />
+            {errors.password && (
+              <p className="text-red-400 text-sm mt-1">{errors.password.message}</p>
+            )}
           </div>
 
           <div>
@@ -94,9 +99,9 @@ export default function RegisterPage() {
             <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
-                onClick={() => setRole('Candidate')}
+                onClick={() => setValue('role', 'Candidate', { shouldValidate: true })}
                 className={`py-3 px-4 rounded-lg border text-sm font-medium transition-colors ${
-                  role === 'Candidate'
+                  selectedRole === 'Candidate'
                     ? 'border-accent bg-accent/10 text-accent'
                     : 'border-border-secondary bg-background-secondary text-foreground-secondary hover:border-accent/50'
                 }`}
@@ -105,9 +110,9 @@ export default function RegisterPage() {
               </button>
               <button
                 type="button"
-                onClick={() => setRole('Employer')}
+                onClick={() => setValue('role', 'Employer', { shouldValidate: true })}
                 className={`py-3 px-4 rounded-lg border text-sm font-medium transition-colors ${
-                  role === 'Employer'
+                  selectedRole === 'Employer'
                     ? 'border-accent bg-accent/10 text-accent'
                     : 'border-border-secondary bg-background-secondary text-foreground-secondary hover:border-accent/50'
                 }`}
@@ -125,10 +130,10 @@ export default function RegisterPage() {
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={isSubmitting}
             className="btn-primary w-full py-3 mt-2 disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            {loading ? 'Đang tạo tài khoản...' : 'Tạo tài khoản'}
+            {isSubmitting ? 'Đang tạo tài khoản...' : 'Tạo tài khoản'}
           </button>
         </form>
 
