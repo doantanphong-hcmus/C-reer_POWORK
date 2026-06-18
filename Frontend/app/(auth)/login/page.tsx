@@ -1,7 +1,8 @@
+
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/lib/hooks/useAuth';
 
 export default function LoginPage() {
@@ -12,14 +13,37 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const searchParams = useSearchParams();
+  const role = searchParams.get("role");
+
+  useEffect(() => {
+    if (role !== "employer" && role !== "candidate") {
+      // Invalid or missing role, redirect to role selection
+      router.push("/?error=invalid_role");
+    }
+  }, [role, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
+
+    if (!role) {
+      setError("Vui lòng chọn một vai trò trước khi đăng nhập.");
+      setLoading(false);
+      return;
+    }
+
     try {
       await login({ email, password });
-      router.push('/');
+      if (role === "employer") {
+        router.push("/employer/dashboard");
+      } else if (role === "candidate") {
+        // For now, redirect candidates back to home with a message
+        router.push("/?message=candidate_flow_not_implemented");
+      } else {
+        router.push("/"); // Fallback to home
+      }
     } catch (err: unknown) {
       const axiosErr = err as { response?: { data?: { message?: string } } };
       setError(axiosErr?.response?.data?.message || 'Email hoặc mật khẩu không đúng.');
@@ -28,18 +52,27 @@ export default function LoginPage() {
     }
   };
 
+  const loginTitle = role === "employer" ? "Đăng nhập doanh nghiệp" : "Chào mừng trở lại";
+  const loginSubtitle = role === "employer" ? "Quản lý Challenge và tìm kiếm nhân tài" : "Đăng nhập để tiếp tục hành trình của bạn";
+
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4">
       <div className="card max-w-md w-full">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-foreground mb-2">🚀 POWORK</h1>
-          <p className="text-foreground-secondary text-sm">Đăng nhập vào tài khoản của bạn</p>
+          <p className="text-foreground-secondary text-sm">{loginSubtitle}</p>
         </div>
+
+        {role === "candidate" && (
+          <div className="bg-amber-500/10 border border-amber-500/30 text-amber-400 text-sm rounded-lg px-4 py-3 mb-4">
+            Chức năng Candidate hiện chưa được triển khai. Vui lòng thử lại với vai trò Employer.
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-foreground mb-1">
-              Email
+              Email {role === "employer" && "doanh nghiệp"}
             </label>
             <input
               id="email"
@@ -48,7 +81,7 @@ export default function LoginPage() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
+              placeholder={role === "employer" ? "hr@company.com" : "you@example.com"}
               className="input-base"
             />
           </div>
