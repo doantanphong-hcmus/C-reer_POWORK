@@ -20,6 +20,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
   }, [status, router]);
 
+  // ── Chưa xác định hoặc chưa đăng nhập → chờ / chuyển hướng ───────
   if (status !== 'authenticated') {
     return (
       <div className="flex h-screen items-center justify-center bg-background text-foreground-secondary">

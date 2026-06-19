@@ -3,7 +3,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactNode, useEffect, useState } from 'react';
 import { useAuthStore } from '@/lib/store/authStore';
-import { authAPI } from '@/lib/api/endpoints';
+import { checkSession } from '@/lib/hooks/useAuth';
 
 export function Providers({ children }: { children: ReactNode }) {
   const [queryClient] = useState(
@@ -20,22 +20,29 @@ export function Providers({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const init = async () => {
+      // ── 1. MSW (chỉ dev) ─────────────────────────────────────────────
+      // Bọc riêng try/catch: nếu MSW fail thì log cảnh báo và VẪN tiếp
+      // tục xuống bước khôi phục phiên — không để MSW kéo chết cả init.
       if (process.env.NODE_ENV === 'development') {
-        const { worker } = await import('@/__mocks__/client');
-        // Bỏ qua /api/auth/* — đó là BFF same-origin, không phải resource cần mock.
-        await worker.start({ onUnhandledRequest: 'bypass' });
+        try {
+          const { worker } = await import('@/__mocks__/client');
+          await worker.start({ onUnhandledRequest: 'bypass' });
+        } catch (err) {
+          console.warn('[MSW] Không khởi động được mock worker, bỏ qua:', err);
+        }
       }
 
-      // Khôi phục phiên: token nằm trong cookie httpOnly (JS không đọc được) nên
-      // hỏi BFF /api/auth/me xem cookie còn hợp lệ không.
-      try {
-        const user = await authAPI.getMe();
-        useAuthStore.getState().setUser(user);
-      } catch {
-        useAuthStore.getState().reset();
-      }
+      // ── 2. Khôi phục phiên ───────────────────────────────────────────
+      // checkSession() đã tự bọc try/catch, luôn kết thúc ở
+      // 'authenticated' hoặc 'unauthenticated', không bao giờ kẹt 'loading'.
+      await checkSession();
     };
-    init();
+
+    // Safety net: dù init() có lỗi bất ngờ nào lọt qua, status vẫn
+    // PHẢI rời khỏi 'loading' để guard không treo "Đang tải..." mãi.
+    init().catch(() => {
+      useAuthStore.getState().reset();
+    });
   }, []);
 
   return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;

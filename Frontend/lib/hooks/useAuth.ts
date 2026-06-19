@@ -48,3 +48,18 @@ export function useAuth() {
     logout,
   };
 }
+
+/**
+ * Khôi phục phiên lúc khởi động app (gọi trong providers.tsx init).
+ * Luôn đảm bảo status rời khỏi 'loading' khi kết thúc:
+ *   - getMe thành công → 'authenticated'
+ *   - getMe thất bại   → 'unauthenticated'
+ */
+export async function checkSession(): Promise<void> {
+  try {
+    const user = await authAPI.getMe();
+    useAuthStore.getState().setUser(user);
+  } catch {
+    useAuthStore.getState().reset();
+  }
+}

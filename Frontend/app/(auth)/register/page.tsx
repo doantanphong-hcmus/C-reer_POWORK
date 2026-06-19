@@ -28,8 +28,13 @@ export default function RegisterPage() {
   const onSubmit = async (data: RegisterFormValues) => {
     setError('');
     try {
-      await register(data);
-      router.push('/dashboard');
+      const user = await register(data);
+      // Redirect theo role, giống logic bên login
+      if (user.role === 'Employer') {
+        router.push('/employer/dashboard');
+      } else {
+        router.push('/dashboard');
+      }
     } catch (err: unknown) {
       const axiosErr = err as { response?: { data?: { message?: string } } };
       setError(axiosErr?.response?.data?.message || 'Đăng ký thất bại. Vui lòng thử lại.');
