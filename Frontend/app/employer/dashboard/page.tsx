@@ -6,7 +6,6 @@ import { useChallenges } from '@/lib/hooks/useChallenges';
 export default function EmployerDashboardPage() {
   const { data: challenges, isLoading, isError, error } = useChallenges();
 
-
   return (
     <div
       style={{
@@ -366,7 +365,11 @@ export default function EmployerDashboardPage() {
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   {isLoading && <p style={{ color: 'var(--text2)' }}>Đang tải thử thách...</p>}
-                  {isError && <p style={{ color: 'var(--red)' }}>{error?.message || 'Không thể tải danh sách thử thách.'}</p>}
+                  {isError && (
+                    <p style={{ color: 'var(--red)' }}>
+                      {error?.message || 'Không thể tải danh sách thử thách.'}
+                    </p>
+                  )}
                   {!isLoading && !isError && challenges?.length === 0 && (
                     <p style={{ color: 'var(--text2)' }}>Chưa có thử thách nào được tạo.</p>
                   )}
