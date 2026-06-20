@@ -253,8 +253,8 @@ export default function HomePage() {
 
         {/* Footer Link */}
         <p style={{ fontSize: '14px', color: 'var(--text3)', marginTop: '40px' }}>
-          Đã có tài khoản?{' '}
-          <Link href="/login" style={{ color: 'var(--accent)', fontWeight: '600' }}>
+          Chưa có tài khoản?{' '}
+          <Link href="/register" style={{ color: 'var(--accent)', fontWeight: '600' }}>
             Đăng ký ngay
           </Link>
         </p>

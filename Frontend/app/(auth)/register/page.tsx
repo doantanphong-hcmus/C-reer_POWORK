@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { useForm, useWatch } from 'react-hook-form';
@@ -45,7 +46,7 @@ export default function RegisterPage() {
     <div className="min-h-screen bg-background flex items-center justify-center px-4">
       <div className="card max-w-md w-full">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">🚀 POWORK</h1>
+          <h1 className="text-3xl font-bold text-foreground mb-2">POWORK</h1>
           <p className="text-foreground-secondary text-sm">Tạo tài khoản mới</p>
         </div>
 
@@ -144,9 +145,9 @@ export default function RegisterPage() {
 
         <p className="text-center text-foreground-secondary text-sm mt-6">
           Đã có tài khoản?{' '}
-          <a href="/login" className="text-accent hover:underline font-medium">
+          <Link href="/" className="text-accent hover:underline font-medium">
             Đăng nhập
-          </a>
+          </Link>
         </p>
       </div>
     </div>

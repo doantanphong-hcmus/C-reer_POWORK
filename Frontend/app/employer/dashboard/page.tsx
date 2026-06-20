@@ -1,30 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { challengeAPI } from '@/lib/api/endpoints';
-import { ChallengeSummary } from '@/lib/types';
+import { useChallenges } from '@/lib/hooks/useChallenges';
 
 export default function EmployerDashboardPage() {
-  const [challenges, setChallenges] = useState<ChallengeSummary[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data: challenges, isLoading, isError, error } = useChallenges();
 
-  useEffect(() => {
-    const fetchChallenges = async () => {
-      try {
-        setLoading(true);
-        const data = await challengeAPI.list();
-        setChallenges(data);
-      } catch (err) {
-        setError('Không thể tải danh sách thử thách.');
-        console.error('Failed to fetch challenges:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchChallenges();
-  }, []);
 
   return (
     <div
@@ -241,7 +222,7 @@ export default function EmployerDashboardPage() {
                     marginBottom: '4px',
                   }}
                 >
-                  {challenges.length}
+                  {challenges?.length || 0}
                 </p>
                 <p style={{ fontSize: '11px', color: 'var(--text3)' }}></p>
               </div>
@@ -384,12 +365,12 @@ export default function EmployerDashboardPage() {
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  {loading && <p style={{ color: 'var(--text2)' }}>Đang tải thử thách...</p>}
-                  {error && <p style={{ color: 'var(--red)' }}>{error}</p>}
-                  {!loading && !error && challenges.length === 0 && (
+                  {isLoading && <p style={{ color: 'var(--text2)' }}>Đang tải thử thách...</p>}
+                  {isError && <p style={{ color: 'var(--red)' }}>{error?.message || 'Không thể tải danh sách thử thách.'}</p>}
+                  {!isLoading && !isError && challenges?.length === 0 && (
                     <p style={{ color: 'var(--text2)' }}>Chưa có thử thách nào được tạo.</p>
                   )}
-                  {challenges.map((challenge) => (
+                  {challenges?.map((challenge) => (
                     <div
                       key={challenge.challenge_id}
                       style={{
