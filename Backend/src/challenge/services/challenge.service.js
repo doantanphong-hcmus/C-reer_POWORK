@@ -23,11 +23,7 @@ import * as challengeRepository from '../repositories/challenge.repository.js'
 const validateRubricWeight = (rubrics) => {
   const totalWeight = rubrics.reduce((sum, r) => sum + r.weight, 0)
   if (totalWeight !== 100) {
-    throw new AppError(
-      'Tổng trọng số (weight) của bộ tiêu chí phải bằng 100.',
-      400,
-      'CHAL_001'
-    )
+    throw new AppError('Tổng trọng số (weight) của bộ tiêu chí phải bằng 100.', 400, 'CHAL_001')
   }
 }
 
@@ -35,11 +31,7 @@ const validateRubricWeight = (rubrics) => {
 const validateDeadline = (deadline) => {
   const deadlineDate = new Date(deadline)
   if (deadlineDate.getTime() <= Date.now()) {
-    throw new AppError(
-      'Hạn chót không hợp lệ hoặc đã qua thời hạn.',
-      400,
-      'CHAL_002'
-    )
+    throw new AppError('Hạn chót không hợp lệ hoặc đã qua thời hạn.', 400, 'CHAL_002')
   }
 }
 
@@ -48,11 +40,7 @@ const validateNoDuplicateCriteria = (rubrics) => {
   const names = rubrics.map((r) => r.criteria_name.trim().toLowerCase())
   const uniqueNames = new Set(names)
   if (uniqueNames.size !== names.length) {
-    throw new AppError(
-      'Tên tiêu chí không được phép trùng lặp.',
-      400,
-      'CHAL_003'
-    )
+    throw new AppError('Tên tiêu chí không được phép trùng lặp.', 400, 'CHAL_003')
   }
 }
 
@@ -61,9 +49,9 @@ export const createChallenge = async ({ employerUserId, companyId, companyName, 
   const { title, description, industry, deadline, rubrics } = payload
 
   // Validate nghiệp vụ — chạy theo đúng thứ tự test case của TL
-  validateDeadline(deadline)            // TC_008
-  validateNoDuplicateCriteria(rubrics)  // TC_009
-  validateRubricWeight(rubrics)         // TC_004 / TC_005
+  validateDeadline(deadline) // TC_008
+  validateNoDuplicateCriteria(rubrics) // TC_009
+  validateRubricWeight(rubrics) // TC_004 / TC_005
 
   // Nested Write — Challenge + RubricCriteria trong 1 transaction
   const challenge = await challengeRepository.createChallengeWithRubrics({
@@ -131,7 +119,11 @@ export const getChallengeById = async (challengeId) => {
 
 // ─── PATCH /api/v1/challenges/:challenge_id/status ────────────────────────────
 export const updateChallengeStatus = async (challengeId, companyId, status) => {
-  const challenge = await challengeRepository.updateChallengeStatusById(challengeId, companyId, status)
+  const challenge = await challengeRepository.updateChallengeStatusById(
+    challengeId,
+    companyId,
+    status,
+  )
   return {
     challenge_id: challenge.id,
     status: challenge.status,

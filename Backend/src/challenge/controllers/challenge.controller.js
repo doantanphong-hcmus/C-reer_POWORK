@@ -8,7 +8,7 @@
  */
 import { sendSuccess, sendCreated } from '../../shared/utils/response.js'
 import * as challengeService from '../services/challenge.service.js'
-import * as companyService from '../../iam/services/company.service.js'  // Internal Service Interface
+import * as companyService from '../../iam/services/company.service.js' // Internal Service Interface
 
 // GET /api/v1/challenges?industry=...
 export const getChallenges = async (req, res) => {

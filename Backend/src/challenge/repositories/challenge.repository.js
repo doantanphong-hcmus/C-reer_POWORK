@@ -24,7 +24,7 @@ export const createChallengeWithRubrics = ({
   return prisma.challenge.create({
     data: {
       companyId,
-      companyName,   // Snapshot — theo ERD, không JOIN sang IAM
+      companyName, // Snapshot — theo ERD, không JOIN sang IAM
       title,
       description,
       industry,
@@ -38,7 +38,7 @@ export const createChallengeWithRubrics = ({
         })),
       },
     },
-    include: { rubricCriteria: true },   // Trả luôn rubrics kèm criteria_id mới tạo
+    include: { rubricCriteria: true }, // Trả luôn rubrics kèm criteria_id mới tạo
   })
 }
 
@@ -58,7 +58,7 @@ export const findChallengeById = (challengeId) => {
 
 export const updateChallengeStatusById = (challengeId, companyId, status) => {
   return prisma.challenge.update({
-    where: { id: challengeId, companyId },  // chỉ owner mới update được
+    where: { id: challengeId, companyId }, // chỉ owner mới update được
     data: { status },
   })
 }

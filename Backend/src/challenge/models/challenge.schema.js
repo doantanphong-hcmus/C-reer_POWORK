@@ -14,12 +14,12 @@ import { z } from 'zod'
 
 const rubricItemSchema = z.object({
   criteria_name: z.string().min(1, 'criteria_name là bắt buộc'),
-  weight: z.number().positive('Trọng số phải lớn hơn 0'),       // TC_010
+  weight: z.number().positive('Trọng số phải lớn hơn 0'), // TC_010
   max_score: z.number().positive('Điểm tối đa phải lớn hơn 0'), // TC_010
 })
 
 export const createChallengeSchema = z.object({
-  title: z.string().min(1, 'Tên thử thách và Hạn nộp bài là bắt buộc'),       // TC_007
+  title: z.string().min(1, 'Tên thử thách và Hạn nộp bài là bắt buộc'), // TC_007
   description: z.string().optional(),
   industry: z.string().min(1, 'industry là bắt buộc'),
   deadline: z.string().datetime({ message: 'Hạn chót không hợp lệ hoặc đã qua thời hạn' }), // TC_008 (format)
