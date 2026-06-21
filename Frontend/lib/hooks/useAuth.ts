@@ -4,45 +4,62 @@ import { authAPI } from '@/lib/api/endpoints';
 import type { LoginRequest, RegisterRequest } from '@/lib/types';
 
 export function useAuth() {
-  const { user, accessToken, isAuthenticated, setUser, setAccessToken } = useAuthStore();
+  const user = useAuthStore((s) => s.user);
+  const status = useAuthStore((s) => s.status);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const setUser = useAuthStore((s) => s.setUser);
+  const reset = useAuthStore((s) => s.reset);
 
   const login = useCallback(
     async (payload: LoginRequest) => {
-      const session = await authAPI.login(payload);
-      setAccessToken(session.access_token);
-      setUser(session.user);
-      return session;
+      // BFF set cookie httpOnly và trả về user (không có token trong body).
+      const { user } = await authAPI.login(payload);
+      setUser(user);
+      return user;
     },
-    [setAccessToken, setUser]
+    [setUser]
   );
 
   const register = useCallback(
     async (payload: RegisterRequest) => {
-      const session = await authAPI.register(payload);
-      setAccessToken(session.access_token);
-      setUser(session.user);
-      return session;
+      const { user } = await authAPI.register(payload);
+      setUser(user);
+      return user;
     },
-    [setAccessToken, setUser]
+    [setUser]
   );
-
-  const logoutStore = useAuthStore((s) => s.logout);
 
   const logout = useCallback(async () => {
     try {
-      await authAPI.logout(); // báo BE (best-effort)
+      await authAPI.logout(); // báo BFF clear cookie (best-effort)
     } catch {
-      // kệ luôn
+      // kệ luôn — vẫn clear state phía client
     } finally {
-      logoutStore(); // clear token + user + state
+      reset();
     }
-  }, [logoutStore]);
+  }, [reset]);
+
   return {
     user,
-    accessToken,
+    status,
     isAuthenticated,
     login,
     register,
     logout,
   };
+}
+
+/**
+ * Khôi phục phiên lúc khởi động app (gọi trong providers.tsx init).
+ * Luôn đảm bảo status rời khỏi 'loading' khi kết thúc:
+ *   - getMe thành công → 'authenticated'
+ *   - getMe thất bại   → 'unauthenticated'
+ */
+export async function checkSession(): Promise<void> {
+  try {
+    const user = await authAPI.getMe();
+    useAuthStore.getState().setUser(user);
+  } catch {
+    useAuthStore.getState().reset();
+  }
 }
