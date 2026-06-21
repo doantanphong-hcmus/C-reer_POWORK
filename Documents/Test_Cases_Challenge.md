@@ -5,17 +5,17 @@ Tài liệu này định nghĩa các kịch bản bắt buộc phải vượt qu
 ## Endpoint Cần Test
 `[POST] /api/v1/challenges`
 
-## 1. Các Test Case Hợp Lệ (Happy Path)
+## 1. Các Test Case Hợp Lệ 
 
-| Mã TC | Kịch bản (Scenario) | Dữ liệu đầu vào (Input) | Kết quả mong đợi (Expected Output) |
+| Mã TC | Kịch bản | Dữ liệu đầu vào | Kết quả mong đợi |
 | :--- | :--- | :--- | :--- |
 | **TC_CHAL_001** | Tạo Challenge thành công với đầy đủ dữ liệu hợp lệ | - Token Employer hợp lệ.<br>- `title`, `description`, `industry`, `deadline` đầy đủ.<br>- `rubrics` có 3 tiêu chí, tổng `weight` = 40 + 30 + 30 = 100. | - HTTP Status: `201 Created`<br>- Response trả về `status: "success"` và kèm `challenge_id`, `criteria_id` mới tạo. |
 
 ---
 
-## 2. Các Test Case Bắt Lỗi (Negative Path)
+## 2. Các Test Case Bắt Lỗi 
 
-| Mã TC | Kịch bản (Scenario) | Lỗi cần bắt | Kết quả mong đợi (Expected Output) |
+| Mã TC | Kịch bản | Lỗi cần bắt | Kết quả mong đợi  |
 | :--- | :--- | :--- | :--- |
 | **TC_CHAL_002** | Lỗi phân quyền: Candidate cố tình tạo Challenge | Header `Authorization` chứa Token của user có role là `Candidate`. | - HTTP Status: `403 Forbidden`<br>- Message: "Bạn không có quyền thực hiện chức năng này." |
 | **TC_CHAL_003** | Thiếu Token hoặc Token hết hạn | Không truyền Header `Authorization` hoặc truyền Token hỏng. | - HTTP Status: `401 Unauthorized`<br>- Message: "Vui lòng đăng nhập." |
