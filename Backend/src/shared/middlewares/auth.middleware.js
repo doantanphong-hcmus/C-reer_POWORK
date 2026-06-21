@@ -6,11 +6,12 @@ import jwt from 'jsonwebtoken'
 import { config } from '../config/index.js'
 import { AppError } from '../utils/AppError.js'
 
-// Xác thực JWT — gắn req.user = { userId, role }
+// Xác thực JWT — gắn req.user = { userId, role, companyId }
+// Message khớp Test_Cases_Challenge.md — TC_CHAL_003
 export const authenticate = (req, res, next) => {
   const authHeader = req.headers.authorization
   if (!authHeader?.startsWith('Bearer ')) {
-    throw new AppError('Chưa đăng nhập hoặc token bị thiếu', 401, 'AUTH_001')
+    throw new AppError('Vui lòng đăng nhập.', 401, 'AUTH_001')
   }
   const token = authHeader.split(' ')[1]
   try {
@@ -18,15 +19,16 @@ export const authenticate = (req, res, next) => {
     req.user = decoded
     next()
   } catch {
-    throw new AppError('Token không hợp lệ hoặc đã hết hạn', 401, 'AUTH_002')
+    throw new AppError('Vui lòng đăng nhập.', 401, 'AUTH_002')
   }
 }
 
 // Kiểm tra role — dùng sau authenticate
+// Message khớp Test_Cases_Challenge.md — TC_CHAL_002
 export const authorize = (...roles) => {
   return (req, res, next) => {
     if (!roles.includes(req.user?.role)) {
-      throw new AppError('Không đủ quyền thực hiện hành động này', 403, 'AUTH_003')
+      throw new AppError('Bạn không có quyền thực hiện chức năng này.', 403, 'AUTH_003')
     }
     next()
   }
