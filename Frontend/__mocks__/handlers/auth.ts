@@ -15,7 +15,7 @@ const MOCK_USER: User = {
   user_id: 'de305d54-75b4-431b-adb2-eb6b9e546014',
   email: 'test@example.com',
   full_name: 'Trương Minh Quang',
-  role: 'Candidate',
+  role: 'Employer',
 };
 
 const success = <T>(data: T, message?: string): ApiSuccess<T> => ({

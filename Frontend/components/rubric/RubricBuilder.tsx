@@ -31,16 +31,15 @@ export function RubricBuilder({ value, onChange }: RubricBuilderProps) {
 
   return (
     <div className="flex flex-col gap-3">
-      {/* Header cột */}
-      <div className="hidden grid-cols-[1fr_96px_96px_40px] gap-2 px-1 text-2xs font-medium uppercase tracking-wide text-foreground-tertiary sm:grid">
+      <div className="hidden grid-cols-[1fr_80px_80px_36px] gap-2.5 px-1.5 text-xs font-semibold uppercase tracking-wide text-foreground-tertiary sm:grid">
         <span>Tiêu chí</span>
-        <span>Trọng số (%)</span>
-        <span>Điểm tối đa</span>
+        <span className="text-center">Tỷ lệ (%)</span> {/* Đổi chữ ngắn lại thành "Tỷ lệ (%)" để vừa khít box 80px */}
+        <span className="text-center">Điểm max</span> {/* Đổi chữ ngắn lại thành "Điểm max" để vừa khít box 80px */}
         <span />
       </div>
 
       {value.length === 0 && (
-        <p className="rounded-md border-hairline border-border-secondary bg-background-tertiary px-3 py-4 text-center text-sm text-foreground-secondary">
+        <p className="rounded-md border-hairline border-border-secondary bg-background-tertiary px-3 py-5 text-center text-sm text-foreground-secondary">
           Chưa có tiêu chí nào. Nhấn “Thêm tiêu chí” để bắt đầu.
         </p>
       )}
@@ -48,51 +47,64 @@ export function RubricBuilder({ value, onChange }: RubricBuilderProps) {
       {value.map((row, index) => (
         <div
           key={index}
-          className="grid grid-cols-1 gap-2 sm:grid-cols-[1fr_96px_96px_40px] sm:items-center"
+          className="grid grid-cols-1 gap-2.5 sm:grid-cols-[1fr_80px_80px_36px] sm:items-center"
         >
-          <Input
-            placeholder="VD: Chất lượng code"
-            value={row.criteria_name}
-            onChange={(e) => updateRow(index, { criteria_name: e.target.value })}
-          />
-          <Input
-            type="number"
-            min={0}
-            max={100}
-            placeholder="%"
-            value={row.weight}
-            onChange={(e) => updateRow(index, { weight: Number(e.target.value) })}
-          />
-          <Input
-            type="number"
-            min={1}
-            placeholder="điểm"
-            value={row.max_score}
-            onChange={(e) => updateRow(index, { max_score: Number(e.target.value) })}
-          />
+          <div className="text-sm [&_input]:h-10 [&_input]:text-sm">
+            <Input
+              placeholder="VD: Chất lượng code và tối ưu thuật toán..."
+              value={row.criteria_name}
+              onChange={(e) => updateRow(index, { criteria_name: e.target.value })}
+            />
+          </div>
+          
+          <div className="text-sm [&_input]:h-10 [&_input]:text-sm [&_input]:text-center">
+            <Input
+              type="number"
+              min={0}
+              max={100}
+              placeholder="%"
+              value={row.weight}
+              onChange={(e) => updateRow(index, { weight: Number(e.target.value) })}
+            />
+          </div>
+
+          <div className="text-sm [&_input]:h-10 [&_input]:text-sm [&_input]:text-center">
+            <Input
+              type="number"
+              min={1}
+              placeholder="điểm"
+              value={row.max_score}
+              onChange={(e) => updateRow(index, { max_score: Number(e.target.value) })}
+            />
+          </div>
+
           <Button
             type="button"
             variant="danger"
-            size="sm"
+            className="h-10 w-9 text-xs justify-self-start sm:justify-self-center p-0 flex items-center justify-center"
             onClick={() => removeRow(index)}
             aria-label="Xoá tiêu chí"
-            className="justify-self-start sm:justify-self-center"
           >
             ✕
           </Button>
         </div>
       ))}
 
-      <div className="flex items-center justify-between">
-        <Button type="button" variant="default" size="sm" onClick={addRow}>
+      {/* Footer */}
+      <div className="flex items-center justify-between mt-1">
+        <Button 
+          type="button" 
+          variant="default" 
+          className="h-10 px-4 text-sm font-medium"
+          onClick={addRow}
+        >
           + Thêm tiêu chí
         </Button>
 
-        {/* Tổng trọng số real-time */}
-        <div className={cn('text-sm font-medium', isComplete ? 'text-success' : 'text-warning')}>
+        <div className={cn('text-sm font-semibold', isComplete ? 'text-success' : 'text-warning')}>
           Tổng trọng số: {total}% / {TOTAL_WEIGHT}%
           {!isComplete && (
-            <span className="ml-1 text-foreground-secondary">
+            <span className="ml-1 text-xs font-normal text-foreground-secondary">
               (
               {total < TOTAL_WEIGHT
                 ? `thiếu ${TOTAL_WEIGHT - total}%`
