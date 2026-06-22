@@ -33,8 +33,10 @@ export function RubricBuilder({ value, onChange }: RubricBuilderProps) {
     <div className="flex flex-col gap-3">
       <div className="hidden grid-cols-[1fr_80px_80px_36px] gap-2.5 px-1.5 text-xs font-semibold uppercase tracking-wide text-foreground-tertiary sm:grid">
         <span>Tiêu chí</span>
-        <span className="text-center">Tỷ lệ (%)</span> {/* Đổi chữ ngắn lại thành "Tỷ lệ (%)" để vừa khít box 80px */}
-        <span className="text-center">Điểm max</span> {/* Đổi chữ ngắn lại thành "Điểm max" để vừa khít box 80px */}
+        <span className="text-center">Tỷ lệ (%)</span>{' '}
+        {/* Đổi chữ ngắn lại thành "Tỷ lệ (%)" để vừa khít box 80px */}
+        <span className="text-center">Điểm max</span>{' '}
+        {/* Đổi chữ ngắn lại thành "Điểm max" để vừa khít box 80px */}
         <span />
       </div>
 
@@ -56,7 +58,7 @@ export function RubricBuilder({ value, onChange }: RubricBuilderProps) {
               onChange={(e) => updateRow(index, { criteria_name: e.target.value })}
             />
           </div>
-          
+
           <div className="text-sm [&_input]:h-10 [&_input]:text-sm [&_input]:text-center">
             <Input
               type="number"
@@ -92,9 +94,9 @@ export function RubricBuilder({ value, onChange }: RubricBuilderProps) {
 
       {/* Footer */}
       <div className="flex items-center justify-between mt-1">
-        <Button 
-          type="button" 
-          variant="default" 
+        <Button
+          type="button"
+          variant="default"
           className="h-10 px-4 text-sm font-medium"
           onClick={addRow}
         >

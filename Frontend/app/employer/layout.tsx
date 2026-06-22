@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -106,9 +105,8 @@ export default function EmployerLayout({ children }: { children: React.ReactNode
       whiteSpace: 'nowrap',
       cursor: 'default',
       fontSize: '14px',
-    }
+    },
   } as const;
-
 
   return (
     <div
@@ -179,7 +177,9 @@ export default function EmployerLayout({ children }: { children: React.ReactNode
                 )}
                 style={{
                   ...styles.navLink,
-                  ...(pathname.startsWith('/employer/challenges/create') ? styles.navLinkActive : {}),
+                  ...(pathname.startsWith('/employer/challenges/create')
+                    ? styles.navLinkActive
+                    : {}),
                 }}
               >
                 Challenges
@@ -207,25 +207,15 @@ export default function EmployerLayout({ children }: { children: React.ReactNode
               >
                 + Tạo Challenge
               </Link>
-              
+
               <div style={{ position: 'relative', display: 'inline-flex' }}>
-                <span
-                  className="btn"
-                  style={styles.notificationIcon}
-                >
+                <span className="btn" style={styles.notificationIcon}>
                   🔔
                 </span>
-                <span
-                  style={styles.notificationBadge}
-                >
-                  0
-                </span>
+                <span style={styles.notificationBadge}>0</span>
               </div>
-              
-              <span
-                className="btn"
-                style={styles.companyNameBtn}
-              >
+
+              <span className="btn" style={styles.companyNameBtn}>
                 VNG Cloud
               </span>
             </div>

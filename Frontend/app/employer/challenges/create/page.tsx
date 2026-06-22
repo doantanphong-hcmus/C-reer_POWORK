@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState } from 'react';
@@ -83,7 +82,6 @@ export default function CreateChallengePage() {
       cursor: 'pointer',
       textAlign: 'center',
     },
-
   } as const;
 
   const handleSubmit = async () => {
@@ -103,7 +101,8 @@ export default function CreateChallengePage() {
       // Use apiClient.post directly and handle the AxiosResponse
       const response = await api.post('/challenges', challengeData); // Base URL in client.ts is already /api/v1, so just /challenges
 
-      if (response.status === 201 || response.status === 200) { // Assuming 201 for creation, 200 for success
+      if (response.status === 201 || response.status === 200) {
+        // Assuming 201 for creation, 200 for success
         setIsPublished(true);
         console.log('Challenge created successfully:', response.data);
         // Optionally redirect or show a success message
@@ -113,7 +112,8 @@ export default function CreateChallengePage() {
         setError(response.data?.message || 'Failed to create challenge.');
         console.error('Failed to create challenge:', response.data);
       }
-    } catch (err: any) { // Catch AxiosError
+    } catch (err: any) {
+      // Catch AxiosError
       if (err instanceof AxiosError) {
         setError(err.response?.data?.message || 'An error occurred during challenge creation.');
         console.error('Axios error during challenge creation:', err.response?.data);
@@ -128,14 +128,30 @@ export default function CreateChallengePage() {
 
   return (
     <div style={{ padding: '32px 32px 40px', flex: 1, overflowY: 'auto' }}>
-      <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: '32px', maxWidth: '1200px', margin: '0 auto' }}>
-
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '1.4fr 1fr',
+          gap: '32px',
+          maxWidth: '1200px',
+          margin: '0 auto',
+        }}
+      >
         {/* Cột trái: Thông tin biểu mẫu nhập liệu */}
         <div>
           <span style={styles.secLabel}>Thông tin đề bài</span>
 
           <div style={{ marginBottom: '24px' }}>
-            <p style={{ fontSize: '14px', color: 'var(--text2)', marginBottom: '8px', fontWeight: '500' }}>Tiêu đề Challenge <span style={{ color: '#e05c5c' }}>*</span></p>
+            <p
+              style={{
+                fontSize: '14px',
+                color: 'var(--text2)',
+                marginBottom: '8px',
+                fontWeight: '500',
+              }}
+            >
+              Tiêu đề Challenge <span style={{ color: '#e05c5c' }}>*</span>
+            </p>
             <input
               style={styles.input}
               value={title}
@@ -145,7 +161,16 @@ export default function CreateChallengePage() {
           </div>
 
           <div style={{ marginBottom: '24px' }}>
-            <p style={{ fontSize: '14px', color: 'var(--text2)', marginBottom: '8px', fontWeight: '500' }}>Lĩnh vực</p>
+            <p
+              style={{
+                fontSize: '14px',
+                color: 'var(--text2)',
+                marginBottom: '8px',
+                fontWeight: '500',
+              }}
+            >
+              Lĩnh vực
+            </p>
             <input
               style={styles.input}
               value={industry}
@@ -155,7 +180,16 @@ export default function CreateChallengePage() {
           </div>
 
           <div style={{ marginBottom: '24px' }}>
-            <p style={{ fontSize: '14px', color: 'var(--text2)', marginBottom: '8px', fontWeight: '500' }}>Mô tả bài toán <span style={{ color: '#e05c5c' }}>*</span></p>
+            <p
+              style={{
+                fontSize: '14px',
+                color: 'var(--text2)',
+                marginBottom: '8px',
+                fontWeight: '500',
+              }}
+            >
+              Mô tả bài toán <span style={{ color: '#e05c5c' }}>*</span>
+            </p>
             <textarea
               style={{ ...styles.input, height: '160px', resize: 'none', lineHeight: '1.6' }}
               value={description}
@@ -165,7 +199,16 @@ export default function CreateChallengePage() {
           </div>
 
           <div>
-            <p style={{ fontSize: '14px', color: 'var(--text2)', marginBottom: '8px', fontWeight: '500' }}>Deadline <span style={{ color: '#e05c5c' }}>*</span></p>
+            <p
+              style={{
+                fontSize: '14px',
+                color: 'var(--text2)',
+                marginBottom: '8px',
+                fontWeight: '500',
+              }}
+            >
+              Deadline <span style={{ color: '#e05c5c' }}>*</span>
+            </p>
             <input
               style={styles.input}
               value={deadline}
@@ -179,18 +222,40 @@ export default function CreateChallengePage() {
         {/* Cột phải: Rubric chấm điểm & Trạng thái phát hành */}
         <div>
           <p style={styles.secLabel}>
-            Rubric chấm điểm <span style={{ color: 'var(--text3)', fontWeight: '400', textTransform: 'none', letterSpacing: '0' }}>(tổng = 100%)</span>
+            Rubric chấm điểm{' '}
+            <span
+              style={{
+                color: 'var(--text3)',
+                fontWeight: '400',
+                textTransform: 'none',
+                letterSpacing: '0',
+              }}
+            >
+              (tổng = 100%)
+            </span>
           </p>
 
           <div style={{ fontSize: '15px' }}>
             <RubricBuilder value={rubrics} onChange={setRubrics} />
           </div>
 
-          <div style={{ display: 'flex', gap: '14px', paddingTop: '20px', borderTop: '0.5px solid var(--border)' }}>
+          <div
+            style={{
+              display: 'flex',
+              gap: '14px',
+              paddingTop: '20px',
+              borderTop: '0.5px solid var(--border)',
+            }}
+          >
             <span style={{ ...styles.btnSecondary, flex: 1 }}>Lưu nháp</span>
             {/* CHỖ SỬA 2: Thêm onClick kích hoạt show box invite code khi bấm Phát hành */}
             <span
-              style={{ ...styles.btnPrimary, flex: 1, opacity: isLoading ? 0.7 : 1, cursor: isLoading ? 'not-allowed' : 'pointer' }}
+              style={{
+                ...styles.btnPrimary,
+                flex: 1,
+                opacity: isLoading ? 0.7 : 1,
+                cursor: isLoading ? 'not-allowed' : 'pointer',
+              }}
               onClick={isLoading ? undefined : handleSubmit}
             >
               {isLoading ? 'Đang phát hành...' : 'Phát hành →'}
@@ -199,22 +264,76 @@ export default function CreateChallengePage() {
 
           {/* CHỖ SỬA 3: Bọc điều kiện {isPublished && (...)} bên ngoài Box Invite */}
           {isPublished && (
-            <div style={{ marginTop: '24px', padding: '20px', background: 'var(--bg)', border: '0.5px solid rgba(34,197,94,0.35)', borderRadius: '10px' }}>
-              <p style={{ fontSize: '14px', fontWeight: '600', color: 'var(--green)', marginBottom: '12px' }}>✅ Challenge đã phát hành — Mã invite</p>
-              <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '12px' }}>
-                <div style={{ flex: 1, padding: '12px 16px', background: 'var(--bg3)', border: '0.5px solid var(--border2)', borderRadius: '8px', fontFamily: 'monospace', fontSize: '16px', fontWeight: '600', letterSpacing: '2px', color: 'var(--green)' }}>
+            <div
+              style={{
+                marginTop: '24px',
+                padding: '20px',
+                background: 'var(--bg)',
+                border: '0.5px solid rgba(34,197,94,0.35)',
+                borderRadius: '10px',
+              }}
+            >
+              <p
+                style={{
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  color: 'var(--green)',
+                  marginBottom: '12px',
+                }}
+              >
+                ✅ Challenge đã phát hành — Mã invite
+              </p>
+              <div
+                style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '12px' }}
+              >
+                <div
+                  style={{
+                    flex: 1,
+                    padding: '12px 16px',
+                    background: 'var(--bg3)',
+                    border: '0.5px solid var(--border2)',
+                    borderRadius: '8px',
+                    fontFamily: 'monospace',
+                    fontSize: '16px',
+                    fontWeight: '600',
+                    letterSpacing: '2px',
+                    color: 'var(--green)',
+                  }}
+                >
                   VNG-2026-CACHE
                 </div>
-                <span style={{ ...styles.btnSecondary, fontSize: '13px', padding: '11px 14px' }}>📋 Copy</span>
-                <span style={{ ...styles.btnSecondary, fontSize: '13px', padding: '11px 14px' }}>↗ Share</span>
+                <span style={{ ...styles.btnSecondary, fontSize: '13px', padding: '11px 14px' }}>
+                  📋 Copy
+                </span>
+                <span style={{ ...styles.btnSecondary, fontSize: '13px', padding: '11px 14px' }}>
+                  ↗ Share
+                </span>
               </div>
-              <div style={{ display: 'flex', gap: '16px', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span style={{ fontSize: '13px', color: 'var(--text3)' }}>🌐 Challenge công khai — ai cũng có thể tìm thấy</span>
-                <span style={{ fontSize: '13px', color: 'var(--accent)', cursor: 'pointer', whiteSpace: 'nowrap', fontWeight: '500' }}>Đổi thành riêng tư →</span>
+              <div
+                style={{
+                  display: 'flex',
+                  gap: '16px',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                }}
+              >
+                <span style={{ fontSize: '13px', color: 'var(--text3)' }}>
+                  🌐 Challenge công khai — ai cũng có thể tìm thấy
+                </span>
+                <span
+                  style={{
+                    fontSize: '13px',
+                    color: 'var(--accent)',
+                    cursor: 'pointer',
+                    whiteSpace: 'nowrap',
+                    fontWeight: '500',
+                  }}
+                >
+                  Đổi thành riêng tư →
+                </span>
               </div>
             </div>
           )}
-
         </div>
       </div>
     </div>

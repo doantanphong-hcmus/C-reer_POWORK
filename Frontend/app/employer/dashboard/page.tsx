@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -181,8 +180,7 @@ export default function EmployerDashboardPage() {
                 borderRadius: '4px',
                 background: 'var(--bg3)',
                 border: '0.5px solid var(--border2)',
-                }
-              }
+              }}
             >
               + Tạo mới
             </Link>
@@ -278,9 +276,7 @@ export default function EmployerDashboardPage() {
             Hoạt động gần đây
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
-            <p style={{ fontSize: '11px', color: 'var(--text3)' }}>
-              Chưa có hoạt động gần đây.
-            </p>
+            <p style={{ fontSize: '11px', color: 'var(--text3)' }}>Chưa có hoạt động gần đây.</p>
           </div>
         </div>
       </div>
