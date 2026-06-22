@@ -8,7 +8,6 @@ import { cn } from '@/lib/utils/cn'; // Assuming cn is available
 export default function EmployerLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
-
   // Hệ thống style đã scale-up kích thước chữ và padding phù hợp với font nền lớn của Dashboard
   const styles = {
     // ... (Keep the relevant styles for topbar, logo, nav, btnPrimary, btnSecondary, etc.)
