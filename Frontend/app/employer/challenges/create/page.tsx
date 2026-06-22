@@ -112,7 +112,7 @@ export default function CreateChallengePage() {
         setError(response.data?.message || 'Failed to create challenge.');
         console.error('Failed to create challenge:', response.data);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       // Catch AxiosError
       if (err instanceof AxiosError) {
         setError(err.response?.data?.message || 'An error occurred during challenge creation.');

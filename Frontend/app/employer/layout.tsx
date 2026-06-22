@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils/cn'; // Assuming cn is available
 
 export default function EmployerLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const [isPublished, setIsPublished] = useState(false); // This state should likely be moved to page.tsx if it's page-specific
+
 
   // Hệ thống style đã scale-up kích thước chữ và padding phù hợp với font nền lớn của Dashboard
   const styles = {
