@@ -140,24 +140,42 @@ Tài liệu này quy định chi tiết các API Contracts thuộc phạm vi MVP
 
 ### 3.3 Assessment Module - Lõi Ẩn Danh (KHU VỰC CÁCH LY)
 
+#### [GET] `/api/v1/assessment/challenges/{challenge_id}/presigned-url`
+
+- **Mô tả:** Ứng viên xin cấp phép nộp bài. Backend tạo một URL tạm thời (Presigned URL) trỏ thẳng vào MinIO để Frontend tự tải file lên.
+- **Auth:** `Bearer <Candidate_Token>`
+- **Query Params:** `?filename=bai_lam.zip&content_type=application/zip`
+- **Response (200 OK):**
+  ```json
+  {
+    "status": "success",
+    "data": {
+      "upload_url": "http://minio:9000/powork-submissions/...",
+      "object_key": "submissions/challenge_id/user_id/bai_lam.zip",
+      "expires_in": 300
+    }
+  }
+  ```
+
 #### [POST] `/api/v1/assessment/submissions`
 
-- **Mô tả:** Ứng viên nộp bài. Backend tự động bóc `user_id` từ Token, sinh `hash_id` và cất vào bảng kín.
+- **Mô tả:** Ứng viên xác nhận nộp bài (sau khi upload file lên MinIO thành công). Backend tự động bóc `user_id` từ Token, sinh `hash_id` (nếu chưa có) và cất vào bảng kín. Tự động tăng `version` nếu đã từng nộp.
 - **Auth:** `Bearer <Candidate_Token>`
 - **Request Body:**
   ```json
   {
     "challenge_id": "403bf47b-231a-4d22-9214-722a4669812a",
-    "solution_url": "https://github.com/..."
+    "solution_url": "submissions/challenge_id/user_id/bai_lam.zip"
   }
   ```
-- **Response (201 Created):** > **Lưu ý:** Tuyệt đối không có `user_id`. Chỉ trả về `hash_id`.
+- **Response (201 Created):** > **Lưu ý:** Tuyệt đối không có `user_id`. Chỉ trả về `hash_id` và `version`.
   ```json
   {
     "status": "success",
     "data": {
       "submission_id": "f5e921dd-14bb-421c-a32e-11bc9aef4421",
       "hash_id": "Candidate_3941",
+      "version": 2,
       "status": "Pending",
       "submitted_at": "2026-06-10T02:15:00Z"
     }
@@ -166,7 +184,7 @@ Tài liệu này quy định chi tiết các API Contracts thuộc phạm vi MVP
 
 #### [GET] `/api/v1/assessment/challenges/{challenge_id}/submissions`
 
-- **Mô tả:** Doanh nghiệp lấy danh sách bài nộp để chấm.
+- **Mô tả:** Doanh nghiệp lấy danh sách bài nộp để chấm. Trả về danh sách ứng viên, mỗi ứng viên chứa mảng các `versions` bài làm.
 - **Auth:** `Bearer <Employer_Token>`
 - **Response (200 OK):**
   > **NGHIÊM CẤM:** Trả về data dính dáng đến profile ứng viên. Chỉ trả list chứa `hash_id` và link file.
@@ -175,10 +193,24 @@ Tài liệu này quy định chi tiết các API Contracts thuộc phạm vi MVP
     "status": "success",
     "data": [
       {
-        "submission_id": "f5e921dd-14bb-421c-a32e-11bc9aef4421",
         "hash_id": "Candidate_3941",
-        "status": "Pending",
-        "solution_url": "https://powork-storage..."
+        "is_unlocked": false,
+        "submissions": [
+          {
+            "submission_id": "f5e921dd-14bb-421c-a32e-11bc9aef4421",
+            "version": 2,
+            "status": "Pending",
+            "solution_url": "https://powork-storage...",
+            "submitted_at": "2026-06-10T02:15:00Z"
+          },
+          {
+            "submission_id": "old_uuid_here",
+            "version": 1,
+            "status": "Pending",
+            "solution_url": "https://powork-storage...",
+            "submitted_at": "2026-06-09T10:00:00Z"
+          }
+        ]
       }
     ]
   }

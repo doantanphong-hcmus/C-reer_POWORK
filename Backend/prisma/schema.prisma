@@ -92,7 +92,7 @@ model IdentityMapping {
   isUnlocked  Boolean  @default(false) @map("is_unlocked")
   createdAt   DateTime @default(now()) @map("created_at")
 
-  submission Submission?
+  submissions Submission[]
 
   @@map("identity_mappings")
 }
@@ -102,7 +102,8 @@ model IdentityMapping {
 model Submission {
   id             String           @id @default(uuid()) @map("submission_id")
   challengeId    String           @map("challenge_id")  // Lưu như data field
-  hashId         String           @unique @map("hash_id")
+  hashId         String           @map("hash_id")
+  version        Int              @default(1)
   solutionUrl    String           @map("solution_url")
   status         SubmissionStatus @default(PENDING)
   generalComment String?          @map("general_comment")
@@ -112,6 +113,7 @@ model Submission {
   identityMapping IdentityMapping @relation(fields: [hashId], references: [hashId])
   evaluationResults EvaluationResult[]
 
+  @@unique([hashId, version])
   @@map("submissions")
 }
 

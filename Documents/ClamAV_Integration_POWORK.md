@@ -18,11 +18,11 @@ Mọi file `.zip` sau khi nộp lên hệ thống sẽ bị ClamAV check từng 
 
 ## 2. Kiến trúc Luồng hoạt động 
 
-Thay vì tải file xuống máy chủ Backend rồi mới quét (gây tràn ổ cứng), chúng ta sẽ dùng kỹ thuật **Quét luồng (Stream Scanning)**:
+Thay vì tải file xuống máy chủ Backend rồi mới quét (gây tràn ổ cứng), chúng ta sẽ dùng kỹ thuật **Stream Scanning**:
 
 1. **Upload:** Ứng viên tải file trực tiếp lên **MinIO** bằng Presigned URL.
 2. **Kích hoạt:** Sau khi nộp thành công, Backend tạo một Background Job.
-3. **Stream:** Backend mở luồng đọc (Read Stream) từ MinIO và "bơm" trực tiếp luồng dữ liệu đó sang container của ClamAV qua giao thức TCP.
+3. **Stream:** Backend mở luồng đọc từ MinIO và bơm trực tiếp luồng dữ liệu đó sang container của ClamAV qua giao thức TCP.
 4. **Phán quyết:** 
    - `CLEAN` (Sạch): Đánh dấu `is_infected = false`. Giám khảo được phép xem và tải.
    - `INFECTED` (Nhiễm độc): Đánh dấu `is_infected = true`. Khóa quyền tải file, hệ thống tự động gửi Email cảnh báo cho ứng viên.
