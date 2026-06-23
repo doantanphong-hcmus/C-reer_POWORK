@@ -8,7 +8,7 @@ export default function DashboardPage() {
   const { user } = useAuth();
   if (!user) return null;
 
-  const shortcuts = NAV_BY_ROLE[user.role].filter((item) => item.href !== '/dashboard');
+  const shortcuts = NAV_BY_ROLE[user.role].filter((item) => item.href !== '/candidate/dashboard');
 
   return (
     <div className="mx-auto max-w-5xl">

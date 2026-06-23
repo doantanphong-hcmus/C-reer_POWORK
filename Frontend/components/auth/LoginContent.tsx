@@ -1,68 +1,86 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useAuth } from '@/lib/hooks/useAuth';
+import { loginSchema, type LoginFormValues } from '@/lib/validations/auth';
+import type { UserRole } from '@/lib/types';
 
-export default function LoginPage() {
+function getSafeRedirect(value: string | null) {
+  if (!value || !value.startsWith('/') || value.startsWith('//')) {
+    return null;
+  }
+
+  if (value === '/login' || value === '/register') {
+    return null;
+  }
+
+  return value;
+}
+
+function getInitialRole(roleParam: string | null, redirectPath: string | null): UserRole {
+  if (roleParam === 'employer' || redirectPath?.startsWith('/employer')) {
+    return 'Employer';
+  }
+
+  return 'Candidate';
+}
+
+function getDashboardForRole(role: UserRole) {
+  return role === 'Employer' ? '/employer/dashboard' : '/candidate/dashboard';
+}
+
+export default function LoginContent() {
   const router = useRouter();
   const { login } = useAuth();
-
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
   const searchParams = useSearchParams();
-  const role = searchParams.get('role');
+  const redirectPath = getSafeRedirect(searchParams.get('redirect'));
+  const roleParam = searchParams.get('role');
+  const selectedRole = getInitialRole(roleParam, redirectPath);
+  const roleSlug = selectedRole === 'Employer' ? 'employer' : 'candidate';
 
-  useEffect(() => {
-    if (role !== 'employer' && role !== 'candidate') {
-      // Invalid or missing role, redirect to role selection
-      router.push('/?error=invalid_role');
-    }
-  }, [role, router]);
+  const {
+    register: registerField,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginFormValues>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { email: '', password: '' },
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+
+  const selectRole = (role: UserRole) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('role', role === 'Employer' ? 'employer' : 'candidate');
+    router.replace(`/login?${params.toString()}`, { scroll: false });
+  };
+
+  const onSubmit = async (data: LoginFormValues) => {
     setError('');
-    setLoading(true);
-
-    if (!role) {
-      setError('Vui lòng chọn một vai trò trước khi đăng nhập.');
-      setLoading(false);
-      return;
-    }
 
     try {
-      await login({ email, password });
-      if (role === 'employer') {
-        router.push('/employer/dashboard');
-      } else if (role === 'candidate') {
-        // For now, redirect candidates back to home with a message
-        router.push('/?message=candidate_flow_not_implemented');
-      } else {
-        router.push('/'); // Fallback to home
-      }
+      await login({ ...data, role: selectedRole });
+      router.replace(getDashboardForRole(selectedRole));
     } catch (err: unknown) {
       const axiosErr = err as { response?: { data?: { message?: string } } };
       setError(axiosErr?.response?.data?.message || 'Email hoặc mật khẩu không đúng.');
-    } finally {
-      setLoading(false);
     }
   };
 
-  const loginTitle = role === 'employer' ? 'Đăng nhập doanh nghiệp' : 'Chào mừng trở lại';
+  const loginTitle = selectedRole === 'Employer' ? 'Đăng nhập doanh nghiệp' : 'Chào mừng trở lại';
   const loginSubtitle =
-    role === 'employer'
+    selectedRole === 'Employer'
       ? 'Quản lý Challenge và tìm kiếm nhân tài'
       : 'Đăng nhập để tiếp tục hành trình của bạn';
-  const dynamicInputProps = { type: showPassword ? 'text' : 'password' };
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col">
-      <div className="w-full flex-1 flex flex-col">
-        {/* Topbar: Đã đồng bộ hoàn toàn style, padding và kích thước logo giống hệt trang chính */}
+    <div className="flex min-h-screen flex-col bg-background text-foreground">
+      <div className="flex w-full flex-1 flex-col">
         <div
           className="topbar"
           style={{
@@ -76,12 +94,12 @@ export default function LoginPage() {
             flexShrink: 0,
           }}
         >
-          <a
+          <Link
             href="/"
-            className="text-foreground-secondary text-lg no-underline hover:text-foreground transition-colors"
+            className="text-lg text-foreground-secondary no-underline transition-colors hover:text-foreground"
           >
             ← Chọn vai trò
-          </a>
+          </Link>
           <span
             className="logo"
             style={{
@@ -94,204 +112,239 @@ export default function LoginPage() {
             POWORK
           </span>
           <span
-            className={`inline-block text-base font-bold px-4 py-1.5 rounded-pill border hairline ${
-              role === 'candidate'
-                ? 'bg-success-bg text-success border-success/40'
-                : 'bg-warning-bg text-warning border-warning/40'
+            className={`inline-block rounded-pill border px-4 py-1.5 text-base font-bold ${
+              selectedRole === 'Candidate'
+                ? 'border-success/40 bg-success-bg text-success'
+                : 'border-warning/40 bg-warning-bg text-warning'
             }`}
           >
-            {role === 'candidate' ? 'Candidate' : 'Employer'}
+            {selectedRole === 'Candidate' ? 'Candidate' : 'Employer'}
           </span>
         </div>
 
-        {/* Body */}
-        <div className="bg-background-secondary border-b border-border-secondary p-12 md:p-20 flex-1 flex items-center">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-20 gap-y-16 items-start h-full w-full max-w-[1600px] mx-auto">
-            {/* Left Column: Login form */}
+        <div className="flex flex-1 items-center border-b border-border-secondary bg-background-secondary p-12 md:p-20">
+          <div className="mx-auto grid h-full w-full max-w-[1600px] grid-cols-1 items-start gap-x-20 gap-y-16 md:grid-cols-2">
             <div className="space-y-2">
-              <p className="text-4xl font-extrabold tracking-tight mb-2">{loginTitle}</p>
-              <p className="text-base text-foreground-tertiary mb-8">{loginSubtitle}</p>
+              <p className="mb-2 text-4xl font-extrabold tracking-tight">{loginTitle}</p>
+              <p className="mb-8 text-base text-foreground-tertiary">{loginSubtitle}</p>
 
-              <form onSubmit={handleSubmit} className="flex flex-col gap-6 mb-6">
+              <form onSubmit={handleSubmit(onSubmit)} className="mb-6 flex flex-col gap-6">
+                <div>
+                  <label className="mb-3 block text-base font-semibold text-foreground-secondary">
+                    Bạn là
+                  </label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => selectRole('Candidate')}
+                      className={`rounded-lg border px-4 py-3 text-sm font-medium transition-colors ${
+                        selectedRole === 'Candidate'
+                          ? 'border-accent bg-accent/10 text-accent'
+                          : 'border-border-secondary bg-background-secondary text-foreground-secondary hover:border-accent/50'
+                      }`}
+                    >
+                      👨‍💻 Ứng viên
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => selectRole('Employer')}
+                      className={`rounded-lg border px-4 py-3 text-sm font-medium transition-colors ${
+                        selectedRole === 'Employer'
+                          ? 'border-accent bg-accent/10 text-accent'
+                          : 'border-border-secondary bg-background-secondary text-foreground-secondary hover:border-accent/50'
+                      }`}
+                    >
+                      🏢 Nhà tuyển dụng
+                    </button>
+                  </div>
+                </div>
+
                 <div>
                   <label
                     htmlFor="email"
-                    className="block text-base font-semibold text-foreground-secondary mb-3"
+                    className="mb-3 block text-base font-semibold text-foreground-secondary"
                   >
-                    Email {role === 'employer' && 'doanh nghiệp'}
+                    Email {selectedRole === 'Employer' && 'doanh nghiệp'}
                   </label>
                   <input
                     id="email"
                     type="email"
                     autoComplete="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder={role === 'employer' ? 'hr@company.com' : 'you@email.com'}
-                    className="input-base !text-base !py-4.5 !px-5 w-full rounded-xl border-2 font-medium"
+                    {...registerField('email')}
+                    placeholder={selectedRole === 'Employer' ? 'hr@company.com' : 'you@email.com'}
+                    className="input-base w-full rounded-xl border-2 !px-5 !py-4.5 !text-base font-medium"
                   />
+                  {errors.email && (
+                    <p className="mt-2 text-sm text-red-400">{errors.email.message}</p>
+                  )}
                 </div>
 
                 <div>
                   <label
                     htmlFor="password"
-                    className="block text-base font-semibold text-foreground-secondary mb-3"
+                    className="mb-3 block text-base font-semibold text-foreground-secondary"
                   >
                     Mật khẩu
                   </label>
                   <div className="relative">
                     <input
                       id="password"
+                      type={showPassword ? 'text' : 'password'}
                       autoComplete="current-password"
-                      required
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
                       placeholder="••••••••"
-                      className="input-base !text-base !py-4.5 !px-5 pr-14 w-full rounded-xl border-2 font-medium"
-                      {...dynamicInputProps}
+                      {...registerField('password')}
+                      className="input-base w-full rounded-xl border-2 pr-14 !px-5 !py-4.5 !text-base font-medium"
                     />
-                    <span
-                      onClick={() => setShowPassword(!showPassword)}
-                      style={{ userSelect: 'none' }}
-                      className="absolute right-5 top-1/2 -translate-y-1/2 text-xl text-foreground-tertiary cursor-pointer"
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((current) => !current)}
+                      className="absolute right-5 top-1/2 -translate-y-1/2 text-xl text-foreground-tertiary"
+                      aria-label={showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
                     >
                       {showPassword ? '🙈' : '👁'}
-                    </span>
+                    </button>
                   </div>
+                  {errors.password && (
+                    <p className="mt-2 text-sm text-red-400">{errors.password.message}</p>
+                  )}
                 </div>
 
                 {error && (
-                  <div className="bg-error-bg border-2 border-red-500/30 text-red-400 text-base rounded-xl px-5 py-4">
+                  <div className="rounded-xl border-2 border-red-500/30 bg-error-bg px-5 py-4 text-base text-red-400">
                     {error}
                   </div>
                 )}
 
                 <button
                   type="submit"
-                  disabled={loading}
-                  className={`btn-base w-full py-4.5 mt-4 text-center text-base font-bold rounded-xl transition-all ${
-                    role === 'candidate'
-                      ? 'bg-success text-black border-none'
-                      : 'bg-warning text-black border-none'
-                  }
-                      disabled:opacity-60 disabled:cursor-not-allowed`}
+                  disabled={isSubmitting}
+                  className={`btn-base mt-4 w-full rounded-xl py-4.5 text-center text-base font-bold transition-all ${
+                    selectedRole === 'Candidate'
+                      ? 'border-none bg-success text-black'
+                      : 'border-none bg-warning text-black'
+                  } disabled:cursor-not-allowed disabled:opacity-60`}
                 >
-                  {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
+                  {isSubmitting ? 'Đang đăng nhập...' : 'Đăng nhập'}
                 </button>
               </form>
 
-              <div className="flex items-center gap-4 mb-6">
-                <div className="flex-1 h-0.5 bg-border-secondary"></div>
-                <span className="text-base text-foreground-tertiary font-medium">hoặc</span>
-                <div className="flex-1 h-0.5 bg-border-secondary"></div>
+              <div className="mb-6 flex items-center gap-4">
+                <div className="h-0.5 flex-1 bg-border-secondary" />
+                <span className="text-base font-medium text-foreground-tertiary">hoặc</span>
+                <div className="h-0.5 flex-1 bg-border-secondary" />
               </div>
 
-              {role === 'candidate' ? (
-                <button className="btn-secondary w-full py-4 text-center text-base font-semibold mb-6 rounded-xl border-2">
+              {selectedRole === 'Candidate' ? (
+                <button
+                  type="button"
+                  className="btn-secondary mb-6 w-full rounded-xl border-2 py-4 text-center text-base font-semibold"
+                >
                   🔗 Tiếp tục với Google
                 </button>
               ) : (
-                <button className="btn-secondary w-full py-4 text-center text-base font-semibold mb-6 rounded-xl border-2">
+                <button
+                  type="button"
+                  className="btn-secondary mb-6 w-full rounded-xl border-2 py-4 text-center text-base font-semibold"
+                >
                   🏢 Đăng nhập qua SSO
                 </button>
               )}
 
-              <div className="flex justify-between text-base font-medium pt-2">
+              <div className="flex justify-between pt-2 text-base font-medium">
                 <p>
-                  <a href="#" className="text-accent cursor-pointer no-underline hover:underline">
+                  <a href="#" className="cursor-pointer text-accent no-underline hover:underline">
                     Quên mật khẩu?
                   </a>
                 </p>
                 <p className="text-foreground-tertiary">
                   Chưa có tài khoản?{' '}
-                  <a
-                    href="/register"
-                    className="text-accent cursor-pointer no-underline hover:underline font-bold"
+                  <Link
+                    href={`/register?role=${roleSlug}`}
+                    className="cursor-pointer font-bold text-accent no-underline hover:underline"
                   >
                     Đăng ký
-                  </a>
+                  </Link>
                 </p>
               </div>
             </div>
 
-            {/* Right Column: Role-specific content */}
             <div>
-              {role === 'candidate' ? (
-                /* Candidate: Join by invite code */
-                <div className="p-8 bg-background-tertiary border-2 border-success/25 rounded-2xl space-y-6">
+              {selectedRole === 'Candidate' ? (
+                <div className="space-y-6 rounded-2xl border-2 border-success/25 bg-background-tertiary p-8">
                   <div>
-                    <p className="text-xl font-bold text-success mb-2">🔑 Có mã Challenge?</p>
-                    <p className="text-base text-foreground-tertiary leading-relaxed">
-                      Employer có thể gửi mã riêng để mời bạn tham gia Challenge nội bộ của họ
+                    <p className="mb-2 text-xl font-bold text-success">🔑 Có mã Challenge?</p>
+                    <p className="text-base leading-relaxed text-foreground-tertiary">
+                      Employer có thể gửi mã riêng để mời bạn tham gia Challenge nội bộ của họ.
                     </p>
                   </div>
 
                   <div>
-                    <p className="text-base font-semibold text-foreground-secondary mb-3">
+                    <p className="mb-3 text-base font-semibold text-foreground-secondary">
                       Mã Challenge
                     </p>
                     <div className="flex gap-3">
                       <input
-                        className="input-base !text-base !py-4 !px-5 font-mono tracking-wider flex-1 rounded-xl border-2"
+                        className="input-base flex-1 rounded-xl border-2 !px-5 !py-4 !text-base font-mono tracking-wider"
                         placeholder="VD: VNG-2026-CACHE"
                       />
-                      <button className="btn-secondary !text-base px-6 py-4 whitespace-nowrap rounded-xl font-bold border-2">
+                      <button
+                        type="button"
+                        className="btn-secondary whitespace-nowrap rounded-xl border-2 px-6 py-4 !text-base font-bold"
+                      >
                         Tham gia
                       </button>
                     </div>
                   </div>
 
-                  <div className="p-5 bg-background border-2 border-border rounded-xl">
-                    <p className="text-sm text-foreground-tertiary leading-relaxed">
+                  <div className="rounded-xl border-2 border-border bg-background p-5">
+                    <p className="text-sm leading-relaxed text-foreground-tertiary">
                       Mã Challenge có dạng{' '}
-                      <code className="font-mono font-black text-success bg-success/10 px-2 py-0.5 rounded-md">
+                      <code className="rounded-md bg-success/10 px-2 py-0.5 font-mono font-black text-success">
                         ABC-YYYY-XXXX
                       </code>{' '}
-                      — thường được gửi qua email hoặc Slack nội bộ của công ty
+                      thường được gửi qua email hoặc Slack nội bộ của công ty.
                     </p>
                   </div>
                 </div>
               ) : (
-                /* Employer: Company info panel */
-                <div className="p-8 bg-background-tertiary border-2 border-warning/25 rounded-2xl space-y-2">
-                  <p className="text-xl font-bold text-warning mb-6">
+                <div className="space-y-2 rounded-2xl border-2 border-warning/25 bg-background-tertiary p-8">
+                  <p className="mb-6 text-xl font-bold text-warning">
                     🏅 Sau khi đăng nhập, bạn có thể
                   </p>
 
-                  <div className="flex flex-col gap-6 mb-6">
-                    {/* Đã bỏ khung đen quanh icon và xích chữ ra qua gap-6 */}
-                    <div className="flex gap-6 items-start">
-                      <span className="text-2xl flex-shrink-0">📝</span>
+                  <div className="mb-6 flex flex-col gap-6">
+                    <div className="flex items-start gap-6">
+                      <span className="shrink-0 text-2xl">📝</span>
                       <div>
-                        <p className="text-base font-bold mb-1.5">Tạo Challenge + sinh mã invite</p>
-                        <p className="text-sm text-foreground-tertiary leading-relaxed">
-                          Mỗi Challenge có mã riêng để share nội bộ hoặc công khai
+                        <p className="mb-1.5 text-base font-bold">Tạo Challenge + sinh mã invite</p>
+                        <p className="text-sm leading-relaxed text-foreground-tertiary">
+                          Mỗi Challenge có mã riêng để share nội bộ hoặc công khai.
                         </p>
                       </div>
                     </div>
-                    <div className="flex gap-6 items-start">
-                      <span className="text-2xl flex-shrink-0">🎯</span>
+                    <div className="flex items-start gap-6">
+                      <span className="shrink-0 text-2xl">🎯</span>
                       <div>
-                        <p className="text-base font-bold mb-1.5">Chấm điểm Blind Audition</p>
-                        <p className="text-sm text-foreground-tertiary leading-relaxed">
-                          Đánh giá khách quan — không nhìn thấy CV
+                        <p className="mb-1.5 text-base font-bold">Chấm điểm Blind Audition</p>
+                        <p className="text-sm leading-relaxed text-foreground-tertiary">
+                          Đánh giá khách quan, không nhìn thấy CV.
                         </p>
                       </div>
                     </div>
-                    <div className="flex gap-6 items-start">
-                      <span className="text-2xl flex-shrink-0">👥</span>
+                    <div className="flex items-start gap-6">
+                      <span className="shrink-0 text-2xl">👥</span>
                       <div>
-                        <p className="text-base font-bold mb-1.5">Xây dựng Talent Pool</p>
-                        <p className="text-sm text-foreground-tertiary leading-relaxed">
-                          Lưu hồ sơ ứng viên đã xác thực năng lực
+                        <p className="mb-1.5 text-base font-bold">Xây dựng Talent Pool</p>
+                        <p className="text-sm leading-relaxed text-foreground-tertiary">
+                          Lưu hồ sơ ứng viên đã xác thực năng lực.
                         </p>
                       </div>
                     </div>
                   </div>
 
-                  <div className="p-5 bg-background border-2 border-border rounded-xl">
-                    <p className="text-sm text-foreground-tertiary leading-relaxed">
-                      🔒 Dùng email công ty để được xác minh tự động — tăng độ tin cậy với Candidate
+                  <div className="rounded-xl border-2 border-border bg-background p-5">
+                    <p className="text-sm leading-relaxed text-foreground-tertiary">
+                      🔒 Dùng email công ty để được xác minh tự động, tăng độ tin cậy với Candidate.
                     </p>
                   </div>
                 </div>

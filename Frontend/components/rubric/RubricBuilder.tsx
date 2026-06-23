@@ -10,13 +10,6 @@ interface RubricBuilderProps {
   onChange: (criteria: RubricCriteriaInput[]) => void;
 }
 
-/**
- * Component dựng rubric chấm điểm: thêm/xoá tiêu chí và tính tổng trọng số
- * real-time. Là component "controlled" — state thật do component cha giữ qua
- * value/onChange, nên dễ ghép với react-hook-form hoặc state thường.
- *
- * Quy ước: tổng weight (%) của tất cả tiêu chí phải đúng 100% thì rubric mới hợp lệ.
- */
 export function RubricBuilder({ value, onChange }: RubricBuilderProps) {
   const total = getTotalWeight(value);
   const isComplete = total === TOTAL_WEIGHT;
@@ -25,18 +18,32 @@ export function RubricBuilder({ value, onChange }: RubricBuilderProps) {
     onChange(value.map((row, i) => (i === index ? { ...row, ...patch } : row)));
   };
 
-  const addRow = () => onChange([...value, emptyCriteria()]);
+  const parseNumber = (rawValue: string, min: number, max?: number) => {
+    const nextValue = Number(rawValue);
+    if (!Number.isFinite(nextValue)) return min;
+    const lowerBounded = Math.max(min, nextValue);
+    return typeof max === 'number' ? Math.min(max, lowerBounded) : lowerBounded;
+  };
 
-  const removeRow = (index: number) => onChange(value.filter((_, i) => i !== index));
+  const addRow = () => {
+    const remainingWeight = Math.max(TOTAL_WEIGHT - total, 0);
+    onChange([...value, { ...emptyCriteria(), weight: remainingWeight }]);
+  };
+
+  const removeRow = (index: number) => {
+    if (value.length <= 1) {
+      onChange([emptyCriteria()]);
+      return;
+    }
+    onChange(value.filter((_, i) => i !== index));
+  };
 
   return (
     <div className="flex flex-col gap-3">
       <div className="hidden grid-cols-[1fr_80px_80px_36px] gap-2.5 px-1.5 text-xs font-semibold uppercase tracking-wide text-foreground-tertiary sm:grid">
         <span>Tiêu chí</span>
-        <span className="text-center">Tỷ lệ (%)</span>{' '}
-        {/* Đổi chữ ngắn lại thành "Tỷ lệ (%)" để vừa khít box 80px */}
-        <span className="text-center">Điểm max</span>{' '}
-        {/* Đổi chữ ngắn lại thành "Điểm max" để vừa khít box 80px */}
+        <span className="text-center">Tỷ lệ (%)</span>
+        <span className="text-center">Điểm max</span>
         <span />
       </div>
 
@@ -59,41 +66,41 @@ export function RubricBuilder({ value, onChange }: RubricBuilderProps) {
             />
           </div>
 
-          <div className="text-sm [&_input]:h-10 [&_input]:text-sm [&_input]:text-center">
+          <div className="text-sm [&_input]:h-10 [&_input]:text-center [&_input]:text-sm">
             <Input
               type="number"
               min={0}
               max={100}
               placeholder="%"
               value={row.weight}
-              onChange={(e) => updateRow(index, { weight: Number(e.target.value) })}
+              onChange={(e) => updateRow(index, { weight: parseNumber(e.target.value, 0, 100) })}
             />
           </div>
 
-          <div className="text-sm [&_input]:h-10 [&_input]:text-sm [&_input]:text-center">
+          <div className="text-sm [&_input]:h-10 [&_input]:text-center [&_input]:text-sm">
             <Input
               type="number"
               min={1}
               placeholder="điểm"
               value={row.max_score}
-              onChange={(e) => updateRow(index, { max_score: Number(e.target.value) })}
+              onChange={(e) => updateRow(index, { max_score: parseNumber(e.target.value, 1) })}
             />
           </div>
 
           <Button
             type="button"
             variant="danger"
-            className="h-10 w-9 text-xs justify-self-start sm:justify-self-center p-0 flex items-center justify-center"
             onClick={() => removeRow(index)}
-            aria-label="Xoá tiêu chí"
+            aria-label={`Xoá tiêu chí ${index + 1}`}
+            title="Xoá tiêu chí"
+            className="flex h-10 w-9 items-center justify-center justify-self-start p-0 text-xs sm:justify-self-center"
           >
             ✕
           </Button>
         </div>
       ))}
 
-      {/* Footer */}
-      <div className="flex items-center justify-between mt-1">
+      <div className="mt-1 flex items-center justify-between">
         <Button
           type="button"
           variant="default"
@@ -103,7 +110,10 @@ export function RubricBuilder({ value, onChange }: RubricBuilderProps) {
           + Thêm tiêu chí
         </Button>
 
-        <div className={cn('text-sm font-semibold', isComplete ? 'text-success' : 'text-warning')}>
+        <div
+          aria-live="polite"
+          className={cn('text-sm font-semibold', isComplete ? 'text-success' : 'text-warning')}
+        >
           Tổng trọng số: {total}% / {TOTAL_WEIGHT}%
           {!isComplete && (
             <span className="ml-1 text-xs font-normal text-foreground-secondary">
