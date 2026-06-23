@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
-import { meUpstream } from '@/lib/server/auth-upstream';
-import { ACCESS_TOKEN_COOKIE } from '@/lib/server/auth-cookie';
+import { AuthError, meUpstream } from '@/lib/server/auth-upstream';
+import { ACCESS_TOKEN_COOKIE, clearAuthCookie } from '@/lib/server/auth-cookie';
 import { jsonError, jsonSuccess, handleRouteError } from '@/lib/server/api-response';
 import type { User } from '@/lib/types';
 
@@ -14,6 +14,10 @@ export async function GET(req: NextRequest) {
     const user = await meUpstream(token);
     return jsonSuccess<User>(user);
   } catch (err) {
-    return handleRouteError(err);
+    const res = handleRouteError(err);
+    if (err instanceof AuthError && err.status === 401) {
+      clearAuthCookie(res);
+    }
+    return res;
   }
 }

@@ -62,14 +62,15 @@ export async function loginUpstream(payload: LoginRequest): Promise<UpstreamSess
   if (payload.email === 'test@example.com' && payload.password !== 'password') {
     throw new AuthError(401, 'AUTH_001', 'Sai email hoặc mật khẩu');
   }
+  const role = payload.role ?? 'Candidate';
   const user: User =
     payload.email === 'test@example.com'
-      ? MOCK_USER
+      ? { ...MOCK_USER, email: payload.email, role }
       : {
           user_id: `mock-${payload.email}`,
           email: payload.email,
           full_name: payload.email.split('@')[0],
-          role: 'Candidate',
+          role,
         };
   return { token: issueMockToken(user), user };
 }

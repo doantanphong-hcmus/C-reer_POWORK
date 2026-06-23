@@ -30,12 +30,7 @@ export default function RegisterPage() {
     setError('');
     try {
       const user = await register(data);
-      // Redirect theo role, giống logic bên login
-      if (user.role === 'Employer') {
-        router.push('/employer/dashboard');
-      } else {
-        router.push('/dashboard');
-      }
+      router.replace(user.role === 'Employer' ? '/employer/dashboard' : '/candidate/dashboard');
     } catch (err: unknown) {
       const axiosErr = err as { response?: { data?: { message?: string } } };
       setError(axiosErr?.response?.data?.message || 'Đăng ký thất bại. Vui lòng thử lại.');

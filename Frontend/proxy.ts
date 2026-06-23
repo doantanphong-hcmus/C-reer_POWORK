@@ -5,6 +5,8 @@ const ACCESS_TOKEN_COOKIE = 'access_token';
 /** Route cần đăng nhập mới được vào. */
 const PROTECTED_PREFIXES = [
   '/dashboard',
+  '/candidate',
+  '/employer',
   '/challenges',
   '/talent-pool',
   '/profile',

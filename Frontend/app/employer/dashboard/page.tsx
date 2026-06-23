@@ -1,285 +1,169 @@
 'use client';
 
+import { useMemo } from 'react';
 import Link from 'next/link';
+import { useAuth } from '@/lib/hooks/useAuth';
 import { useChallenges } from '@/lib/hooks/useChallenges';
+import { Badge } from '@/components/ui';
+
+function formatDate(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return 'Chưa có hạn';
+  return new Intl.DateTimeFormat('vi-VN', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  }).format(date);
+}
 
 export default function EmployerDashboardPage() {
-  const { data: challenges, isLoading, isError, error } = useChallenges();
+  const { user } = useAuth();
+  const { data: challenges = [], isLoading, isError, error } = useChallenges();
 
-  return (
-    <div className="body" style={{ padding: '24px 24px 32px', flex: 1, overflowY: 'auto' }}>
-      {/* Stat cards row */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(4,1fr)',
-          gap: '14px',
-          marginBottom: '24px',
-        }}
-      >
-        <div
-          style={{
-            padding: '16px',
-            background: 'var(--bg3)',
-            border: '0.5px solid var(--border2)',
-            borderRadius: '10px',
-          }}
-        >
-          <p
-            style={{
-              fontSize: '12px',
-              color: 'var(--text3)',
-              marginBottom: '8px',
-              fontWeight: '500',
-            }}
-          >
-            Challenge đang mở
-          </p>
-          <p
-            style={{
-              fontSize: '28px',
-              fontWeight: '600',
-              color: 'var(--green)',
-              lineHeight: '1',
-              marginBottom: '4px',
-            }}
-          >
-            {challenges?.length || 0}
-          </p>
-          <p style={{ fontSize: '11px', color: 'var(--text3)' }}></p>
-        </div>
+  const nextDeadline = useMemo(() => {
+    if (challenges.length === 0) return 'Chưa có';
+    const sorted = [...challenges].sort(
+      (a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime()
+    );
+    return formatDate(sorted[0].deadline);
+  }, [challenges]);
 
-        <div
-          style={{
-            padding: '16px',
-            background: 'var(--bg3)',
-            border: '0.5px solid var(--border2)',
-            borderRadius: '10px',
-          }}
-        >
-          <p
-            style={{
-              fontSize: '12px',
-              color: 'var(--text3)',
-              marginBottom: '8px',
-              fontWeight: '500',
-            }}
-          >
-            Bài nộp chờ chấm
+  if (user && user.role !== 'Employer') {
+    return (
+      <div className="mx-auto max-w-2xl">
+        <div className="card text-center">
+          <h2 className="text-lg font-semibold text-foreground">Không có quyền truy cập</h2>
+          <p className="mt-2 text-sm text-foreground-secondary">
+            Dashboard tuyển dụng chỉ dành cho tài khoản Nhà tuyển dụng.
           </p>
-          <p
-            style={{
-              fontSize: '28px',
-              fontWeight: '600',
-              color: 'var(--amber)',
-              lineHeight: '1',
-              marginBottom: '4px',
-            }}
+          <Link
+            href="/candidate/dashboard"
+            className="mt-4 inline-flex items-center justify-center rounded-lg border-hairline border-[rgba(124,111,247,0.35)] bg-accent-bg px-[13px] py-1.5 text-xs font-medium text-accent transition-colors hover:opacity-90"
           >
-            0
-          </p>
-          <p style={{ fontSize: '11px', color: 'var(--text3)' }}></p>
-        </div>
-
-        <div
-          style={{
-            padding: '16px',
-            background: 'var(--bg3)',
-            border: '0.5px solid var(--border2)',
-            borderRadius: '10px',
-          }}
-        >
-          <p
-            style={{
-              fontSize: '12px',
-              color: 'var(--text3)',
-              marginBottom: '8px',
-              fontWeight: '500',
-            }}
-          >
-            Hồ sơ đã unlock
-          </p>
-          <p
-            style={{
-              fontSize: '28px',
-              fontWeight: '600',
-              color: 'var(--blue)',
-              lineHeight: '1',
-              marginBottom: '4px',
-            }}
-          >
-            0
-          </p>
-          <p style={{ fontSize: '11px', color: 'var(--text3)' }}></p>
-        </div>
-
-        <div
-          style={{
-            padding: '16px',
-            background: 'var(--bg3)',
-            border: '0.5px solid var(--border2)',
-            borderRadius: '10px',
-          }}
-        >
-          <p
-            style={{
-              fontSize: '12px',
-              color: 'var(--text3)',
-              marginBottom: '8px',
-              fontWeight: '500',
-            }}
-          >
-            Lời mời PV đã gửi
-          </p>
-          <p
-            style={{
-              fontSize: '28px',
-              fontWeight: '600',
-              color: 'var(--accent)',
-              lineHeight: '1',
-              marginBottom: '4px',
-            }}
-          >
-            0
-          </p>
-          <p style={{ fontSize: '11px', color: 'var(--text3)' }}></p>
+            Về dashboard của tôi
+          </Link>
         </div>
       </div>
+    );
+  }
 
-      {/* Main content: 2 columns */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: '20px' }}>
-        {/* Left: Active challenges */}
+  const stats = [
+    { label: 'Challenge đang mở', value: challenges.length, tone: 'text-success' },
+    { label: 'Bài nộp chờ chấm', value: 0, tone: 'text-warning' },
+    { label: 'Hồ sơ đã unlock', value: 0, tone: 'text-info' },
+    { label: 'Hạn gần nhất', value: nextDeadline, tone: 'text-accent' },
+  ];
+
+  return (
+    <div className="mx-auto max-w-6xl space-y-6">
+      <section className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginBottom: '14px',
-            }}
-          >
-            <p
-              className="sec-label"
-              style={{
-                fontSize: '12px',
-                fontWeight: '600',
-                color: 'var(--text3)',
-                textTransform: 'uppercase',
-                letterSpacing: '0.8px',
-                marginBottom: '0',
-              }}
-            >
-              Challenge đang hoạt động
-            </p>
+          <h2 className="text-3xl font-semibold text-foreground">
+            Xin chào, {user?.full_name ?? 'Nhà tuyển dụng'}
+          </h2>
+          <p className="mt-1 text-base text-foreground-secondary">
+            Quản lý challenge, đánh giá bài nộp và xây dựng talent pool từ bằng chứng thực chiến.
+          </p>
+        </div>
+        <Link
+          href="/employer/challenges/create"
+          className="inline-flex items-center justify-center rounded-lg border-hairline border-[rgba(124,111,247,0.35)] bg-accent-bg px-[18px] py-2 text-sm font-medium text-accent transition-colors hover:opacity-90"
+        >
+          + Tạo challenge
+        </Link>
+      </section>
+
+      <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {stats.map((stat) => (
+          <div key={stat.label} className="card">
+            <p className="text-sm font-medium text-foreground-secondary">{stat.label}</p>
+            <p className={`mt-3 text-3xl font-semibold ${stat.tone}`}>{stat.value}</p>
+          </div>
+        ))}
+      </section>
+
+      <section className="grid grid-cols-1 gap-6 xl:grid-cols-[1.45fr_0.9fr]">
+        <div className="space-y-3">
+          <div className="flex items-center justify-between gap-3">
+            <h3 className="text-lg font-semibold text-foreground">Challenge đang hoạt động</h3>
             <Link
               href="/employer/challenges/create"
-              className="btn"
-              style={{
-                fontSize: '12px',
-                padding: '5px 12px',
-                borderRadius: '4px',
-                background: 'var(--bg3)',
-                border: '0.5px solid var(--border2)',
-              }}
+              className="text-sm font-medium text-accent hover:underline"
             >
-              + Tạo mới
+              Tạo mới
             </Link>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            {isLoading && <p style={{ color: 'var(--text2)' }}>Đang tải thử thách...</p>}
-            {isError && (
-              <p style={{ color: 'var(--red)' }}>
-                {error?.message || 'Không thể tải danh sách thử thách.'}
-              </p>
-            )}
-            {!isLoading && !isError && challenges?.length === 0 && (
-              <p style={{ color: 'var(--text2)' }}>Chưa có thử thách nào được tạo.</p>
-            )}
-            {challenges?.map((challenge) => (
-              <div
-                key={challenge.challenge_id}
-                style={{
-                  padding: '10px 12px',
-                  background: 'var(--bg3)',
-                  border: '0.5px solid var(--border2)',
-                  borderRadius: '8px',
-                }}
-              >
-                <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'flex-start',
-                    marginBottom: '6px',
-                  }}
-                >
-                  <div>
-                    <p style={{ fontSize: '11px', fontWeight: '600', marginBottom: '2px' }}>
-                      {challenge.title}
-                    </p>
-                    <p style={{ fontSize: '10px', color: 'var(--text3)' }}>
-                      {challenge.industry} · {challenge.company_name} · Hạn chót:{' '}
-                      {new Date(challenge.deadline).toLocaleDateString()}
+          {isLoading && (
+            <div className="card text-sm text-foreground-secondary">Đang tải thử thách...</div>
+          )}
+
+          {isError && (
+            <div className="card text-sm text-error">
+              {error?.message || 'Không thể tải danh sách thử thách.'}
+            </div>
+          )}
+
+          {!isLoading && !isError && challenges.length === 0 && (
+            <div className="card text-sm text-foreground-secondary">
+              Chưa có thử thách nào được tạo.
+            </div>
+          )}
+
+          {!isLoading &&
+            !isError &&
+            challenges.map((challenge) => (
+              <article key={challenge.challenge_id} className="card">
+                <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h4 className="truncate text-md font-semibold text-foreground">
+                        {challenge.title}
+                      </h4>
+                      <Badge variant="open">Đang mở</Badge>
+                    </div>
+                    <p className="mt-1 text-sm text-foreground-secondary">
+                      {challenge.industry} · {challenge.company_name}
                     </p>
                   </div>
-                  {/* Status is not in ChallengeSummary, so using a generic badge */}
-                  <span
-                    className="badge open"
-                    style={{
-                      flexShrink: 0,
-                      marginLeft: '8px',
-                      display: 'inline-block',
-                      fontSize: '10px',
-                      fontWeight: '500',
-                      padding: '2px 9px',
-                      borderRadius: '20px',
-                      background: 'var(--green-bg)',
-                      color: 'var(--green)',
-                      border: '0.5px solid rgba(34,197,94,0.3)',
-                    }}
-                  >
-                    Đang mở
-                  </span>
+                  <div className="shrink-0 text-left sm:text-right">
+                    <p className="text-2xs font-medium uppercase text-foreground-tertiary">
+                      Hạn chót
+                    </p>
+                    <p className="text-sm text-foreground">{formatDate(challenge.deadline)}</p>
+                  </div>
                 </div>
-                <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-                  {/* created_at is not in ChallengeSummary, so omitting for now */}
-                  <span style={{ fontSize: '10px', color: 'var(--text3)' }}>
-                    ID: {challenge.challenge_id.substring(0, 8)}...
-                  </span>
-                  <Link
-                    href={`/employer/challenges/${challenge.challenge_id}`}
-                    className="btn"
-                    style={{ fontSize: '10px', padding: '3px 10px' }}
-                  >
-                    Xem chi tiết →
-                  </Link>
+                <div className="mt-4 flex flex-wrap items-center gap-3 text-xs text-foreground-secondary">
+                  <span>ID: {challenge.challenge_id.slice(0, 8)}</span>
+                  <span>0 bài nộp mới</span>
+                  <span>0 hồ sơ chờ unlock</span>
                 </div>
-              </div>
+              </article>
             ))}
-          </div>
         </div>
 
-        {/* Right: Recent activity feed */}
-        <div>
-          <p
-            className="sec-label"
-            style={{
-              fontSize: '12px',
-              fontWeight: '600',
-              color: 'var(--text3)',
-              textTransform: 'uppercase',
-              letterSpacing: '0.8px',
-              marginBottom: '14px',
-            }}
-          >
-            Hoạt động gần đây
-          </p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
-            <p style={{ fontSize: '11px', color: 'var(--text3)' }}>Chưa có hoạt động gần đây.</p>
+        <aside className="space-y-6">
+          <div>
+            <h3 className="mb-3 text-lg font-semibold text-foreground">Việc cần làm</h3>
+            <div className="space-y-3">
+              {[
+                'Tạo challenge đầu tiên cho vị trí đang tuyển.',
+                'Kiểm tra rubric để bảo đảm tổng trọng số bằng 100%.',
+                'Theo dõi bài nộp mới và mở hồ sơ ứng viên phù hợp.',
+              ].map((item) => (
+                <div key={item} className="card py-4 text-sm text-foreground-secondary">
+                  {item}
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-      </div>
+
+          <div>
+            <h3 className="mb-3 text-lg font-semibold text-foreground">Hoạt động gần đây</h3>
+            <div className="card text-sm text-foreground-secondary">Chưa có hoạt động gần đây.</div>
+          </div>
+        </aside>
+      </section>
     </div>
   );
 }
