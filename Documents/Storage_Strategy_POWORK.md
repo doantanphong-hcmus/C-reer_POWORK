@@ -1,7 +1,7 @@
 # TÀI LIỆU CHIẾN LƯỢC LƯU TRỮ (STORAGE STRATEGY)
 **Dự án:** POWORK - Nền tảng tuyển dụng ẩn danh
 
-**Người viết:** Phong
+**Người viết:** Phong. 
 
 ---
 
