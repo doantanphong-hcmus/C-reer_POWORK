@@ -14,7 +14,7 @@ export const evaluateSubmission = async (submissionId, { evaluations, general_co
           score: e.score,
           comment: e.comment,
         },
-      })
+      }),
     ),
     prisma.submission.update({
       where: { id: submissionId },

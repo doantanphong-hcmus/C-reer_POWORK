@@ -12,7 +12,7 @@ export const getClamScan = async () => {
   if (clamscanInstance) return clamscanInstance
 
   clamscanInstance = await new NodeClam().init({
-    removeInfected: false,   // KHÔNG tự xóa — để Service quyết định xử lý (reject submission)
+    removeInfected: false, // KHÔNG tự xóa — để Service quyết định xử lý (reject submission)
     quarantineInfected: false,
     scanLog: null,
     debugMode: process.env.NODE_ENV === 'development',

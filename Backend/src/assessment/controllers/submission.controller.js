@@ -10,7 +10,7 @@ import prisma from '../../shared/config/prisma.js'
 // POST /api/v1/assessment/submissions
 export const submitSolution = async (req, res) => {
   const { challenge_id, solution_url } = req.body
-  const userId = req.user.userId   // chỉ lấy từ JWT — blindAuditionGuard đã chặn FE gửi lên
+  const userId = req.user.userId // chỉ lấy từ JWT — blindAuditionGuard đã chặn FE gửi lên
 
   // Lấy title để đưa vào nội dung email xác nhận (không bắt buộc, chỉ làm đẹp email)
   const challenge = await prisma.challenge.findUnique({ where: { id: challenge_id } })

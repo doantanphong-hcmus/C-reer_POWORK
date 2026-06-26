@@ -23,7 +23,7 @@ export const evaluateSubmissionSchema = z.object({
         criteria_id: z.string().uuid(),
         score: z.number().min(0),
         comment: z.string().optional(),
-      })
+      }),
     )
     .min(1, 'evaluations phải có ít nhất 1 tiêu chí'),
   general_comment: z.string().optional(),

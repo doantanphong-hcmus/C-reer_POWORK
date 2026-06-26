@@ -1,9 +1,16 @@
 import { Router } from 'express'
 import {
-  submitSolution, getSubmissionsByChallenge, evaluateSubmission, unlockCandidate,
+  submitSolution,
+  getSubmissionsByChallenge,
+  evaluateSubmission,
+  unlockCandidate,
 } from '../controllers/submission.controller.js'
 import { getPresignedUrl } from '../controllers/upload.controller.js'
-import { authenticate, authorize, blindAuditionGuard } from '../../shared/middlewares/auth.middleware.js'
+import {
+  authenticate,
+  authorize,
+  blindAuditionGuard,
+} from '../../shared/middlewares/auth.middleware.js'
 import { validateBody, validateQuery } from '../../shared/middlewares/validate.middleware.js'
 import {
   presignedUrlQuerySchema,
@@ -20,7 +27,7 @@ router.get(
   authenticate,
   authorize('CANDIDATE'),
   validateQuery(presignedUrlQuerySchema),
-  getPresignedUrl
+  getPresignedUrl,
 )
 
 // Bước 2: xác nhận nộp bài (sau khi đã PUT file thành công) — hỗ trợ versioning
@@ -30,7 +37,7 @@ router.post(
   authorize('CANDIDATE'),
   blindAuditionGuard,
   validateBody(createSubmissionSchema),
-  submitSolution
+  submitSolution,
 )
 
 // Employer xem danh sách bài nộp — group theo hash_id, nhiều version
@@ -38,7 +45,7 @@ router.get(
   '/challenges/:challenge_id/submissions',
   authenticate,
   authorize('EMPLOYER'),
-  getSubmissionsByChallenge
+  getSubmissionsByChallenge,
 )
 
 router.post(
@@ -46,7 +53,7 @@ router.post(
   authenticate,
   authorize('EMPLOYER'),
   validateBody(evaluateSubmissionSchema),
-  evaluateSubmission
+  evaluateSubmission,
 )
 
 router.post(
@@ -54,7 +61,7 @@ router.post(
   authenticate,
   authorize('EMPLOYER'),
   validateBody(unlockSubmissionSchema),
-  unlockCandidate
+  unlockCandidate,
 )
 
 export default router

@@ -37,7 +37,7 @@ export const scanSubmission = async (submissionId) => {
       await submissionRepository.updateSubmissionStatus(
         submissionId,
         'REJECTED',
-        `[Hệ thống] File bị từ chối do phát hiện mã độc: ${viruses?.join(', ') || 'unknown'}`
+        `[Hệ thống] File bị từ chối do phát hiện mã độc: ${viruses?.join(', ') || 'unknown'}`,
       )
       console.warn(`🦠 [ClamAV Job] Submission ${submissionId} NHIỄM VIRUS — đã reject`)
     } else {

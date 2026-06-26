@@ -19,7 +19,7 @@ export const generatePresignedUploadUrl = async ({ userId, challengeId, filename
   const uploadUrl = await minioClient.presignedPutObject(
     config.minio.bucket,
     objectKey,
-    config.minio.presignedExpirySeconds
+    config.minio.presignedExpirySeconds,
   )
 
   return {

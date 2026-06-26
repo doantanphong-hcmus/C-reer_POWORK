@@ -10,7 +10,12 @@
 import transporter from '../../shared/config/mailer.js'
 import { config } from '../../shared/config/index.js'
 
-export const sendSubmissionConfirmationEmail = async ({ toEmail, hashId, version, challengeTitle }) => {
+export const sendSubmissionConfirmationEmail = async ({
+  toEmail,
+  hashId,
+  version,
+  challengeTitle,
+}) => {
   const html = `
     <p>Chào bạn,</p>
     <p>Bài làm của bạn cho thử thách <strong>${challengeTitle}</strong> đã được ghi nhận thành công.</p>

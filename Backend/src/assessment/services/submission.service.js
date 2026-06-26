@@ -12,7 +12,7 @@
 import { AppError } from '../../shared/utils/AppError.js'
 import { generateHashId } from '../../shared/utils/hashId.js'
 import * as submissionRepository from '../repositories/submission.repository.js'
-import * as userLookupService from '../../iam/services/user-lookup.service.js'  // IAM Interface
+import * as userLookupService from '../../iam/services/user-lookup.service.js' // IAM Interface
 import { queueScanJob } from '../jobs/scan.job.js'
 import { sendSubmissionConfirmationEmail } from './notification.service.js'
 
@@ -56,9 +56,11 @@ export const submitSolution = async ({ userId, challengeId, solutionUrl, challen
         hashId: mapping.hashId,
         version: nextVersion,
         challengeTitle: challengeTitle ?? 'Challenge',
-      })
+      }),
     )
-    .catch((err) => console.error('[SubmissionService] Không gửi được email xác nhận:', err.message))
+    .catch((err) =>
+      console.error('[SubmissionService] Không gửi được email xác nhận:', err.message),
+    )
 
   // 6. Trả về theo đúng API Contracts — TUYỆT ĐỐI không có user_id
   return {
