@@ -1,5 +1,5 @@
 # Sử dụng base image Node.js v20 nhẹ và ổn định
-FROM node:20-alpine AS builder
+FROM node:20-slim AS builder
 
 WORKDIR /app
 
@@ -15,7 +15,7 @@ RUN npx prisma generate
 
 # ----------------------------------------------------
 # Stage Runner: Tạo production image gọn nhẹ
-FROM node:20-alpine AS runner
+FROM node:20-slim AS runner
 
 WORKDIR /app
 
