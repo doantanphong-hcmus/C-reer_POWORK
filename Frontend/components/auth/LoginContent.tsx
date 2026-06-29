@@ -21,9 +21,32 @@ function getSafeRedirect(value: string | null) {
   return value;
 }
 
-function getInitialRole(roleParam: string | null, redirectPath: string | null): UserRole {
-  if (roleParam === 'employer' || redirectPath?.startsWith('/employer')) {
+function getRoleFromParam(roleParam: string | null): UserRole | null {
+  const normalizedRole = roleParam?.toLowerCase();
+
+  if (normalizedRole === 'employer') {
     return 'Employer';
+  }
+
+  if (normalizedRole === 'candidate') {
+    return 'Candidate';
+  }
+
+  return null;
+}
+
+function getInitialRole(roleParam: string | null, redirectPath: string | null): UserRole {
+  const explicitRole = getRoleFromParam(roleParam);
+  if (explicitRole) {
+    return explicitRole;
+  }
+
+  if (redirectPath?.startsWith('/employer')) {
+    return 'Employer';
+  }
+
+  if (redirectPath?.startsWith('/candidate')) {
+    return 'Candidate';
   }
 
   return 'Candidate';
@@ -39,7 +62,9 @@ export default function LoginContent() {
   const searchParams = useSearchParams();
   const redirectPath = getSafeRedirect(searchParams.get('redirect'));
   const roleParam = searchParams.get('role');
-  const selectedRole = getInitialRole(roleParam, redirectPath);
+  const [selectedRole, setSelectedRole] = useState<UserRole>(() =>
+    getInitialRole(roleParam, redirectPath)
+  );
   const roleSlug = selectedRole === 'Employer' ? 'employer' : 'candidate';
 
   const {
@@ -55,6 +80,8 @@ export default function LoginContent() {
   const [showPassword, setShowPassword] = useState(false);
 
   const selectRole = (role: UserRole) => {
+    setSelectedRole(role);
+    setError('');
     const params = new URLSearchParams(searchParams.toString());
     params.set('role', role === 'Employer' ? 'employer' : 'candidate');
     router.replace(`/login?${params.toString()}`, { scroll: false });
