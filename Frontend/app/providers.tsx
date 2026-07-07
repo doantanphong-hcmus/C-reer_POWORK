@@ -23,14 +23,14 @@ export function Providers({ children }: { children: ReactNode }) {
       // ── 1. MSW (chỉ dev) ─────────────────────────────────────────────
       // Bọc riêng try/catch: nếu MSW fail thì log cảnh báo và VẪN tiếp
       // tục xuống bước khôi phục phiên — không để MSW kéo chết cả init.
-      if (process.env.NODE_ENV === 'development') {
-        try {
-          const { worker } = await import('@/__mocks__/client');
-          await worker.start({ onUnhandledRequest: 'bypass' });
-        } catch (err) {
-          console.warn('[MSW] Không khởi động được mock worker, bỏ qua:', err);
-        }
-      }
+      // if (process.env.NODE_ENV === 'development') {
+      //   try {
+      //     const { worker } = await import('@/__mocks__/client');
+      //     await worker.start({ onUnhandledRequest: 'bypass' });
+      //   } catch (err) {
+      //     console.warn('[MSW] Không khởi động được mock worker, bỏ qua:', err);
+      //   }
+      // }
 
       // ── 2. Khôi phục phiên ───────────────────────────────────────────
       // checkSession() đã tự bọc try/catch, luôn kết thúc ở

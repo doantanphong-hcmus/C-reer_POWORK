@@ -14,6 +14,8 @@ import type {
   EvaluateResponse,
   UnlockRequest,
   UnlockResponse,
+  GetPresignedUploadUrlRequest,
+  GetPresignedUploadUrlResponse,
   Profile,
   TalentPoolEntry,
   AddToTalentPoolRequest,
@@ -54,6 +56,13 @@ export const assessmentAPI = {
   unlock: (submissionId: string, payload: UnlockRequest = { action: 'APPROVE' }) =>
     unwrap<UnlockResponse>(
       apiClient.post(`/assessment/submissions/${submissionId}/unlock`, payload)
+    ),
+  getPresignedUploadUrl: (payload: GetPresignedUploadUrlRequest) =>
+    unwrap<GetPresignedUploadUrlResponse>(
+      apiClient.post(
+        `/assessment/submissions/presigned-url`,
+        payload
+      )
     ),
 };
 
