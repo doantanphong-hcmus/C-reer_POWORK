@@ -5,8 +5,43 @@ import { useParams } from 'next/navigation';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { useMemo } from 'react';
 
+interface SubmissionFile {
+  name: string;
+  type: string;
+}
+
+interface SubmissionGithub {
+  repo: string;
+  commit: string;
+}
+
+interface SubmissionFeedback {
+  text: string;
+  type: 'good' | 'bad';
+}
+
+interface ChallengeDetails {
+  description: string;
+  difficulty: string;
+  deadline: string;
+  tags: string[];
+}
+
+interface SubmissionDetail {
+  id: string;
+  challengeName: string;
+  submittedAt: string;
+  status: string;
+  statusClass: string;
+  score: string | null;
+  files: SubmissionFile[];
+  github: SubmissionGithub | null;
+  feedback: SubmissionFeedback[] | null;
+  challenge: ChallengeDetails;
+}
+
 // Mock data (trong thực tế sẽ fetch theo id)
-const SUBMISSIONS_MOCK: Record<string, any> = {
+const SUBMISSIONS_MOCK: Record<string, SubmissionDetail> = {
   'sub-001': {
     id: 'sub-001',
     challengeName: 'Thiết kế hệ thống caching cho API',
@@ -61,7 +96,10 @@ export default function SubmissionDetailsPage() {
   const params = useParams();
   const id = params?.id as string;
 
-  const data = useMemo(() => SUBMISSIONS_MOCK[id] || SUBMISSIONS_MOCK['sub-001'], [id]);
+  const data: SubmissionDetail = useMemo(
+    () => SUBMISSIONS_MOCK[id] || SUBMISSIONS_MOCK['sub-001'],
+    [id]
+  );
 
   if (!user) return null;
 
@@ -79,7 +117,7 @@ export default function SubmissionDetailsPage() {
             Chi tiết bài nộp
           </h1>
           <p className="mt-1 text-base text-foreground-secondary font-mono">
-            Mã bài:{' '}
+            Mã bài:{'            '}
             <span className="text-accent bg-accent-bg px-1.5 py-0.5 rounded">{data.id}</span>
           </p>
         </div>
@@ -137,7 +175,7 @@ export default function SubmissionDetailsPage() {
                   <p className="text-foreground-secondary text-xs uppercase tracking-wider mb-2">
                     Feedback từ Reviewer:
                   </p>
-                  {data.feedback.map((fb: any, idx: number) => (
+                  {data.feedback.map((fb: SubmissionFeedback, idx: number) => (
                     <div key={idx} className="flex items-start gap-2 text-sm">
                       {fb.type === 'good' ? (
                         <span className="text-success mt-0.5">✔</span>
@@ -169,7 +207,7 @@ export default function SubmissionDetailsPage() {
                     Tệp đính kèm:
                   </p>
                   <div className="flex flex-col gap-2">
-                    {data.files.map((file: any, idx: number) => (
+                    {data.files.map((file: SubmissionFile, idx: number) => (
                       <div key={idx} className="flex items-center gap-2 text-sm">
                         <span className="text-accent">📄</span>
                         <Link href="#" className="text-accent hover:underline">

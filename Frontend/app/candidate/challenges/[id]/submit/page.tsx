@@ -150,7 +150,7 @@ export default function CandidateChallengeSubmitPage() {
           <p className="mt-1 text-xs text-foreground-tertiary">
             {isLoadingSubmissions
               ? 'Đang tải lịch sử...'
-              : `Cập nhật gần nhất: ${new Date(latestSubmission?.submitted_at!).toLocaleTimeString('vi-VN')}`}
+              : `Cập nhật gần nhất: ${latestSubmission?.submitted_at ? new Date(latestSubmission.submitted_at).toLocaleTimeString('vi-VN') : 'N/A'}`}
           </p>
         </div>
 
