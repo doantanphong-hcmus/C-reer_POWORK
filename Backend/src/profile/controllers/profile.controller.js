@@ -26,6 +26,6 @@ export const getProfile = async (req, res) => {
         totalScore: 8.6,
         unlockedAt: '2026-06-10T02:16:45Z',
       },
-    ]
+    ],
   })
 }

@@ -56,7 +56,6 @@ export const addToTalentPool = async (req, res) => {
 // Auth:   Bearer Employer_Token
 // Trả:   danh sách ứng viên kèm highestScore, challengesTaken, status
 export const getTalentPool = async (req, res) => {
-
   // TODO Sprint 1: const pool = await TalentPoolService.getByCompany(companyId)
   // Service sẽ:
   //   1. SELECT từ talent_pools WHERE companyId = :companyId
