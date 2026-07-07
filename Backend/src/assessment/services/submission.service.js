@@ -64,11 +64,11 @@ export const submitSolution = async ({ userId, challengeId, solutionUrl, challen
 
   // 6. Trả về theo đúng API Contracts — TUYỆT ĐỐI không có user_id
   return {
-    submission_id: submission.id,
-    hash_id: submission.hashId,
+    submissionId: submission.id,
+    hashId: submission.hashId,
     version: submission.version,
     status: submission.status,
-    submitted_at: submission.submittedAt.toISOString(),
+    submittedAt: submission.submittedAt.toISOString(),
   }
 }
 
@@ -78,14 +78,14 @@ export const getSubmissionsByChallenge = async (challengeId) => {
 
   // Format đúng theo API Contracts mới — mỗi hash_id có mảng submissions[]
   return grouped.map((g) => ({
-    hash_id: g.hash_id,
-    is_unlocked: g.is_unlocked,
+    hashId: g.hashId,
+    isUnlocked: g.isUnlocked,
     submissions: g.submissions.map((s) => ({
-      submission_id: s.id,
+      submissionId: s.id,
       version: s.version,
       status: s.status,
-      solution_url: s.solutionUrl,
-      submitted_at: s.submittedAt.toISOString(),
+      solutionUrl: s.solutionUrl,
+      submittedAt: s.submittedAt.toISOString(),
     })),
   }))
 }
@@ -94,7 +94,7 @@ export const getSubmissionsByChallenge = async (challengeId) => {
 export const unlockCandidate = async (submissionId, action) => {
   if (action !== 'APPROVE') {
     const rejected = await submissionRepository.updateSubmissionStatus(submissionId, 'REJECTED')
-    return { message: 'Submission rejected.', submission_id: rejected.id }
+    return { message: 'Submission rejected.', submissionId: rejected.id }
   }
 
   const submission = await submissionRepository.findSubmissionById(submissionId)
@@ -107,16 +107,16 @@ export const unlockCandidate = async (submissionId, action) => {
   await submissionRepository.markIdentityMappingUnlocked(submission.hashId)
 
   // Lấy thông tin thật qua IAM Interface — chỉ lúc này mới được phép
-  const { email, full_name } = await userLookupService.getUserContactById(mapping.userId)
+  const { email, fullName } = await userLookupService.getUserContactById(mapping.userId)
 
   // TODO: bắn Event "Submission_Unlocked" { user_id: mapping.userId, challenge_id, total_score }
   // để Profile Module ghi vào verified_evidences (Sprint sau khi có Event Bus)
 
   return {
     message: 'Identity unlocked.',
-    unlocked_candidate_profile: {
-      user_id: mapping.userId,
-      full_name,
+    unlockedCandidateProfile: {
+      userId: mapping.userId,
+      fullName,
       email,
     },
   }

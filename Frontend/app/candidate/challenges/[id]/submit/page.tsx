@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -41,12 +40,12 @@ export default function CandidateChallengeSubmitPage() {
   const challengeId = getChallengeId(useParams());
   const queryClient = useQueryClient();
 
-  const { data: submissions = [], isLoading: isLoadingSubmissions } = useQuery<
-    SubmissionSummary[]
-  >({
-    queryKey: [challengeId, 'submissions'],
-    queryFn: () => assessmentAPI.listByChallenge(challengeId),
-  });
+  const { data: submissions = [], isLoading: isLoadingSubmissions } = useQuery<SubmissionSummary[]>(
+    {
+      queryKey: [challengeId, 'submissions'],
+      queryFn: () => assessmentAPI.listByChallenge(challengeId),
+    }
+  );
 
   const { mutateAsync: uploadSubmissionMutation, isPending: isUploading } = useMutation({
     mutationFn: async ({ file, metadata }: { file: File; metadata: UploadMetadata }) => {
@@ -101,7 +100,9 @@ export default function CandidateChallengeSubmitPage() {
 
   const latestSubmission = useMemo(() => {
     if (submissions.length === 0) return undefined;
-    return [...submissions].sort((a, b) => new Date(b.submitted_at!).getTime() - new Date(a.submitted_at!).getTime())[0];
+    return [...submissions].sort(
+      (a, b) => new Date(b.submitted_at!).getTime() - new Date(a.submitted_at!).getTime()
+    )[0];
   }, [submissions]);
 
   const handleUpload = async (file: File, metadata: UploadMetadata) => {
@@ -147,7 +148,9 @@ export default function CandidateChallengeSubmitPage() {
               : 'Chưa có bài nộp'}
           </p>
           <p className="mt-1 text-xs text-foreground-tertiary">
-            {isLoadingSubmissions ? 'Đang tải lịch sử...' : `Cập nhật gần nhất: ${new Date(latestSubmission?.submitted_at!).toLocaleTimeString('vi-VN')}`}
+            {isLoadingSubmissions
+              ? 'Đang tải lịch sử...'
+              : `Cập nhật gần nhất: ${new Date(latestSubmission?.submitted_at!).toLocaleTimeString('vi-VN')}`}
           </p>
         </div>
 
@@ -161,17 +164,27 @@ export default function CandidateChallengeSubmitPage() {
               Tải file mới nhất
             </a>
           )}
-          <Button type="button" variant="default" onClick={handleRefresh} disabled={isLoadingSubmissions}>
+          <Button
+            type="button"
+            variant="default"
+            onClick={handleRefresh}
+            disabled={isLoadingSubmissions}
+          >
             Làm mới
           </Button>
-          <Button type="button" variant="primary" onClick={() => setIsUploaderOpen(true)} disabled={isUploading}>
+          <Button
+            type="button"
+            variant="primary"
+            onClick={() => setIsUploaderOpen(true)}
+            disabled={isUploading}
+          >
             {submissions.length > 0 ? 'Nộp phiên bản mới' : 'Nộp bài mới'}
           </Button>
         </div>
       </section>
 
       <SubmissionHistory
-        submissions={submissions.map(s => ({
+        submissions={submissions.map((s) => ({
           id: s.submission_id,
           fileName: s.solution_url?.split('/').pop() || s.hash_id,
           originalFileName: s.solution_url?.split('/').pop() || s.hash_id,

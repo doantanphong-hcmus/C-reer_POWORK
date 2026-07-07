@@ -1,7 +1,7 @@
 import { AppError } from '../../shared/utils/AppError.js'
 import prisma from '../../shared/config/prisma.js'
 
-export const evaluateSubmission = async (submissionId, { evaluations, general_comment }) => {
+export const evaluateSubmission = async (submissionId, { evaluations, generalComment }) => {
   const submission = await prisma.submission.findUnique({ where: { id: submissionId } })
   if (!submission) throw new AppError('Không tìm thấy submission', 404, 'ASSESS_002')
 
@@ -10,7 +10,7 @@ export const evaluateSubmission = async (submissionId, { evaluations, general_co
       prisma.evaluationResult.create({
         data: {
           submissionId,
-          criteriaId: e.criteria_id,
+          criteriaId: e.criteriaId,
           score: e.score,
           comment: e.comment,
         },
@@ -18,17 +18,17 @@ export const evaluateSubmission = async (submissionId, { evaluations, general_co
     ),
     prisma.submission.update({
       where: { id: submissionId },
-      data: { status: 'EVALUATED', generalComment: general_comment },
+      data: { status: 'EVALUATED', generalComment: generalComment },
     }),
   ])
 
   const totalScore = evaluations.reduce((sum, e) => sum + e.score, 0)
 
   return {
-    submission_id: submissionId,
+    submissionId,
     evaluations,
-    general_comment,
-    total_score: totalScore,
-    evaluated_at: new Date().toISOString(),
+    generalComment,
+    totalScore,
+    evaluatedAt: new Date().toISOString(),
   }
 }

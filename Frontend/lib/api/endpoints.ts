@@ -59,10 +59,7 @@ export const assessmentAPI = {
     ),
   getPresignedUploadUrl: (payload: GetPresignedUploadUrlRequest) =>
     unwrap<GetPresignedUploadUrlResponse>(
-      apiClient.post(
-        `/assessment/submissions/presigned-url`,
-        payload
-      )
+      apiClient.post(`/assessment/submissions/presigned-url`, payload)
     ),
 };
 
