@@ -3,23 +3,29 @@
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useMemo, useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import axios from 'axios';
+import { assessmentAPI } from '@/lib/api/endpoints';
+import { SubmissionSummary } from '@/lib/types';
 import {
   SubmissionHistory,
   Uploader,
   type SubmissionItem,
-  type SubmissionStatus,
+  // type SubmissionStatus, // Removed as we use SubmissionSummary['status']
   type UploadMetadata,
 } from '@/components/submissions';
 import { Badge, Button } from '@/components/ui';
 
-const STATUS_LABELS: Record<SubmissionStatus, string> = {
-  pending: 'Đang chờ xử lý',
-  processing: 'Đang kiểm tra',
-  accepted: 'Đã ghi nhận',
-  rejected: 'Bị từ chối',
-  failed: 'Bị chặn bảo mật',
+// Map backend status (PascalCase) to frontend labels
+const STATUS_LABELS: Record<SubmissionSummary['status'], string> = {
+  Pending: 'Đang chờ xử lý',
+  Evaluated: 'Đang kiểm tra',
+  Approved: 'Đã ghi nhận',
+  Rejected: 'Bị từ chối',
+  Failed: 'Bị chặn bảo mật',
 };
 
+// This function is still needed to extract challengeId from URL params
 function getChallengeId(params: ReturnType<typeof useParams>): string {
   const rawId = params?.id;
 
@@ -30,81 +36,81 @@ function getChallengeId(params: ReturnType<typeof useParams>): string {
   return rawId ?? 'demo-challenge';
 }
 
-function createInitialSubmissions(challengeId: string): SubmissionItem[] {
-  return [
-    {
-      id: `${challengeId}-submission-002`,
-      fileName: 'solution-v2.pdf',
-      originalFileName: 'solution-v2.pdf',
-      submittedAt: new Date(Date.now() - 1000 * 60 * 45),
-      status: 'processing',
-      version: 2,
-      fileSize: 2_450_000,
-      note: 'Đã cập nhật phần responsive và sửa lỗi validation.',
-    },
-    {
-      id: `${challengeId}-submission-001`,
-      fileName: 'solution-v1.zip',
-      originalFileName: 'solution-v1.zip',
-      submittedAt: new Date(Date.now() - 1000 * 60 * 60 * 26),
-      status: 'pending',
-      version: 1,
-      fileSize: 6_280_000,
-    },
-  ];
-}
-
-function getLatestSubmission(submissions: SubmissionItem[]) {
-  return [...submissions].sort((left, right) => {
-    const leftTime = new Date(left.submittedAt).getTime();
-    const rightTime = new Date(right.submittedAt).getTime();
-    return rightTime - leftTime;
-  })[0];
-}
-
 export default function CandidateChallengeSubmitPage() {
   const challengeId = getChallengeId(useParams());
-  const [submissions, setSubmissions] = useState<SubmissionItem[]>(() =>
-    createInitialSubmissions(challengeId)
-  );
-  const [isUploaderOpen, setIsUploaderOpen] = useState(false);
-  const [lastRefreshedAt, setLastRefreshedAt] = useState<Date>(() => new Date());
+  const queryClient = useQueryClient();
 
-  const latestSubmission = useMemo(() => getLatestSubmission(submissions), [submissions]);
-  const latestWithDownload = submissions.find((submission) => submission.downloadUrl);
+  const { data: submissions = [], isLoading: isLoadingSubmissions } = useQuery<SubmissionSummary[]>(
+    {
+      queryKey: [challengeId, 'submissions'],
+      queryFn: () => assessmentAPI.listByChallenge(challengeId),
+    }
+  );
+
+  const { mutateAsync: uploadSubmissionMutation, isPending: isUploading } = useMutation({
+    mutationFn: async ({ file, metadata }: { file: File; metadata: UploadMetadata }) => {
+      // Step 1: Get presigned URL
+      const { upload_url, file_key } = await assessmentAPI.getPresignedUploadUrl({
+        challenge_id: challengeId,
+        file_name: metadata.originalFileName,
+        file_type: file.type,
+      });
+
+      // Step 2: Upload file to MinIO
+      await axios.put(upload_url, file, {
+        headers: {
+          'Content-Type': file.type,
+        },
+      });
+
+      // Step 3: Notify backend about submission
+      await assessmentAPI.submit({
+        challenge_id: challengeId,
+        solution_url: file_key,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [challengeId, 'submissions'] });
+      setIsUploaderOpen(false);
+    },
+    onError: (error) => {
+      let errorMessage = 'Đã xảy ra lỗi khi nộp bài.';
+
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+          // Lỗi từ phản hồi của backend (ví dụ: status 4xx, 5xx)
+          errorMessage = `Nộp bài thất bại: ${error.response.data.message || error.message}`;
+        } else if (error.request) {
+          // Lỗi không nhận được phản hồi (ví dụ: mất mạng, timeout)
+          errorMessage = 'Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng của bạn.';
+        } else {
+          // Lỗi khi thiết lập request
+          errorMessage = `Lỗi trong quá trình gửi yêu cầu: ${error.message}`;
+        }
+      } else {
+        // Lỗi không phải từ Axios
+        errorMessage = `Lỗi không xác định: ${error.message || errorMessage}`;
+      }
+
+      alert(errorMessage);
+    },
+  });
+
+  const [isUploaderOpen, setIsUploaderOpen] = useState(false);
+
+  const latestSubmission = useMemo(() => {
+    if (submissions.length === 0) return undefined;
+    return [...submissions].sort(
+      (a, b) => new Date(b.submitted_at!).getTime() - new Date(a.submitted_at!).getTime()
+    )[0];
+  }, [submissions]);
 
   const handleUpload = async (file: File, metadata: UploadMetadata) => {
-    await new Promise<void>((resolve) => {
-      window.setTimeout(resolve, 600);
-    });
-
-    const downloadUrl = URL.createObjectURL(file);
-
-    setSubmissions((currentSubmissions) => {
-      const latestVersion = currentSubmissions.reduce(
-        (maxVersion, submission) => Math.max(maxVersion, submission.version ?? 0),
-        0
-      );
-
-      return [
-        {
-          id: `${challengeId}-submission-${Date.now()}`,
-          fileName: metadata.savedFileName,
-          originalFileName: metadata.originalFileName,
-          submittedAt: new Date(),
-          status: 'pending',
-          version: latestVersion + 1,
-          fileSize: metadata.fileSize,
-          note: metadata.note,
-          downloadUrl,
-        },
-        ...currentSubmissions,
-      ];
-    });
+    await uploadSubmissionMutation({ file, metadata });
   };
 
   const handleRefresh = () => {
-    setLastRefreshedAt(new Date());
+    queryClient.invalidateQueries({ queryKey: [challengeId, 'submissions'] });
   };
 
   return (
@@ -127,7 +133,7 @@ export default function CandidateChallengeSubmitPage() {
           <span className="text-xs text-foreground-tertiary">Mã challenge</span>
           <span className="font-mono text-sm text-accent">{challengeId}</span>
           <div className="mt-1 flex items-center gap-2">
-            <Badge variant={latestSubmission ? 'blind' : 'fail'}>
+            <Badge variant={latestSubmission?.status === 'Approved' ? 'blind' : 'fail'}>
               {latestSubmission ? STATUS_LABELS[latestSubmission.status] : 'Chưa nộp'}
             </Badge>
           </div>
@@ -138,39 +144,57 @@ export default function CandidateChallengeSubmitPage() {
         <div>
           <p className="text-sm font-medium text-foreground">
             {latestSubmission
-              ? `Phiên bản mới nhất: lần ${latestSubmission.version}`
+              ? `Phiên bản mới nhất: lần ${latestSubmission.hash_id.slice(-4)}`
               : 'Chưa có bài nộp'}
           </p>
           <p className="mt-1 text-xs text-foreground-tertiary">
-            Làm mới lúc{' '}
-            {new Intl.DateTimeFormat('vi-VN', {
-              hour: '2-digit',
-              minute: '2-digit',
-            }).format(lastRefreshedAt)}
+            {isLoadingSubmissions
+              ? 'Đang tải lịch sử...'
+              : `Cập nhật gần nhất: ${latestSubmission?.submitted_at ? new Date(latestSubmission.submitted_at).toLocaleTimeString('vi-VN') : 'N/A'}`}
           </p>
         </div>
 
         <div className="flex flex-wrap gap-2">
-          {latestWithDownload?.downloadUrl && (
+          {latestSubmission?.solution_url && (
             <a
-              href={latestWithDownload.downloadUrl}
-              download={latestWithDownload.fileName}
+              href={latestSubmission.solution_url}
+              download={latestSubmission.hash_id} // Or a more user-friendly name if available
               className="btn-base"
             >
               Tải file mới nhất
             </a>
           )}
-          <Button type="button" variant="default" onClick={handleRefresh}>
+          <Button
+            type="button"
+            variant="default"
+            onClick={handleRefresh}
+            disabled={isLoadingSubmissions}
+          >
             Làm mới
           </Button>
-          <Button type="button" variant="primary" onClick={() => setIsUploaderOpen(true)}>
+          <Button
+            type="button"
+            variant="primary"
+            onClick={() => setIsUploaderOpen(true)}
+            disabled={isUploading}
+          >
             {submissions.length > 0 ? 'Nộp phiên bản mới' : 'Nộp bài mới'}
           </Button>
         </div>
       </section>
 
       <SubmissionHistory
-        submissions={submissions}
+        submissions={submissions.map((s) => ({
+          id: s.submission_id,
+          fileName: s.solution_url?.split('/').pop() || s.hash_id,
+          originalFileName: s.solution_url?.split('/').pop() || s.hash_id,
+          submittedAt: new Date(s.submitted_at!),
+          status: s.status.toLowerCase() as SubmissionItem['status'], // Ensure status is lowercase
+          version: 0, // Versioning is not directly in SubmissionSummary, might need backend change or infer
+          fileSize: 0, // Not available in SubmissionSummary, might need backend change
+          note: '', // Not available in SubmissionSummary
+          downloadUrl: s.solution_url,
+        }))}
         onRefresh={handleRefresh}
         onCreateFirstSubmission={() => setIsUploaderOpen(true)}
         className="min-h-0"

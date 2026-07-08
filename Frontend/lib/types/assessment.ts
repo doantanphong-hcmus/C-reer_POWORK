@@ -1,4 +1,4 @@
-export type SubmissionStatus = 'Pending' | 'Evaluated' | 'Approved' | 'Rejected';
+export type SubmissionStatus = 'Pending' | 'Evaluated' | 'Approved' | 'Rejected' | 'Failed';
 
 export interface SubmissionSummary {
   submission_id: string;
@@ -45,4 +45,15 @@ export interface UnlockResponse {
 
 export interface UnlockRequest {
   action: 'APPROVE';
+}
+
+export interface GetPresignedUploadUrlRequest {
+  challenge_id: string;
+  file_name: string;
+  file_type: string;
+}
+
+export interface GetPresignedUploadUrlResponse {
+  upload_url: string;
+  file_key: string;
 }

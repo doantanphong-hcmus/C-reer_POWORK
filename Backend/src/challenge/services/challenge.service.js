@@ -37,7 +37,7 @@ const validateDeadline = (deadline) => {
 
 // ─── TC_CHAL_009: criteria_name không được trùng lặp ──────────────────────────
 const validateNoDuplicateCriteria = (rubrics) => {
-  const names = rubrics.map((r) => r.criteria_name.trim().toLowerCase())
+  const names = rubrics.map((r) => r.criteriaName.trim().toLowerCase())
   const uniqueNames = new Set(names)
   if (uniqueNames.size !== names.length) {
     throw new AppError('Tên tiêu chí không được phép trùng lặp.', 400, 'CHAL_003')
@@ -45,7 +45,7 @@ const validateNoDuplicateCriteria = (rubrics) => {
 }
 
 // ─── POST /api/v1/challenges ───────────────────────────────────────────────────
-export const createChallenge = async ({ employerUserId, companyId, companyName, payload }) => {
+export const createChallenge = async ({ companyId, companyName, payload }) => {
   const { title, description, industry, deadline, rubrics } = payload
 
   // Validate nghiệp vụ — chạy theo đúng thứ tự test case của TL
@@ -66,20 +66,20 @@ export const createChallenge = async ({ employerUserId, companyId, companyName, 
 
   // Trả về theo đúng format API Contracts — snake_case
   return {
-    challenge_id: challenge.id,
+    challengeId: challenge.id,
     title: challenge.title,
     description: challenge.description,
     industry: challenge.industry,
-    company_name: challenge.companyName,
+    companyName: challenge.companyName,
     deadline: challenge.deadline.toISOString(),
     status: challenge.status,
     rubrics: challenge.rubricCriteria.map((r) => ({
-      criteria_id: r.id,
-      criteria_name: r.criteriaName,
+      criteriaId: r.id,
+      criteriaName: r.criteriaName,
       weight: r.weight,
-      max_score: r.maxScore,
+      maxScore: r.maxScore,
     })),
-    created_at: challenge.createdAt.toISOString(),
+    createdAt: challenge.createdAt.toISOString(),
   }
 }
 
@@ -87,9 +87,9 @@ export const createChallenge = async ({ employerUserId, companyId, companyName, 
 export const getChallenges = async ({ industry }) => {
   const challenges = await challengeRepository.findManyChallenges({ industry })
   return challenges.map((c) => ({
-    challenge_id: c.id,
+    challengeId: c.id,
     title: c.title,
-    company_name: c.companyName,
+    companyName: c.companyName,
     industry: c.industry,
     deadline: c.deadline.toISOString(),
   }))
@@ -101,18 +101,18 @@ export const getChallengeById = async (challengeId) => {
   if (!challenge) throw new AppError('Không tìm thấy challenge', 404, 'CHAL_004')
 
   return {
-    challenge_id: challenge.id,
+    challengeId: challenge.id,
     title: challenge.title,
     description: challenge.description,
     industry: challenge.industry,
-    company_name: challenge.companyName,
+    companyName: challenge.companyName,
     deadline: challenge.deadline.toISOString(),
     status: challenge.status,
     rubrics: challenge.rubricCriteria.map((r) => ({
-      criteria_id: r.id,
-      criteria_name: r.criteriaName,
+      criteriaId: r.id,
+      criteriaName: r.criteriaName,
       weight: r.weight,
-      max_score: r.maxScore,
+      maxScore: r.maxScore,
     })),
   }
 }
@@ -125,8 +125,8 @@ export const updateChallengeStatus = async (challengeId, companyId, status) => {
     status,
   )
   return {
-    challenge_id: challenge.id,
+    challengeId: challenge.id,
     status: challenge.status,
-    updated_at: challenge.updatedAt.toISOString(),
+    updatedAt: challenge.updatedAt.toISOString(),
   }
 }

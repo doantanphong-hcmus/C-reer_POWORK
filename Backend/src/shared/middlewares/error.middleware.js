@@ -5,7 +5,7 @@
  */
 import { AppError } from '../utils/AppError.js'
 
-export const errorHandler = (err, req, res, next) => {
+export const errorHandler = (err, req, res) => {
   // Lỗi do dev throw AppError — có error_code
   if (err instanceof AppError) {
     return res.status(err.statusCode).json({

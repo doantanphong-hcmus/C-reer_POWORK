@@ -1,0 +1,72 @@
+                                                                                       Điều Kiện Tiên
+STT Thành Viên       Hạng Mục           Nhiệm vụ & Tiêu chí hoàn thành (DoD)                                Deadline
+                                                                                           Quyết
+     Phong (Tech Biến Môi Trường,    [Nhiệm vụ]                                      Không có
+     Lead)       Contracts &         - TỔNG HỢP file .env chuẩn hóa gửi cho cả
+                 Security            team.
+                                     - Cập nhật API Contracts & Cập nhật DB Schema
+                                     hỗ trợ Versioning.
+                                     - Duyệt mẫu Email xác nhận & Soạn kịch bản test
+                                     rò rỉ ID.
+ 1                                                                                                            Thứ 3
+                                  [Tiêu chí hoàn thành - DoD]
+                                  - Team nhận được 1 file .env chuẩn.
+                                  - Schema DB lưu được nhiều file cho 1 user mà
+                                  không mất ẩn danh.
+                                  - Request vào Assessment Router bị Middleware
+                                  tịch thu user_id.
+   Thịnh (UI/UX UI/UX & MinIO,    [Nhiệm vụ]                                      TL chốt API Contracts
+   & DevOps)    ClamAV, Load Test - Thiết kế thêm các màn hình Figma thể hiện các
+                                  trạng thái khi nộp bài của Candidate (Upload)
+                                  - Thiết kế thêm màn hình Figma thể hiện lịch sử
+                                  nộp bài của Candidate
+                                  - Thiết kế UI Submission có "Lịch sử nộp bài".
+                                  - Thêm 2 service minio và clamav vào docker-                                Thứ 4
+                                  compose.                                                                  (UI/MinIO)
+ 2
+                                  - Giả lập 100 concurrent requests nộp bài.                                Chủ Nhật
+                                                                                                             (Report)
+                                     [Tiêu chí hoàn thành - DoD]
+                                     - Màn hình đủ các trạng thái Upload + List
+                                     versions.
+                                     - MinIO Console và ClamAV chạy ổn định trên
+                                     máy local.
+                                     - Nộp Load Test Report hiệu năng.
+     Nhân         Uploader & History [Nhiệm vụ]                                      Chờ thiết kế UI từ
+     (Frontend    Components         - Code <Uploader /> đẩy file PUT lên MinIO.     Thịnh
+     Lead)                           - Code <SubmissionHistory /> hiển thị các lần
+                                     nộp.
+                                     - Validate Client (zip/pdf & max 10MB).
+ 3                                                                                                            Thứ 5
+                                     [Tiêu chí hoàn thành - DoD]
+                                     - Báo lỗi ngay tại trình duyệt nếu sai định
+                                     dạng/dung lượng.
+                                     - 2 components chạy độc lập, render mượt mà,
+                                     nhận props chuẩn.
+     Quang        API Presigned,     [Nhiệm vụ]                                        Chờ TL chốt
+     (Backend     ClamAV Job &       - API cấp vé Presigned URL & API Submissions Schema/Contracts
+     Core)        Email              (hỗ trợ versioning).
+                                     - Background Job gọi ClamAV quét file trên MinIO.
+                                     - Tích hợp Nodemailer bắn email xác nhận.
+ 4                                                                                                            Thứ 6
+                                 [Tiêu chí hoàn thành - DoD]
+                                 - Insert chính xác hash_id, KHÔNG rò rỉ user_id.
+                                 - File dính mã độc bị từ chối ngầm.
+                                 - Ứng viên nhận Email: "Bài làm đã được ghi
+                                 nhận. Mã ẩn danh của bạn là Candidate_XYZ".
+     Khoa         TẮT MOCK API & [Nhiệm vụ]                                         File .env từ TL & API
+     (Frontend    Ráp Nối Luồng  - TẮT MOCK API (MSW) trong providers.tsx và        từ BE
+     Developer)                  cấu hình lại Axios trỏ vào BE thật.
+                                 - Gắn <Uploader /> và <SubmissionHistory /> vào
+                                 trang [id]/submit.
+                                 - Nối API nộp bài (3 bước MinIO) và API fetch lịch
+                                 sử nộp bài.
+ 5                                                                                                            Thứ 7
+                                     [Tiêu chí hoàn thành - DoD]
+                                     - App Frontend GỌI ĐƯỢC XUỐNG BACKEND
+                                     THẬT và lưu data vào Postgres.
+                                     - Bắt lỗi Toast/Alert rõ ràng nếu rớt
+                                     mạng/Timeout.
+                                     - Nộp bài xong, danh sách lịch sử nộp bài tự
+                                     reload cập nhật mới nhất.
+

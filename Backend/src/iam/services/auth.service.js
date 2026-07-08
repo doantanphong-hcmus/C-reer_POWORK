@@ -17,15 +17,15 @@ import * as userRepository from '../repositories/user.repository.js'
 const SALT_ROUNDS = 10
 
 // ─── Register ──────────────────────────────────────────────────────────────────
-export const register = async ({ email, password, full_name, role, company_name }) => {
+export const register = async ({ email, password, fullName, role, companyName }) => {
   // 1. Validate role hợp lệ
   if (!['Candidate', 'Employer'].includes(role)) {
     throw new AppError('role phải là Candidate hoặc Employer', 400, 'AUTH_004')
   }
 
   // 2. Employer bắt buộc phải có company_name
-  if (role === 'Employer' && !company_name) {
-    throw new AppError('company_name là bắt buộc khi role là Employer', 400, 'AUTH_005')
+  if (role === 'Employer' && !companyName) {
+    throw new AppError('companyName là bắt buộc khi role là Employer', 400, 'AUTH_005')
   }
 
   // 3. Kiểm tra email đã tồn tại chưa
@@ -41,18 +41,18 @@ export const register = async ({ email, password, full_name, role, company_name 
   const user = await userRepository.createUser({
     email,
     passwordHash,
-    fullName: full_name,
+    fullName: fullName,
     role,
-    companyName: company_name,
+    companyName: companyName,
   })
 
   // 6. Trả về theo đúng format API Contracts — KHÔNG trả passwordHash
   return {
-    user_id: user.id,
+    userId: user.id,
     email: user.email,
-    full_name: user.fullName,
+    fullName: user.fullName,
     role: user.role,
-    company_id: user.company?.id ?? null,
+    companyId: user.company?.id ?? null,
   }
 }
 
@@ -72,7 +72,7 @@ export const login = async ({ email, password }) => {
   }
 
   // 3. Sign JWT — payload chứa userId, role, companyId (nếu có)
-  const access_token = jwt.sign(
+  const accessToken = jwt.sign(
     {
       userId: user.id,
       role: user.role,
@@ -84,11 +84,11 @@ export const login = async ({ email, password }) => {
 
   // 4. Trả về theo đúng format API Contracts
   return {
-    access_token,
-    token_type: 'Bearer',
+    accessToken,
+    tokenType: 'Bearer',
     user: {
-      user_id: user.id,
-      full_name: user.fullName,
+      userId: user.id,
+      fullName: user.fullName,
       role: user.role,
     },
   }
@@ -100,10 +100,10 @@ export const getById = async (userId) => {
   if (!user) throw new AppError('Không tìm thấy người dùng', 404, 'AUTH_008')
 
   return {
-    user_id: user.id,
+    userId: user.id,
     email: user.email,
-    full_name: user.fullName,
+    fullName: user.fullName,
     role: user.role,
-    company_id: user.company?.id ?? null,
+    companyId: user.company?.id ?? null,
   }
 }

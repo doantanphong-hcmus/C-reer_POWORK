@@ -19,8 +19,8 @@ export const getChallenges = async (req, res) => {
 
 // GET /api/v1/challenges/:challenge_id
 export const getChallengeById = async (req, res) => {
-  const { challenge_id } = req.params
-  const challenge = await challengeService.getChallengeById(challenge_id)
+  const { challengeId } = req.params
+  const challenge = await challengeService.getChallengeById(challengeId)
   return sendSuccess(res, challenge)
 }
 
@@ -28,12 +28,12 @@ export const getChallengeById = async (req, res) => {
 export const createChallenge = async (req, res) => {
   // companyId/companyName lấy qua IAM Internal Service Interface — KHÔNG tự
   // query bảng companies trực tiếp (đúng ranh giới module trong Coding Convention)
-  const { company_id, company_name } = await companyService.getCompanyByUserId(req.user.userId)
+  const { companyId, companyName } = await companyService.getCompanyByUserId(req.user.userId)
 
   const challenge = await challengeService.createChallenge({
     employerUserId: req.user.userId,
-    companyId: company_id,
-    companyName: company_name,
+    companyId: companyId,
+    companyName: companyName,
     payload: req.body,
   })
 
@@ -42,10 +42,10 @@ export const createChallenge = async (req, res) => {
 
 // PATCH /api/v1/challenges/:challenge_id/status
 export const updateChallengeStatus = async (req, res) => {
-  const { challenge_id } = req.params
+  const { challengeId } = req.params
   const { status } = req.body
-  const { company_id } = await companyService.getCompanyByUserId(req.user.userId)
+  const { companyId } = await companyService.getCompanyByUserId(req.user.userId)
 
-  const updated = await challengeService.updateChallengeStatus(challenge_id, company_id, status)
+  const updated = await challengeService.updateChallengeStatus(challengeId, companyId, status)
   return sendSuccess(res, updated)
 }

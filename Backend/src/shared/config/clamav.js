@@ -2,7 +2,7 @@
  * ClamAV Client — kết nối tới clamd qua TCP (clamscan package)
  * Dùng để quét file vừa upload lên MinIO trước khi cho phép Employer xem
  */
-import NodeClam from 'clamscan'
+import clamscan from 'clamscan'
 import { config } from './index.js'
 
 let clamscanInstance = null
@@ -11,7 +11,7 @@ let clamscanInstance = null
 export const getClamScan = async () => {
   if (clamscanInstance) return clamscanInstance
 
-  clamscanInstance = await new NodeClam().init({
+  clamscanInstance = await new clamscan().init({
     removeInfected: false, // KHÔNG tự xóa — để Service quyết định xử lý (reject submission)
     quarantineInfected: false,
     scanLog: null,

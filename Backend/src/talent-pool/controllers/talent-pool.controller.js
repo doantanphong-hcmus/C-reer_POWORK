@@ -5,7 +5,7 @@
  * Cho phép Employer lưu lại danh sách ứng viên đã unlock để tiện theo dõi.
  *
  * Ranh giới module (ERD mục 2.5):
- *   - Bảng talent_pools lưu company_id và user_id dạng DATA FIELD — không FK cứng
+ *   - Bảng talent_pools lưu companyId và userId dạng DATA FIELD — không FK cứng
  *   - Không JOIN trực tiếp sang IAM Module ở tầng DB
  *   - Thông tin ứng viên (full_name, university...) lấy qua Internal Service Interface
  */
@@ -15,39 +15,38 @@ import { AppError } from '../../shared/utils/AppError.js'
 
 // ─── Mock data ────────────────────────────────────────────────────────────────
 const MOCK_POOL_ENTRY = {
-  pool_id: '8b9e67a1-1234-421c-a32e-11bc9aef4421',
+  poolId: '8b9e67a1-1234-421c-a32e-11bc9aef4421',
   candidate: {
-    user_id: 'de305d54-75b4-431b-adb2-eb6b9e546014',
-    full_name: 'Đoàn Tấn Phong',
+    userId: 'de305d54-75b4-431b-adb2-eb6b9e546014',
+    fullName: 'Đoàn Tấn Phong',
     university: 'HCMUS',
     year: 'Năm 4',
-    primary_skills: ['System Design', 'Redis'],
+    primarySkills: ['System Design', 'Redis'],
   },
-  highest_score: 92.0,
-  challenges_taken: ['Caching', 'API Design'],
+  highestScore: 92.0,
+  challengesTaken: ['Caching', 'API Design'],
   status: 'INVITED',
-  added_at: '2026-06-12T10:00:00Z',
+  addedAt: '2026-06-12T10:00:00Z',
 }
 
 // ─── POST /api/v1/talent-pool ─────────────────────────────────────────────────
 // Ai gọi: Employer — sau khi unlock ứng viên, muốn lưu vào danh sách theo dõi
 // Auth:   Bearer Employer_Token
-// Nhận:  { user_id } — user_id của ứng viên đã được unlock trước đó
-// Lưu ý: Chỉ được thêm ứng viên đã unlock (is_unlocked = true trong identity_mappings)
+// Nhận:  { userId } — userId của ứng viên đã được unlock trước đó
+// Lưu ý: Chỉ được thêm ứng viên đã unlock (isUnlocked = true trong identity_mappings)
 //        Việc kiểm tra này sẽ do TalentPoolService xử lý ở Sprint 1
 export const addToTalentPool = async (req, res) => {
-  const { user_id } = req.body
+  const { userId } = req.body
 
-  if (!user_id) throw new AppError('user_id là bắt buộc', 400, 'POOL_001')
+  if (!userId) throw new AppError('userId là bắt buộc', 400, 'POOL_001')
 
-  // company_id lấy từ JWT (Employer đang đăng nhập) — không để FE tự gửi
-  const companyId = req.user?.companyId ?? 'mock-company-id'
+  // companyId lấy từ JWT (Employer đang đăng nhập) — không để FE tự gửi
 
-  // TODO Sprint 1: await TalentPoolService.add(companyId, user_id)
+  // TODO Sprint 1: await TalentPoolService.add(companyId, userId)
   // Service sẽ:
-  //   1. Kiểm tra user_id này đã được unlock bởi company này chưa
+  //   1. Kiểm tra userId này đã được unlock bởi company này chưa
   //   2. Kiểm tra đã có trong pool chưa (tránh trùng)
-  //   3. INSERT talent_pools { company_id, user_id, status: 'IN_POOL' }
+  //   3. INSERT talent_pools { companyId, userId, status: 'IN_POOL' }
 
   return sendCreated(res, null, 'Candidate added to Talent Pool')
 }
@@ -55,15 +54,13 @@ export const addToTalentPool = async (req, res) => {
 // ─── GET /api/v1/talent-pool ──────────────────────────────────────────────────
 // Ai gọi: Employer — xem danh sách ứng viên đang theo dõi
 // Auth:   Bearer Employer_Token
-// Trả:   danh sách ứng viên kèm highest_score, challenges_taken, status
+// Trả:   danh sách ứng viên kèm highestScore, challengesTaken, status
 export const getTalentPool = async (req, res) => {
-  const companyId = req.user?.companyId ?? 'mock-company-id'
-
   // TODO Sprint 1: const pool = await TalentPoolService.getByCompany(companyId)
   // Service sẽ:
-  //   1. SELECT từ talent_pools WHERE company_id = :companyId
-  //   2. Với mỗi user_id → gọi IAMService.getUserInfo(user_id) qua Interface
-  //   3. Gọi AssessmentService.getHighestScore(user_id, companyId)
+  //   1. SELECT từ talent_pools WHERE companyId = :companyId
+  //   2. Với mỗi userId → gọi IAMService.getUserInfo(userId) qua Interface
+  //   3. Gọi AssessmentService.getHighestScore(userId, companyId)
   //   4. Gộp data trả về (KHÔNG JOIN trực tiếp DB)
 
   return sendSuccess(res, [MOCK_POOL_ENTRY])
