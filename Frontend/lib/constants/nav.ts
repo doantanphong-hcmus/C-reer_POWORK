@@ -1,9 +1,20 @@
 import type { UserRole } from '@/lib/types';
 
+export type NavIconName =
+  | 'home'
+  | 'challenge'
+  | 'submission'
+  | 'profile'
+  | 'create'
+  | 'talent'
+  | 'bookmark'
+  | 'notification'
+  | 'settings';
+
 export interface NavItem {
   label: string;
   href: string;
-  icon: string;
+  icon: NavIconName;
 }
 
 /**
@@ -12,15 +23,15 @@ export interface NavItem {
  */
 export const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
   Candidate: [
-    { label: 'Tổng quan', href: '/candidate/dashboard', icon: '🏠' },
-    { label: 'Thử thách', href: '/challenges', icon: '🎯' },
-    { label: 'Bài nộp của tôi', href: '/candidate/my-submissions', icon: '📤' },
-    { label: 'Hồ sơ', href: '/profile', icon: '👤' },
+    { label: 'Overview', href: '/candidate/dashboard', icon: 'home' },
+    { label: 'Challenges', href: '/challenges', icon: 'challenge' },
+    { label: 'My Submissions', href: '/candidate/my-submissions', icon: 'submission' },
+    { label: 'Dynamic Profile', href: '/candidate/profile', icon: 'profile' },
   ],
   Employer: [
-    { label: 'Tổng quan', href: '/employer/dashboard', icon: '🏠' },
-    { label: 'Thử thách của tôi', href: '/challenges', icon: '🎯' },
-    { label: 'Tạo thử thách', href: '/employer/challenges/create', icon: '➕' },
-    { label: 'Talent Pool', href: '/talent-pool', icon: '⭐' },
+    { label: 'Overview', href: '/employer/dashboard', icon: 'home' },
+    { label: 'Challenges', href: '/challenges', icon: 'challenge' },
+    { label: 'Create Challenge', href: '/employer/challenges/create', icon: 'create' },
+    { label: 'Talent Pool', href: '/talent-pool', icon: 'talent' },
   ],
 };
