@@ -233,6 +233,13 @@ Tài liệu này quy định chi tiết các API Contracts thuộc phạm vi MVP
     "general_comment": "Bài làm xuất sắc"
   }
   ```
+- **Response (403 Forbidden):** Trả về khi hồ sơ đã được Unlock (Đóng băng điểm số).
+  ```json
+  {
+    "status": "error",
+    "message": "Cannot evaluate. This submission has already been unlocked and frozen."
+  }
+  ```
 
 #### [POST] `/api/v1/assessment/submissions/{submission_id}/unlock`
 
@@ -255,6 +262,13 @@ Tài liệu này quy định chi tiết các API Contracts thuộc phạm vi MVP
       "full_name": "Đoàn Tấn Phong",
       "email": "phong.dt@gmail.com"
     }
+  }
+  ```
+- **Response (409 Conflict):** Trả về khi xảy ra hiện tượng Race Condition (2 giám khảo cùng bấm Unlock). Yêu cầu Backend dùng Prisma Interactive Transaction để bắt lỗi này.
+  ```json
+  {
+    "status": "error",
+    "message": "Conflict! This candidate has already been unlocked by another evaluator."
   }
   ```
 
