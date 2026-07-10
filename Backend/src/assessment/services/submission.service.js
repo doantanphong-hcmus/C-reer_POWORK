@@ -11,6 +11,7 @@
  */
 import { AppError } from '../../shared/utils/AppError.js'
 import { generateHashId } from '../../shared/utils/hashId.js'
+import prisma from '../../shared/config/prisma.js'
 import * as submissionRepository from '../repositories/submission.repository.js'
 import * as userLookupService from '../../iam/services/user-lookup.service.js' // IAM Interface
 import { queueScanJob } from '../jobs/scan.job.js'
