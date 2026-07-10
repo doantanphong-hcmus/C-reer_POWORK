@@ -99,18 +99,18 @@ export const unlockCandidate = async (submissionId, action) => {
   }
 
   const mappingResult = await prisma.$transaction(async (tx) => {
-    // Bước 1: Lấy bài nộp, kèm theo bảng IdentityMapping (để lấy cờ isUnlocked) 
+    // Bước 1: Lấy bài nộp, kèm theo bảng IdentityMapping (để lấy cờ isUnlocked)
     // và bảng Điểm (EvaluationResult) để chuẩn bị copy dữ liệu
     const submission = await tx.submission.findUnique({
       where: { id: submissionId },
       include: {
         identityMapping: true,
-        evaluationResult: true // Bảng chứa điểm chấm của nhà tuyển dụng
-      }
+        evaluationResult: true, // Bảng chứa điểm chấm của nhà tuyển dụng
+      },
     })
 
     if (!submission) throw new AppError('Không tìm thấy submission', 404, 'ASSESS_002')
-    
+
     const mapping = submission.identityMapping
     if (!mapping) throw new AppError('Không tìm thấy identity mapping', 404, 'ASSESS_003')
 
@@ -122,13 +122,13 @@ export const unlockCandidate = async (submissionId, action) => {
     // Bước 3: Cập nhật trạng thái bài nộp thành APPROVED
     await tx.submission.update({
       where: { id: submissionId },
-      data: { status: 'APPROVED' }
+      data: { status: 'APPROVED' },
     })
 
     // Bước 4: Bật cờ isUnlocked = true cho hồ sơ ẩn danh này
     await tx.identityMapping.update({
       where: { hashId: mapping.hashId },
-      data: { isUnlocked: true }
+      data: { isUnlocked: true },
     })
 
     // Bước 5: COPY DỮ LIỆU SANG BẢNG VerifiedEvidence (Chốt sổ điểm số)
@@ -140,15 +140,14 @@ export const unlockCandidate = async (submissionId, action) => {
         userId: mapping.userId,
         challengeId: mapping.challengeId,
         submissionId: submission.id,
-        totalScore: totalScore
-      }
+        totalScore: totalScore,
+      },
     })
 
     // Transaction thành công, trả về mapping để dùng ở bước dưới
     return mapping
   })
 
-  
   // Lấy thông tin thật qua IAM Interface
   const { email, fullName } = await userLookupService.getUserContactById(mappingResult.userId)
 
