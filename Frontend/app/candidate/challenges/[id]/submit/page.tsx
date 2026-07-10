@@ -23,6 +23,11 @@ const STATUS_LABELS: Record<SubmissionSummary['status'], string> = {
   Approved: 'Đã ghi nhận',
   Rejected: 'Bị từ chối',
   Failed: 'Bị chặn bảo mật',
+  PENDING: 'Đang chờ xử lý',
+  EVALUATED: 'Đang kiểm tra',
+  APPROVED: 'Đã ghi nhận',
+  REJECTED: 'Bị từ chối',
+  FAILED: 'Bị chặn bảo mật',
 };
 
 // This function is still needed to extract challengeId from URL params

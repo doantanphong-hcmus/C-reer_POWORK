@@ -8,8 +8,8 @@ interface RolePillProps extends HTMLAttributes<HTMLSpanElement> {
 }
 
 const roleStyles: Record<Role, string> = {
-  employer: 'bg-[rgba(124,111,247,0.15)] text-[#a89ff5] border-[rgba(124,111,247,0.35)]',
-  candidate: 'bg-[rgba(34,197,94,0.12)] text-[#4ade80] border-[rgba(34,197,94,0.3)]',
+  employer: 'border-warning/40 bg-warning-bg text-warning',
+  candidate: 'border-success/40 bg-success-bg text-success',
   system: 'bg-background-tertiary text-foreground-secondary border-border-secondary',
 };
 
