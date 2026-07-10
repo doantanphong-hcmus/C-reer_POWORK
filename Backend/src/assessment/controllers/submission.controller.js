@@ -13,7 +13,7 @@ export const submitSolution = async (req, res) => {
   const userId = req.user.userId // chỉ lấy từ JWT — blindAuditionGuard đã chặn FE gửi lên
 
   // Lấy title để đưa vào nội dung email xác nhận (không bắt buộc, chỉ làm đẹp email)
-  const challenge = await prisma.challenge.findUnique({ where: { id: challenge_id } })
+  const challenge = await prisma.challenge.findUnique({ where: { id: challengeId } })
 
   const result = await submissionService.submitSolution({
     userId,

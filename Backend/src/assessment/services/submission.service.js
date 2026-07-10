@@ -11,6 +11,7 @@
  */
 import { AppError } from '../../shared/utils/AppError.js'
 import { generateHashId } from '../../shared/utils/hashId.js'
+import prisma from '../../shared/config/prisma.js'
 import * as submissionRepository from '../repositories/submission.repository.js'
 import * as userLookupService from '../../iam/services/user-lookup.service.js' // IAM Interface
 import { queueScanJob } from '../jobs/scan.job.js'
@@ -92,30 +93,69 @@ export const getSubmissionsByChallenge = async (challengeId) => {
 
 // ─── POST /api/v1/assessment/submissions/:submission_id/unlock ──────────────
 export const unlockCandidate = async (submissionId, action) => {
+  // Nếu hành động không phải là APPROVE (mở khóa), chỉ cần cập nhật trạng thái đơn giản
   if (action !== 'APPROVE') {
     const rejected = await submissionRepository.updateSubmissionStatus(submissionId, 'REJECTED')
     return { message: 'Submission rejected.', submissionId: rejected.id }
   }
 
-  const submission = await submissionRepository.findSubmissionById(submissionId)
-  if (!submission) throw new AppError('Không tìm thấy submission', 404, 'ASSESS_002')
+  const mappingResult = await prisma.$transaction(async (tx) => {
+    // Bước 1: Lấy bài nộp, kèm theo bảng IdentityMapping (để lấy cờ isUnlocked)
+    // và bảng Điểm (EvaluationResult) để chuẩn bị copy dữ liệu
+    const submission = await tx.submission.findUnique({
+      where: { id: submissionId },
+      include: {
+        identityMapping: true,
+        evaluationResult: true, // Bảng chứa điểm chấm của nhà tuyển dụng
+      },
+    })
 
-  const mapping = await submissionRepository.findIdentityMappingByHashId(submission.hashId)
-  if (!mapping) throw new AppError('Không tìm thấy identity mapping', 404, 'ASSESS_003')
+    if (!submission) throw new AppError('Không tìm thấy submission', 404, 'ASSESS_002')
 
-  await submissionRepository.updateSubmissionStatus(submissionId, 'APPROVED')
-  await submissionRepository.markIdentityMappingUnlocked(submission.hashId)
+    const mapping = submission.identityMapping
+    if (!mapping) throw new AppError('Không tìm thấy identity mapping', 404, 'ASSESS_003')
 
-  // Lấy thông tin thật qua IAM Interface — chỉ lúc này mới được phép
-  const { email, fullName } = await userLookupService.getUserContactById(mapping.userId)
+    // Bước 2: KIỂM TRA CỜ isUnlocked (Chặn Race Condition - Click 2 lần)
+    if (mapping.isUnlocked) {
+      throw new AppError('Hồ sơ này đã được mở khóa từ trước, không thể mở lại!', 409, 'ASSESS_004')
+    }
 
-  // TODO: bắn Event "Submission_Unlocked" { user_id: mapping.userId, challenge_id, total_score }
-  // để Profile Module ghi vào verified_evidences (Sprint sau khi có Event Bus)
+    // Bước 3: Cập nhật trạng thái bài nộp thành APPROVED
+    await tx.submission.update({
+      where: { id: submissionId },
+      data: { status: 'APPROVED' },
+    })
+
+    // Bước 4: Bật cờ isUnlocked = true cho hồ sơ ẩn danh này
+    await tx.identityMapping.update({
+      where: { hashId: mapping.hashId },
+      data: { isUnlocked: true },
+    })
+
+    // Bước 5: COPY DỮ LIỆU SANG BẢNG VerifiedEvidence (Chốt sổ điểm số)
+    // Lấy điểm tổng hoặc để mặc định là 0 nếu chưa có
+    const totalScore = submission.evaluationResult?.totalScore || 0
+
+    await tx.verifiedEvidence.create({
+      data: {
+        userId: mapping.userId,
+        challengeId: mapping.challengeId,
+        submissionId: submission.id,
+        totalScore: totalScore,
+      },
+    })
+
+    // Transaction thành công, trả về mapping để dùng ở bước dưới
+    return mapping
+  })
+
+  // Lấy thông tin thật qua IAM Interface
+  const { email, fullName } = await userLookupService.getUserContactById(mappingResult.userId)
 
   return {
-    message: 'Identity unlocked.',
+    message: 'Identity unlocked successfully.',
     unlockedCandidateProfile: {
-      userId: mapping.userId,
+      userId: mappingResult.userId,
       fullName,
       email,
     },
