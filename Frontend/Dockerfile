@@ -8,6 +8,10 @@ RUN npm ci
 
 # Stage 2: Build mã nguồn
 FROM base AS builder
+ARG NEXT_PUBLIC_API_URL=http://localhost:3001
+ARG INTERNAL_API_URL=http://backend:3001
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+ENV INTERNAL_API_URL=${INTERNAL_API_URL}
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
