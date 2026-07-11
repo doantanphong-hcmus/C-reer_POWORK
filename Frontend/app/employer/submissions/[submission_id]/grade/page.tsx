@@ -64,6 +64,11 @@ function getAnonymousCode(hashId?: string): string {
 
 function getActionError(error: unknown, fallback: string): string {
   if (error instanceof Error && error.message) {
+    // Specifically check for the 409 Conflict message from the backend API contract
+    // (from Documents/API_Contracts_POWORK.md, POST /assessment/submissions/{submission_id}/unlock, Response 409 Conflict)
+    if (error.message.includes("Conflict! This candidate has already been unlocked by another evaluator.")) {
+      return "Không thể mở khóa. Ứng viên này đã được mở khóa bởi một người chấm khác.";
+    }
     return fallback;
   }
 
