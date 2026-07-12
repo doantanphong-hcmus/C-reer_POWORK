@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
@@ -65,6 +65,14 @@ export default function LoginContent() {
   const [selectedRole, setSelectedRole] = useState<UserRole>(() =>
     getInitialRole(roleParam, redirectPath)
   );
+
+  useEffect(() => {
+    const roleFromUrl = getInitialRole(roleParam, redirectPath);
+    if (roleFromUrl && roleFromUrl !== selectedRole) {
+      setSelectedRole(roleFromUrl);
+    }
+  }, [roleParam, redirectPath]);
+
   const roleSlug = selectedRole === 'Employer' ? 'employer' : 'candidate';
 
   const {
