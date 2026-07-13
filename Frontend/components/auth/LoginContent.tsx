@@ -63,7 +63,7 @@ export default function LoginContent() {
   const redirectPath = getSafeRedirect(searchParams.get('redirect'));
   const roleParam = searchParams.get('role');
   const initialRoleFromUrl = getInitialRole(roleParam, redirectPath);
-  
+
   const [selectedRole, setSelectedRole] = useState<UserRole>(initialRoleFromUrl);
   const [prevRoleParam, setPrevRoleParam] = useState<string | null>(roleParam);
 
