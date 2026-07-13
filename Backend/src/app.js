@@ -15,7 +15,12 @@ const app = express()
 
 // ─── Security & Logging ───────────────────────────────────────────────────────
 app.use(helmet())
-app.use(cors({ origin: process.env.FRONTEND_URL || '*' }))
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    credentials: true,
+  }),
+)
 app.use(morgan('dev'))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
