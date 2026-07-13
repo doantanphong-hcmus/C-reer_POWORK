@@ -66,6 +66,7 @@ export default function LoginContent() {
     getInitialRole(roleParam, redirectPath)
   );
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/set-state-in-effect
   useEffect(() => {
     const roleFromUrl = getInitialRole(roleParam, redirectPath);
     if (roleFromUrl && roleFromUrl !== selectedRole) {

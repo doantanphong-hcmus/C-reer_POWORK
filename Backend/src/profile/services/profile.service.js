@@ -4,7 +4,7 @@
  */
 import { AppError } from '../../shared/utils/AppError.js'
 import prisma from '../../shared/config/prisma.js'
-import * as authService from '../../iam/services/auth.service.js' // Sử dụng IAM Interface 
+import * as authService from '../../iam/services/auth.service.js' // Sử dụng IAM Interface
 
 export const getProfileByUserId = async (userId) => {
   // Bước 1: Lấy thông tin cơ bản từ IAM Module (Không được JOIN trực tiếp ở DB)
@@ -17,7 +17,7 @@ export const getProfileByUserId = async (userId) => {
     orderBy: { unlockedAt: 'desc' }, // Bài nộp mới nhất lên trên
   })
 
-  // Bước 3: Đóng gói và trả về Object thuần 
+  // Bước 3: Đóng gói và trả về Object thuần
   return {
     userId: userContact.userId,
     fullName: userContact.fullName,
