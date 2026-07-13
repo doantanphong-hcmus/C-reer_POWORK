@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
@@ -62,17 +62,16 @@ export default function LoginContent() {
   const searchParams = useSearchParams();
   const redirectPath = getSafeRedirect(searchParams.get('redirect'));
   const roleParam = searchParams.get('role');
-  const [selectedRole, setSelectedRole] = useState<UserRole>(() =>
-    getInitialRole(roleParam, redirectPath)
-  );
+  const initialRoleFromUrl = getInitialRole(roleParam, redirectPath);
+  
+  const [selectedRole, setSelectedRole] = useState<UserRole>(initialRoleFromUrl);
+  const [prevRoleParam, setPrevRoleParam] = useState<string | null>(roleParam);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/set-state-in-effect
-  useEffect(() => {
-    const roleFromUrl = getInitialRole(roleParam, redirectPath);
-    if (roleFromUrl && roleFromUrl !== selectedRole) {
-      setSelectedRole(roleFromUrl);
-    }
-  }, [roleParam, redirectPath]);
+  // Sync state during render when URL params change (React recommended pattern)
+  if (roleParam !== prevRoleParam) {
+    setPrevRoleParam(roleParam);
+    setSelectedRole(initialRoleFromUrl);
+  }
 
   const roleSlug = selectedRole === 'Employer' ? 'employer' : 'candidate';
 
