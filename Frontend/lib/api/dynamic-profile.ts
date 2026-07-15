@@ -1,4 +1,4 @@
-import type { CandidateProfile, Evidence } from '@/lib/types';
+import type { CandidateProfile, Evidence, Profile, VerifiedEvidence } from '@/lib/types';
 import { apiClient } from './client';
 
 function normalizeProfile(profile: CandidateProfile): CandidateProfile {
@@ -35,7 +35,7 @@ export const dynamicProfileAPI = {
     const mappedProfile: CandidateProfile = {
       id: data.user_id, // Mapped from user_id to id
       fullName: data.full_name,
-      evidences: data.verified_evidences.map((evidence: any) => {
+      evidences: data.verified_evidences.map((evidence: VerifiedEvidence) => {
         const finalScore = evidence.total_score;
         let status: 'pending' | 'rejected' | 'passed' | 'excellent' = 'pending';
         if (finalScore >= 8) {
@@ -69,7 +69,7 @@ export const dynamicProfileAPI = {
     return normalizeProfile(mappedProfile);
   },
 
-  async getEvidenceDetail(evidenceId: string): Promise<Evidence | null> {
+  async getEvidenceDetail(_evidenceId: string): Promise<Evidence | null> {
     // TODO: Implement actual API call for evidence detail
     return null;
   },
