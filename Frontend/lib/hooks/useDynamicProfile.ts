@@ -1,10 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 import { dynamicProfileAPI } from '@/lib/api/dynamic-profile';
 
-export function useCandidateProfile() {
+export function useCandidateProfile(userId: string) {
   return useQuery({
     queryKey: ['candidate-profile'],
-    queryFn: () => dynamicProfileAPI.getCandidateProfile(),
+    queryFn: () => dynamicProfileAPI.getCandidateProfile(userId),
+    enabled: Boolean(userId),
   });
 }
 
