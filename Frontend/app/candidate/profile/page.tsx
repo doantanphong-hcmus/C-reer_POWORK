@@ -14,7 +14,7 @@ import { useAuth, useCandidateProfile } from '@/lib/hooks';
 
 export default function CandidateDynamicProfilePage() {
   const { user } = useAuth();
-  const { data: profile, isLoading, isError, error } = useCandidateProfile();
+  const { data: profile, isLoading, isError, error } = useCandidateProfile(user?.user_id ?? "");
 
   const handleShare = async () => {
     if (typeof window === 'undefined') return;
