@@ -79,7 +79,7 @@ export const getTalentPool = async ({ companyId }) => {
         status: entry.status,
         added_at: entry.addedAt.toISOString(),
       }
-    })
+    }),
   )
 
   return results
