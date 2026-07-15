@@ -22,8 +22,8 @@ export const getEvidenceSummaryByUserId = async (userId) => {
     return { highest_score: 0, challenges_taken: [] }
   }
 
-  const highest_score = Math.max(...evidences.map((e) => e.totalScore))
-  const challenges_taken = evidences.map((e) => e.challengeName)
+  const highestScore = Math.max(...evidences.map((e) => e.totalScore))
+  const challengesTaken = evidences.map((e) => e.challengeName)
 
   return { highest_score, challenges_taken }
 }
