@@ -9,7 +9,7 @@ import authRoutes from './iam/routes/auth.routes.js'
 import challengeRoutes from './challenge/routes/challenge.routes.js'
 import assessmentRoutes from './assessment/routes/submission.routes.js'
 import profileRoutes from './profile/routes/profile.routes.js'
-import talentPoolRoutes from './talent-pool/routes/talent-pool.routes.js'
+import talentPoolRoutes from './talent-pool/routes/talent-pool.route.js'
 
 const app = express()
 
