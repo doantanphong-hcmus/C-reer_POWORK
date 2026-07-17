@@ -348,3 +348,21 @@ Tài liệu này quy định chi tiết các API Contracts thuộc phạm vi MVP
     ]
   }
   ```
+
+#### [PATCH] `/api/v1/talent-pool/:pool_id/status`
+
+- **Mô tả:** Cập nhật trạng thái của ứng viên trong Talent Pool.
+- **Auth:** `Bearer <Employer_Token>`
+- **Request Body:**
+  ```json
+  {
+    "status": "INVITED" // Chỉ nhận: "IN_POOL" hoặc "INVITED"
+  }
+  ```
+- **Response (200 OK):**
+  ```json
+  {
+    "status": "success",
+    "message": "Cập nhật trạng thái thành công"
+  }
+  ```
