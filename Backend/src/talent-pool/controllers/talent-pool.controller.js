@@ -14,21 +14,7 @@ import { sendSuccess, sendCreated } from '../../shared/utils/response.js'
 import { AppError } from '../../shared/utils/AppError.js'
 import * as talentPoolService from '../services/talent-pool.service.js'
 
-// ─── Mock data ────────────────────────────────────────────────────────────────
-const MOCK_POOL_ENTRY = {
-  poolId: '8b9e67a1-1234-421c-a32e-11bc9aef4421',
-  candidate: {
-    userId: 'de305d54-75b4-431b-adb2-eb6b9e546014',
-    fullName: 'Đoàn Tấn Phong',
-    university: 'HCMUS',
-    year: 'Năm 4',
-    primarySkills: ['System Design', 'Redis'],
-  },
-  highestScore: 92.0,
-  challengesTaken: ['Caching', 'API Design'],
-  status: 'INVITED',
-  addedAt: '2026-06-12T10:00:00Z',
-}
+
 
 // ─── POST /api/v1/talent-pool ─────────────────────────────────────────────────
 // Ai gọi: Employer — sau khi unlock ứng viên, muốn lưu vào danh sách theo dõi
@@ -67,7 +53,7 @@ export const getTalentPool = async (req, res) => {
 // Auth:   Bearer Employer_Token
 // Nhận:   { status: 'INVITED' | 'IN_POOL' }
 export const updateTalentPoolStatus = async (req, res) => {
-  const { pool_id } = req.params
+  const poolId = req.params.pool_id
   const { status } = req.body
   const companyId = req.user.companyId
 
@@ -79,7 +65,7 @@ export const updateTalentPoolStatus = async (req, res) => {
     throw new AppError('Trạng thái không hợp lệ', 400, 'POOL_005')
   }
 
-  await talentPoolService.updateStatus({ poolId: pool_id, companyId, status })
+  await talentPoolService.updateStatus({ poolId, companyId, status })
 
   return sendSuccess(res, null, 'Cập nhật trạng thái thành công')
 }

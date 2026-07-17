@@ -2,7 +2,7 @@
  * PROFILE MODULE — Profile Service
  * Lấy lịch sử thực chiến và thông tin ứng viên
  */
-import { AppError } from '../../shared/utils/AppError.js'
+
 import prisma from '../../shared/config/prisma.js'
 import * as authService from '../../iam/services/auth.service.js' // Sử dụng IAM Interface
 
