@@ -28,7 +28,8 @@ export const getChallengeById = async (req, res) => {
 export const createChallenge = async (req, res) => {
   // companyId/companyName lấy qua IAM Internal Service Interface — KHÔNG tự
   // query bảng companies trực tiếp (đúng ranh giới module trong Coding Convention)
-  const { company_id: companyId, company_name: companyName } = await companyService.getCompanyByUserId(req.user.userId)
+  const { company_id: companyId, company_name: companyName } =
+    await companyService.getCompanyByUserId(req.user.userId)
 
   const challenge = await challengeService.createChallenge({
     employerUserId: req.user.userId,
