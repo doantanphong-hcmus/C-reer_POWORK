@@ -1,8 +1,8 @@
 import { Router } from 'express'
 import {
-    addToTalentPool,
-    getTalentPool,
-    updateTalentPoolStatus,
+  addToTalentPool,
+  getTalentPool,
+  updateTalentPoolStatus,
 } from '../controllers/talent-pool.controller.js'
 import { authenticate, authorize } from '../../shared/middlewares/auth.middleware.js'
 
