@@ -84,3 +84,24 @@ export const getTalentPool = async ({ companyId }) => {
 
   return results
 }
+
+// ─── PATCH /api/v1/talent-pool/:pool_id/status ────────────────────────────────
+export const updateStatus = async ({ poolId, companyId, status }) => {
+  // Kiểm tra xem pool record này có tồn tại và thuộc về companyId hiện tại không
+  // Việc check companyId rất quan trọng để tránh lỗi bảo mật (Employer A đổi status của Employer B)
+  const existing = await prisma.talentPool.findFirst({
+    where: { id: poolId, companyId },
+  })
+
+  if (!existing) {
+    throw new AppError('Không tìm thấy ứng viên trong Talent Pool của bạn', 404, 'POOL_006')
+  }
+
+  // Thực hiện cập nhật trạng thái
+  await prisma.talentPool.update({
+    where: { id: poolId },
+    data: { status },
+  })
+
+  return null
+}

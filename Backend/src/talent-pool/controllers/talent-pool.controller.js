@@ -61,3 +61,25 @@ export const getTalentPool = async (req, res) => {
 
   return sendSuccess(res, pool)
 }
+
+// ─── PATCH /api/v1/talent-pool/:pool_id/status ────────────────────────────────
+// Ai gọi: Employer — muốn đổi trạng thái của ứng viên (VD: mời phỏng vấn)
+// Auth:   Bearer Employer_Token
+// Nhận:   { status: 'INVITED' | 'IN_POOL' }
+export const updateTalentPoolStatus = async (req, res) => {
+  const { pool_id } = req.params
+  const { status } = req.body
+  const companyId = req.user.companyId
+
+  if (!companyId) throw new AppError('Tài khoản chưa thuộc công ty nào', 403, 'POOL_003')
+  if (!status) throw new AppError('status là bắt buộc', 400, 'POOL_004')
+
+  const validStatuses = ['IN_POOL', 'INVITED']
+  if (!validStatuses.includes(status)) {
+    throw new AppError('Trạng thái không hợp lệ', 400, 'POOL_005')
+  }
+
+  await talentPoolService.updateStatus({ poolId: pool_id, companyId, status })
+
+  return sendSuccess(res, null, 'Cập nhật trạng thái thành công')
+}
