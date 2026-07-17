@@ -12,6 +12,7 @@
 
 import { sendSuccess, sendCreated } from '../../shared/utils/response.js'
 import { AppError } from '../../shared/utils/AppError.js'
+import * as talentPoolService from '../services/talent-pool.service.js'
 
 // ─── Mock data ────────────────────────────────────────────────────────────────
 const MOCK_POOL_ENTRY = {
@@ -40,13 +41,10 @@ export const addToTalentPool = async (req, res) => {
 
   if (!userId) throw new AppError('userId là bắt buộc', 400, 'POOL_001')
 
-  // companyId lấy từ JWT (Employer đang đăng nhập) — không để FE tự gửi
+  const companyId = req.user.companyId
+  if (!companyId) throw new AppError('Tài khoản chưa thuộc công ty nào', 403, 'POOL_003')
 
-  // TODO Sprint 1: await TalentPoolService.add(companyId, userId)
-  // Service sẽ:
-  //   1. Kiểm tra userId này đã được unlock bởi company này chưa
-  //   2. Kiểm tra đã có trong pool chưa (tránh trùng)
-  //   3. INSERT talent_pools { companyId, userId, status: 'IN_POOL' }
+  await talentPoolService.addToTalentPool({ companyId, userId })
 
   return sendCreated(res, null, 'Candidate added to Talent Pool')
 }
@@ -56,12 +54,10 @@ export const addToTalentPool = async (req, res) => {
 // Auth:   Bearer Employer_Token
 // Trả:   danh sách ứng viên kèm highestScore, challengesTaken, status
 export const getTalentPool = async (req, res) => {
-  // TODO Sprint 1: const pool = await TalentPoolService.getByCompany(companyId)
-  // Service sẽ:
-  //   1. SELECT từ talent_pools WHERE companyId = :companyId
-  //   2. Với mỗi userId → gọi IAMService.getUserInfo(userId) qua Interface
-  //   3. Gọi AssessmentService.getHighestScore(userId, companyId)
-  //   4. Gộp data trả về (KHÔNG JOIN trực tiếp DB)
+  const companyId = req.user.companyId
+  if (!companyId) throw new AppError('Tài khoản chưa thuộc công ty nào', 403, 'POOL_003')
 
-  return sendSuccess(res, [MOCK_POOL_ENTRY])
+  const pool = await talentPoolService.getTalentPool({ companyId })
+
+  return sendSuccess(res, pool)
 }
