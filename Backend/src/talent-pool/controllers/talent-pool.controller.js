@@ -14,8 +14,6 @@ import { sendSuccess, sendCreated } from '../../shared/utils/response.js'
 import { AppError } from '../../shared/utils/AppError.js'
 import * as talentPoolService from '../services/talent-pool.service.js'
 
-
-
 // ─── POST /api/v1/talent-pool ─────────────────────────────────────────────────
 // Ai gọi: Employer — sau khi unlock ứng viên, muốn lưu vào danh sách theo dõi
 // Auth:   Bearer Employer_Token
