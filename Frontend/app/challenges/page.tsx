@@ -27,16 +27,19 @@ function ChallengeCard({ challenge }: ChallengeCardProps) {
         <h3 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 line-clamp-2 flex-grow">
           {challenge.title}
         </h3>
-        <Badge variant={isChallengeOpen ? 'open' : 'fail'} className="flex-shrink-0 whitespace-nowrap">
+        <Badge
+          variant={isChallengeOpen ? 'open' : 'fail'}
+          className="flex-shrink-0 whitespace-nowrap"
+        >
           {isChallengeOpen ? 'Đang mở' : 'Đã đóng'}
         </Badge>
       </div>
 
       <div className="flex flex-col gap-2 text-xs text-gray-600 dark:text-gray-400">
         <div className="flex gap-2 items-center">
-            <span className="text-sm text-gray-800 dark:text-gray-200">{challenge.company_name}</span>
-            <span className="text-gray-400 dark:text-gray-600">•</span>
-            <span>Hạn nộp: {new Date(challenge.deadline).toLocaleDateString()}</span>
+          <span className="text-sm text-gray-800 dark:text-gray-200">{challenge.company_name}</span>
+          <span className="text-gray-400 dark:text-gray-600">•</span>
+          <span>Hạn nộp: {new Date(challenge.deadline).toLocaleDateString()}</span>
         </div>
         <div className="flex flex-wrap gap-2">
           <span className="tag">{challenge.industry}</span>
@@ -49,7 +52,6 @@ function ChallengeCard({ challenge }: ChallengeCardProps) {
     </Link>
   );
 }
-
 
 export default function ChallengesPage() {
   const [challenges, setChallenges] = useState<ChallengeSummary[]>([]);
@@ -69,8 +71,12 @@ export default function ChallengesPage() {
 
   return (
     <DashboardShell>
-      <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-100 mb-2">Danh sách thử thách</h1>
-      <p className="text-lg text-gray-600 dark:text-gray-400 mb-6">Khám phá các thử thách hiện có</p>
+      <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-100 mb-2">
+        Danh sách thử thách
+      </h1>
+      <p className="text-lg text-gray-600 dark:text-gray-400 mb-6">
+        Khám phá các thử thách hiện có
+      </p>
       {loading && <p className="text-center text-gray-500">Đang tải thử thách...</p>}
       {error && <p className="text-center text-red-500">Lỗi: {error}</p>}
       {!loading && challenges.length === 0 && !error && (

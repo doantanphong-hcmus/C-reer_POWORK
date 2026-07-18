@@ -49,7 +49,10 @@ export default function RegisterPage() {
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
           <div>
             {/* Tăng kích cỡ nhãn (label) và chữ thông báo lỗi */}
-            <label htmlFor="fullName" className="block text-base font-semibold text-foreground mb-1.5">
+            <label
+              htmlFor="fullName"
+              className="block text-base font-semibold text-foreground mb-1.5"
+            >
               Họ và tên
             </label>
             <input
@@ -81,7 +84,10 @@ export default function RegisterPage() {
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-base font-semibold text-foreground mb-1.5">
+            <label
+              htmlFor="password"
+              className="block text-base font-semibold text-foreground mb-1.5"
+            >
               Mật khẩu
             </label>
             <input

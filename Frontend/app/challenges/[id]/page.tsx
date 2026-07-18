@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -11,7 +10,6 @@ import { Challenge } from '@/lib/types/challenge';
 import { DashboardShell } from '@/components/layout/DashboardShell';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
-
 
 export default function ChallengeDetailPage() {
   const { id } = useParams();
@@ -70,15 +68,22 @@ export default function ChallengeDetailPage() {
     <DashboardShell>
       <div className="mx-auto max-w-4xl space-y-6">
         <div className="flex justify-between items-start">
-          <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-100 pr-4">{challenge.title}</h1>
-          <Badge variant={isChallengeOpen ? 'open' : 'fail'} className="flex-shrink-0 whitespace-nowrap">
+          <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-100 pr-4">
+            {challenge.title}
+          </h1>
+          <Badge
+            variant={isChallengeOpen ? 'open' : 'fail'}
+            className="flex-shrink-0 whitespace-nowrap"
+          >
             {isChallengeOpen ? 'Đang mở' : 'Đã đóng'}
           </Badge>
         </div>
 
         <div className="flex flex-col gap-2 text-sm text-gray-600 dark:text-gray-400">
           <p>Công ty: {challenge.company_name}</p>
-          <p>Ngành nghề: <span className="tag">{challenge.industry}</span></p>
+          <p>
+            Ngành nghề: <span className="tag">{challenge.industry}</span>
+          </p>
           <p>Hạn nộp: {new Date(challenge.deadline).toLocaleDateString()}</p>
         </div>
 
@@ -88,7 +93,9 @@ export default function ChallengeDetailPage() {
         </div>
 
         <div className="prose dark:prose-invert max-w-none">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Tiêu chí chấm điểm</h2>
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+            Tiêu chí chấm điểm
+          </h2>
           <ul className="list-disc list-inside space-y-1">
             {challenge.rubrics.map((rubric) => (
               <li key={rubric.criteria_id}>
@@ -100,7 +107,9 @@ export default function ChallengeDetailPage() {
 
         {isChallengeOpen && user?.role === 'Candidate' && (
           <div className="pt-6 border-t border-gray-200 dark:border-gray-700 flex justify-end">
-            <Button onClick={() => router.push(`/candidate/challenges/${challenge.challenge_id}/submit`)}>
+            <Button
+              onClick={() => router.push(`/candidate/challenges/${challenge.challenge_id}/submit`)}
+            >
               Nộp bài
             </Button>
           </div>
