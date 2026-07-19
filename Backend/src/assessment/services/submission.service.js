@@ -142,7 +142,7 @@ export const unlockCandidate = async (submissionId, action) => {
     })
     if (!challenge) throw new AppError('Không tìm thấy challenge tương ứng', 404, 'CHAL_004')
 
-    // Tính toán điểm tổng theo trọng số (weighted score) trên thang điểm 10
+    // Tính toán điểm tổng theo trọng số (weighted score) trên thang điểm 100
     let totalScore = 0
     if (submission.evaluationResults && submission.evaluationResults.length > 0) {
       const weightedSum = submission.evaluationResults.reduce((sum, er) => {
@@ -151,7 +151,7 @@ export const unlockCandidate = async (submissionId, action) => {
         const ratio = maxScore > 0 ? er.score / maxScore : 0
         return sum + ratio * weight
       }, 0)
-      totalScore = weightedSum / 10
+      totalScore = weightedSum
     }
 
     // Bước 6: COPY DỮ LIỆU SANG BẢNG VerifiedEvidence (Chốt sổ điểm số dạng Snapshot)
