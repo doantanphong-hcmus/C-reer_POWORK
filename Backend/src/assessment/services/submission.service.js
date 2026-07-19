@@ -101,12 +101,16 @@ export const unlockCandidate = async (submissionId, action) => {
 
   const mappingResult = await prisma.$transaction(async (tx) => {
     // Bước 1: Lấy bài nộp, kèm theo bảng IdentityMapping (để lấy cờ isUnlocked)
-    // và bảng Điểm (EvaluationResult) để chuẩn bị copy dữ liệu
+    // và bảng Điểm (EvaluationResult) kèm tiêu chí (Criteria) để chuẩn bị copy dữ liệu
     const submission = await tx.submission.findUnique({
       where: { id: submissionId },
       include: {
         identityMapping: true,
-        evaluationResult: true, // Bảng chứa điểm chấm của nhà tuyển dụng
+        evaluationResults: {
+          include: {
+            criteria: true,
+          },
+        },
       },
     })
 
@@ -132,15 +136,31 @@ export const unlockCandidate = async (submissionId, action) => {
       data: { isUnlocked: true },
     })
 
-    // Bước 5: COPY DỮ LIỆU SANG BẢNG VerifiedEvidence (Chốt sổ điểm số)
-    // Lấy điểm tổng hoặc để mặc định là 0 nếu chưa có
-    const totalScore = submission.evaluationResult?.totalScore || 0
+    // Bước 5: Lấy thông tin Challenge để làm Snapshot
+    const challenge = await tx.challenge.findUnique({
+      where: { id: mapping.challengeId },
+    })
+    if (!challenge) throw new AppError('Không tìm thấy challenge tương ứng', 404, 'CHAL_004')
 
+    // Tính toán điểm tổng theo trọng số (weighted score) trên thang điểm 10
+    let totalScore = 0
+    if (submission.evaluationResults && submission.evaluationResults.length > 0) {
+      const weightedSum = submission.evaluationResults.reduce((sum, er) => {
+        const maxScore = er.criteria?.maxScore || 10
+        const weight = er.criteria?.weight || 0
+        const ratio = maxScore > 0 ? er.score / maxScore : 0
+        return sum + ratio * weight
+      }, 0)
+      totalScore = weightedSum / 10
+    }
+
+    // Bước 6: COPY DỮ LIỆU SANG BẢNG VerifiedEvidence (Chốt sổ điểm số dạng Snapshot)
     await tx.verifiedEvidence.create({
       data: {
         userId: mapping.userId,
-        challengeId: mapping.challengeId,
-        submissionId: submission.id,
+        challengeName: challenge.title,
+        companyName: challenge.companyName,
+        industry: challenge.industry,
         totalScore: totalScore,
       },
     })

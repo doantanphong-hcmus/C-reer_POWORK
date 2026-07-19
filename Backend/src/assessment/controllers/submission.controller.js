@@ -35,7 +35,7 @@ export const getSubmissionsByChallenge = async (req, res) => {
 // POST /api/v1/assessment/submissions/:submission_id/evaluate
 export const evaluateSubmission = async (req, res) => {
   const { submissionId } = req.params
-  const result = await evaluationService.evaluateSubmission(submissionId, req.body)
+  const result = await evaluationService.evaluateSubmission(submissionId, req.body, req.user.userId)
   return sendCreated(res, result)
 }
 
