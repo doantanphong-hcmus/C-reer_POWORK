@@ -3,11 +3,33 @@
 @tailwind utilities;
 
 @layer base {
+  /* Role-based accent theming. Override the brand tokens (accent = brand-primary)
+     và màu header theo vai trò đang hoạt động. Dùng :root[data-role] để tăng
+     độ ưu tiên hơn html[data-theme], nếu không màu header theo vai trò sẽ bị
+     block theme (light/dark) ghi đè. Áp cho cả light/dark. */
+  :root[data-role='candidate'] {
+    --color-brand-primary: #0e8f72;
+    --color-brand-hover: #0b7a61;
+    --color-brand-pressed: #096650;
+    --color-brand-subtle: rgba(50, 197, 157, 0.14);
+    --color-focus-ring: #32c59d;
+    --color-header-bg: #10382e;
+  }
+
+  :root[data-role='employer'] {
+    --color-brand-primary: #c07d1a;
+    --color-brand-hover: #a86a12;
+    --color-brand-pressed: #8a560c;
+    --color-brand-subtle: rgba(242, 172, 40, 0.15);
+    --color-focus-ring: #f2ac28;
+    --color-header-bg: #3a2c0d;
+  }
+
   :root,
   html[data-theme='dark'] {
     color-scheme: dark;
     --color-bg-canvas: #0b0d10;
-    --color-bg-sidebar: #0f1319;
+    --color-bg-sidebar: #080a0e;
     --color-bg-surface: #131920;
     --color-bg-surface-elevated: #1a222b;
     --color-bg-surface-hover: #1b242d;
@@ -32,6 +54,7 @@
     --color-info: #60a5fa;
     --color-info-subtle: rgba(96, 165, 250, 0.12);
     --color-focus-ring: #22d3ee;
+    --color-header-bg: #1a3a5c;
     --shadow-popover: 0 14px 32px rgba(0, 0, 0, 0.38);
     --shadow-modal: 0 20px 48px rgba(0, 0, 0, 0.4);
     --shadow-surface: 0 4px 14px rgba(0, 0, 0, 0.14);
@@ -80,6 +103,7 @@
     --color-info: #2e6fd8;
     --color-info-subtle: rgba(46, 111, 216, 0.1);
     --color-focus-ring: #0891b2;
+    --color-header-bg: #1a3a5c;
     --shadow-popover: 0 12px 28px rgba(17, 24, 39, 0.12);
     --shadow-modal: 0 20px 48px rgba(17, 24, 39, 0.16);
     --shadow-surface: 0 3px 12px rgba(17, 24, 39, 0.07);

@@ -173,6 +173,7 @@ function UnlockPanel({
   canUnlock,
   isUnlocking,
   onUnlock,
+  onSaveToTalentPool,
 }: {
   submission: GradingSubmission;
   evaluationResult: EvaluateResponse | null;
@@ -180,9 +181,28 @@ function UnlockPanel({
   canUnlock: boolean;
   isUnlocking: boolean;
   onUnlock: () => void;
+  onSaveToTalentPool?: (userId: string) => Promise<void> | void;
 }) {
   const profile =
     unlockResult?.unlocked_candidate_profile ?? submission.unlocked_candidate_profile ?? null;
+  const [savePoolState, setSavePoolState] = useState<'idle' | 'loading' | 'saved'>('idle');
+
+  const handleSaveToPool = async () => {
+    if (savePoolState !== 'idle' || !profile) return;
+    setSavePoolState('loading');
+
+    try {
+      if (onSaveToTalentPool) {
+        await onSaveToTalentPool(profile.user_id);
+      } else {
+        // Mock delay for UI response if no callback passed
+        await new Promise((resolve) => setTimeout(resolve, 800));
+      }
+      setSavePoolState('saved');
+    } catch {
+      setSavePoolState('idle');
+    }
+  };
 
   if (profile) {
     return (
@@ -209,6 +229,76 @@ function UnlockPanel({
             <p className="text-2xs uppercase text-foreground-tertiary">User ID</p>
             <p className="mt-0.5 break-all font-mono text-xs text-foreground">{profile.user_id}</p>
           </div>
+        </div>
+
+        {/* Button Lưu vào Talent Pool với 3 trạng thái: Normal, Loading, Disabled ("Đã lưu vào Pool") */}
+        <div className="mt-4">
+          {savePoolState === 'saved' ? (
+            <Button
+              type="button"
+              variant="default"
+              size="md"
+              className="w-full bg-background-tertiary text-foreground-secondary border-border-secondary cursor-not-allowed opacity-80"
+              disabled
+            >
+              <span className="flex items-center justify-center gap-1.5 font-medium">
+                <svg
+                  className="h-4 w-4 text-success"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                >
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+                Đã lưu vào Pool
+              </span>
+            </Button>
+          ) : savePoolState === 'loading' ? (
+            <Button
+              type="button"
+              variant="accent"
+              size="md"
+              className="w-full opacity-70 cursor-not-allowed"
+              disabled
+            >
+              <span className="flex items-center justify-center gap-2 font-medium">
+                <svg
+                  className="h-4 w-4 animate-spin text-accent"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <circle cx="12" cy="12" r="10" strokeDasharray="32" strokeDashoffset="10" />
+                </svg>
+                Đang lưu...
+              </span>
+            </Button>
+          ) : (
+            <Button
+              type="button"
+              variant="accent"
+              size="md"
+              className="w-full shadow-xs transition-all hover:opacity-95 active:scale-[0.99]"
+              onClick={handleSaveToPool}
+            >
+              <span className="flex items-center justify-center gap-1.5 font-medium">
+                <svg
+                  className="h-4 w-4 text-accent"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                  <polyline points="17 21 17 13 7 13 7 21" />
+                  <polyline points="7 3 7 8 15 8" />
+                </svg>
+                Lưu vào Talent Pool
+              </span>
+            </Button>
+          )}
         </div>
       </div>
     );
