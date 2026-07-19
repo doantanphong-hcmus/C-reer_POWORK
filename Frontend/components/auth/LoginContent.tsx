@@ -178,7 +178,7 @@ export default function LoginContent() {
                           : 'border-border-secondary bg-background-secondary text-foreground-secondary hover:border-accent/50'
                       }`}
                     >
-                      👨‍💻 Ứng viên
+                      🎓 Ứng viên
                     </button>
                     <button
                       type="button"

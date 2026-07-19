@@ -75,9 +75,11 @@ export default function EmployerDashboardPage() {
 
       <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {stats.map((stat) => (
-          <div key={stat.label} className="card">
-            <p className="text-sm font-medium text-foreground-secondary">{stat.label}</p>
-            <p className={`mt-3 text-3xl font-semibold ${stat.tone}`}>{stat.value}</p>
+          <div key={stat.label} className="card-outer-shell relative overflow-hidden">
+            <div className="card-base h-full w-full">
+              <p className="text-sm font-medium text-foreground-secondary">{stat.label}</p>
+              <p className={`mt-3 text-3xl font-semibold ${stat.tone}`}>{stat.value}</p>
+            </div>
           </div>
         ))}
       </section>
@@ -145,7 +147,7 @@ export default function EmployerDashboardPage() {
         <aside className="space-y-6">
           <div>
             <h3 className="mb-3 text-lg font-semibold text-foreground">Việc cần làm</h3>
-            <div className="space-y-3">
+            <div className="space-y-2">
               {[
                 'Tạo challenge đầu tiên cho vị trí đang tuyển.',
                 'Kiểm tra rubric để bảo đảm tổng trọng số bằng 100%.',

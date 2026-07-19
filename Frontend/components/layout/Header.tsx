@@ -75,7 +75,7 @@ function AccountControlCenter({
   onLogout: () => void;
 }) {
   return (
-    <div className="absolute right-0 top-11 z-50 w-[320px] overflow-hidden rounded-[20px] border-hairline border-border-secondary bg-background-secondary shadow-2xl shadow-black/40">
+    <div className="absolute right-0 top-11 z-50 w-[320px] rounded-[20px] border-hairline border-border-secondary bg-background-secondary shadow-2xl shadow-black/40 max-h-[calc(100vh-80px)] flex flex-col overflow-hidden">
       <div className="border-b-hairline border-border p-4">
         <div className="flex items-start gap-3">
           <Avatar initials={getInitials(user.full_name)} size="lg" className="h-12 w-12 text-lg" />
@@ -99,7 +99,7 @@ function AccountControlCenter({
         </div>
       </div>
 
-      <div className="max-h-[min(680px,calc(100vh-88px))] overflow-y-auto p-2">
+      <div className="flex-1 overflow-y-auto sidebar-scroll p-2">
         <div className="border-b-hairline border-border pb-2">
           <MenuLink href="/candidate/profile" label="View Dynamic Profile" />
           <MenuLink href="/candidate/profile" label="Public Profile" />

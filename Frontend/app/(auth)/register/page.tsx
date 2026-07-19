@@ -41,13 +41,18 @@ export default function RegisterPage() {
     <div className="min-h-screen bg-background flex items-center justify-center px-4">
       <div className="card max-w-md w-full">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">POWORK</h1>
-          <p className="text-foreground-secondary text-sm">Tạo tài khoản mới</p>
+          {/* Tăng kích cỡ chữ POWORK và dòng thông điệp bên dưới */}
+          <h1 className="text-5xl font-extrabold text-foreground mb-2">POWORK</h1>
+          <p className="text-foreground-secondary text-lg font-medium">Tạo tài khoản mới</p>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
           <div>
-            <label htmlFor="fullName" className="block text-sm font-medium text-foreground mb-1">
+            {/* Tăng kích cỡ nhãn (label) và chữ thông báo lỗi */}
+            <label
+              htmlFor="fullName"
+              className="block text-base font-semibold text-foreground mb-1.5"
+            >
               Họ và tên
             </label>
             <input
@@ -56,15 +61,15 @@ export default function RegisterPage() {
               autoComplete="name"
               {...registerField('full_name')}
               placeholder="Nguyễn Văn A"
-              className="input-base"
+              className="input-base !text-base h-11" // Tăng size chữ và chiều cao input
             />
             {errors.full_name && (
-              <p className="text-red-400 text-sm mt-1">{errors.full_name.message}</p>
+              <p className="text-red-400 text-base mt-1">{errors.full_name.message}</p>
             )}
           </div>
 
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-foreground mb-1">
+            <label htmlFor="email" className="block text-base font-semibold text-foreground mb-1.5">
               Email
             </label>
             <input
@@ -73,13 +78,16 @@ export default function RegisterPage() {
               autoComplete="email"
               {...registerField('email')}
               placeholder="you@example.com"
-              className="input-base"
+              className="input-base !text-base h-11"
             />
-            {errors.email && <p className="text-red-400 text-sm mt-1">{errors.email.message}</p>}
+            {errors.email && <p className="text-red-400 text-base mt-1">{errors.email.message}</p>}
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-foreground mb-1">
+            <label
+              htmlFor="password"
+              className="block text-base font-semibold text-foreground mb-1.5"
+            >
               Mật khẩu
             </label>
             <input
@@ -88,31 +96,31 @@ export default function RegisterPage() {
               autoComplete="new-password"
               {...registerField('password')}
               placeholder="Tối thiểu 6 ký tự"
-              className="input-base"
+              className="input-base !text-base h-11"
             />
             {errors.password && (
-              <p className="text-red-400 text-sm mt-1">{errors.password.message}</p>
+              <p className="text-red-400 text-base mt-1">{errors.password.message}</p>
             )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Bạn là</label>
+            <label className="block text-base font-semibold text-foreground mb-2">Bạn là</label>
             <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
                 onClick={() => setValue('role', 'Candidate', { shouldValidate: true })}
-                className={`py-3 px-4 rounded-lg border text-sm font-medium transition-colors ${
+                className={`py-3 px-4 rounded-lg border text-base font-semibold transition-colors ${
                   selectedRole === 'Candidate'
                     ? 'border-accent bg-accent/10 text-accent'
                     : 'border-border-secondary bg-background-secondary text-foreground-secondary hover:border-accent/50'
                 }`}
               >
-                👨‍💻 Ứng viên
+                🎓 Ứng viên
               </button>
               <button
                 type="button"
                 onClick={() => setValue('role', 'Employer', { shouldValidate: true })}
-                className={`py-3 px-4 rounded-lg border text-sm font-medium transition-colors ${
+                className={`py-3 px-4 rounded-lg border text-base font-semibold transition-colors ${
                   selectedRole === 'Employer'
                     ? 'border-accent bg-accent/10 text-accent'
                     : 'border-border-secondary bg-background-secondary text-foreground-secondary hover:border-accent/50'
@@ -124,23 +132,25 @@ export default function RegisterPage() {
           </div>
 
           {error && (
-            <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-sm rounded-lg px-4 py-3">
+            <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-base rounded-lg px-4 py-3">
               {error}
             </div>
           )}
 
+          {/* Thay đổi tại đây: Thêm rounded-full để bo tròn hoàn toàn, text-lg và font-bold để tăng cỡ chữ */}
           <button
             type="submit"
             disabled={isSubmitting}
-            className="btn-primary w-full py-3 mt-2 disabled:opacity-60 disabled:cursor-not-allowed"
+            className="btn-primary w-full py-3.5 mt-2 rounded-lg text-lg font-bold tracking-wide disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {isSubmitting ? 'Đang tạo tài khoản...' : 'Tạo tài khoản'}
           </button>
         </form>
 
-        <p className="text-center text-foreground-secondary text-sm mt-6">
+        {/* Tăng cỡ chữ dòng điều hướng ở cuối */}
+        <p className="text-center text-foreground-secondary text-base mt-6">
           Đã có tài khoản?{' '}
-          <Link href="/" className="text-accent hover:underline font-medium">
+          <Link href="/" className="text-accent hover:underline font-semibold">
             Đăng nhập
           </Link>
         </p>
