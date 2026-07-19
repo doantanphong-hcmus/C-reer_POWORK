@@ -1,4 +1,4 @@
-export type TalentPoolStatus = 'SAVED' | 'INVITED' | 'CONTACTED';
+export type TalentPoolStatus = 'IN_POOL' | 'INVITED';
 
 export interface TalentPoolCandidate {
   user_id: string;

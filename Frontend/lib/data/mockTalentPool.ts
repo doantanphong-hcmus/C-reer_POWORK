@@ -1,0 +1,88 @@
+import type { TalentPoolEntry } from '../types/talent-pool';
+
+export const MOCK_TALENT_POOL: TalentPoolEntry[] = [
+  {
+    pool_id: '8b9e67a1-1234-421c-a32e-11bc9aef4421',
+    candidate: {
+      user_id: 'de305d54-75b4-431b-adb2-eb6b9e546014',
+      full_name: 'Phạm Huy Hoàng (Tôi Đi Code Dạo)',
+      university: 'Đại học FPT (FPTU)',
+      year: 'Sinh viên năm 4',
+      primary_skills: ['Software Architecture', 'C#', 'JavaScript', 'System Design'],
+    },
+    highest_score: 94.0,
+    challenges_taken: ['System Architecture Design', 'Database Clustering'],
+    status: 'IN_POOL',
+    added_at: '2026-07-18T10:00:00Z',
+  },
+  {
+    pool_id: '9c8f78b2-5678-432d-bce3-22cd0bf55322',
+    candidate: {
+      user_id: 'ca415d67-12b4-481b-ccb2-eb6b9e547012',
+      full_name: 'Lại Đức Hùng (Lập Trình Viên Ở Nhà)',
+      university: 'Đại học Bách khoa Hà Nội (HUST)',
+      year: 'Sinh viên năm 3',
+      primary_skills: ['React', 'CSS Grid', 'TailwindCSS', 'TypeScript', 'Frontend Performance'],
+    },
+    highest_score: 88.0,
+    challenges_taken: ['React Dashboard Optimization', 'CSS Layout Speedrun'],
+    status: 'INVITED',
+    added_at: '2026-07-17T14:30:00Z',
+  },
+  {
+    pool_id: '5f7e69d3-9012-443e-cde4-33de1cf66433',
+    candidate: {
+      user_id: 'da305f88-85c4-421b-bdb2-fc6b9e546115',
+      full_name: 'Đinh Phương Sáng (Khoai Lang Thang)',
+      university: 'Đại học Bách Khoa TPHCM (HCMUT)',
+      year: 'Sinh viên năm 4',
+      primary_skills: ['Kiến trúc dân dụng', 'AutoCAD', 'Thiết kế cảnh quan', 'Sketchup'],
+    },
+    highest_score: 86.5,
+    challenges_taken: ['Thiết kế Không gian công cộng xanh', 'Phối cảnh đô thị bền vững'],
+    status: 'IN_POOL',
+    added_at: '2026-07-19T02:15:00Z',
+  },
+  {
+    pool_id: '7b6c5d4e-1122-3344-5566-778899aabbcc',
+    candidate: {
+      user_id: 'ea515d67-12b4-481b-ccb2-eb6b9e547034',
+      full_name: 'Trần Khánh Vy',
+      university: 'Học viện Ngoại giao (DAV)',
+      year: 'Sinh viên năm 3',
+      primary_skills: ['Linguistics', 'IELTS Teaching Method', 'Public Speaking', 'English Translation'],
+    },
+    highest_score: 92.0,
+    challenges_taken: ['Biên soạn giáo trình IELTS bổ trợ', 'Dịch thuật tài liệu ngoại giao'],
+    status: 'IN_POOL',
+    added_at: '2026-07-19T08:00:00Z',
+  },
+  {
+    pool_id: '1a2b3c4d-5e6f-7a8b-9c0d-112233445566',
+    candidate: {
+      user_id: 'fa415d67-12b4-481b-ccb2-eb6b9e547056',
+      full_name: 'Phạm Thành Thái (Thái Phạm Happy Live)',
+      university: 'Đại học Ngoại thương (FTU)',
+      year: 'Sinh viên năm 4',
+      primary_skills: ['Tài chính doanh nghiệp', 'Phân tích kỹ thuật', 'Asset Allocation', 'Valuation'],
+    },
+    highest_score: 85.0,
+    challenges_taken: ['Định giá cổ phiếu doanh nghiệp bán lẻ', 'Lập kế hoạch phân bổ nguồn vốn'],
+    status: 'INVITED',
+    added_at: '2026-07-16T09:15:00Z',
+  },
+  {
+    pool_id: '2b3c4d5e-6f7a-8b9c-0d1e-223344556677',
+    candidate: {
+      user_id: 'ga415d67-12b4-481b-ccb2-eb6b9e547078',
+      full_name: 'Trần Lê Thu Giang (Giang Ơi)',
+      university: 'Đại học Coventry (Coventry)',
+      year: 'Sinh viên năm 4',
+      primary_skills: ['Digital Marketing', 'Content Strategy', 'Brand Styling', 'Video Production'],
+    },
+    highest_score: 89.5,
+    challenges_taken: ['Xây dựng chiến dịch Rebranding thương hiệu', 'Kịch bản Video ngắn viral'],
+    status: 'IN_POOL',
+    added_at: '2026-07-15T11:00:00Z',
+  },
+];
