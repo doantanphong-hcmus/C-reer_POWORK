@@ -1,9 +1,21 @@
+export interface RubricBreakdownItem {
+  criteria_id: string;
+  criteria_name: string;
+  weight: number;
+  max_score: number;
+  score: number;
+  comment?: string | null;
+}
+
 export interface VerifiedEvidence {
   evidence_id: string;
   challenge_name: string;
   company_name: string;
   industry: string;
   total_score: number;
+  solution_url?: string;
+  general_comment?: string;
+  rubric_breakdown?: RubricBreakdownItem[];
   unlocked_at: string;
 }
 

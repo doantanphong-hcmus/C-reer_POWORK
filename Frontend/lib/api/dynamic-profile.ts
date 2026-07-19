@@ -1,4 +1,4 @@
-import type { CandidateProfile, Evidence, Profile, VerifiedEvidence } from '@/lib/types';
+import type { CandidateProfile, Evidence, VerifiedEvidence } from '@/lib/types';
 import { apiClient } from './client';
 
 function normalizeProfile(profile: CandidateProfile): CandidateProfile {
@@ -38,11 +38,35 @@ export const dynamicProfileAPI = {
       evidences: data.verified_evidences.map((evidence: VerifiedEvidence) => {
         const finalScore = evidence.total_score;
         let status: 'pending' | 'rejected' | 'passed' | 'excellent' = 'pending';
-        if (finalScore >= 8) {
+        if (finalScore >= 80) {
           status = 'excellent';
-        } else if (finalScore >= 5) {
+        } else if (finalScore >= 50) {
           status = 'passed';
         }
+
+        const rubricItems = (evidence.rubric_breakdown || []).map((r, idx) => ({
+          id: r.criteria_id || `criteria-${idx}`,
+          criterionName: r.criteria_name,
+          score: r.score,
+          maxScore: r.max_score,
+          weight: r.weight,
+          feedback: r.comment || undefined,
+        }));
+
+        const files = evidence.solution_url
+          ? [
+              {
+                id: 'file-1',
+                fileName:
+                  evidence.solution_url.split('/').pop()?.split('_').slice(1).join('_') ||
+                  'bai_lam.zip',
+                fileType: 'zip',
+                fileSize: 0,
+                url: evidence.solution_url,
+              },
+            ]
+          : [];
+
         return {
           id: evidence.evidence_id, // Mapped from evidence_id to id
           challengeTitle: evidence.challenge_name, // Mapped from challenge_name to challengeTitle
@@ -52,15 +76,26 @@ export const dynamicProfileAPI = {
           submittedAt: evidence.unlocked_at,
           status: status,
           finalScore: finalScore,
-          maxScore: 10, // Defaulting as it's not in backend response
-          skills: [], // Defaulting as it's not in backend response
-          rubricItems: [], // Defaulting as it's not in backend response
-          files: [], // Defaulting as it's not in backend response
-          employerFeedback: undefined, // Defaulting as it's not in backend response
+          maxScore: 100,
+          skills: [], // Mapped from primary_skills at profile level
+          rubricItems: rubricItems,
+          files: files,
+          employerFeedback: evidence.general_comment || undefined,
         };
       }),
-      verifiedSkills: [], // Initializing as empty array
-      skillSummary: [], // Initializing as empty array
+      verifiedSkills: ((data.primary_skills as string[]) || []).map((skillName, index) => ({
+        id: `skill-${index}`,
+        name: skillName,
+        score: 100,
+        level: 'Expert',
+        evidenceCount: 1,
+      })),
+      skillSummary: ((data.primary_skills as string[]) || []).map((skillName, index) => ({
+        id: `skill-summary-${index}`,
+        name: skillName,
+        score: 100,
+        maxScore: 100,
+      })),
       totalChallenges: 0, // Initializing with a default value
       passedChallenges: 0, // Initializing with a default value
       averageScore: 0, // Initializing with a default value
