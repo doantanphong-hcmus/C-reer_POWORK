@@ -19,12 +19,19 @@ export const getProfile = async (req, res) => {
   return sendSuccess(res, {
     user_id: profileData.userId,
     full_name: profileData.fullName,
+    email: profileData.email,
+    university: profileData.university,
+    year: profileData.year,
+    primary_skills: profileData.primarySkills,
     verified_evidences: profileData.verifiedEvidences.map((ev) => ({
       evidence_id: ev.id,
       challenge_name: ev.challengeName,
       company_name: ev.companyName,
       industry: ev.industry,
       total_score: ev.totalScore,
+      solution_url: ev.solutionUrl,
+      general_comment: ev.generalComment,
+      rubric_breakdown: ev.rubricBreakdown,
       unlocked_at: ev.unlockedAt,
     })),
   })

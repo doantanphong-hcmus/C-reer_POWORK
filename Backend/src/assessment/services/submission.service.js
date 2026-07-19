@@ -144,6 +144,7 @@ export const unlockCandidate = async (submissionId, action) => {
 
     // Tính toán điểm tổng theo trọng số (weighted score) trên thang điểm 100
     let totalScore = 0
+    let rubricBreakdown = []
     if (submission.evaluationResults && submission.evaluationResults.length > 0) {
       const weightedSum = submission.evaluationResults.reduce((sum, er) => {
         const maxScore = er.criteria?.maxScore || 10
@@ -152,6 +153,16 @@ export const unlockCandidate = async (submissionId, action) => {
         return sum + ratio * weight
       }, 0)
       totalScore = weightedSum
+
+      // Tạo bản sao lưu điểm số từng tiêu chí làm Snapshot
+      rubricBreakdown = submission.evaluationResults.map((er) => ({
+        criteria_id: er.criteriaId,
+        criteria_name: er.criteria?.criteriaName || 'Tiêu chí',
+        weight: er.criteria?.weight || 0,
+        max_score: er.criteria?.maxScore || 10,
+        score: er.score,
+        comment: er.comment || null,
+      }))
     }
 
     // Bước 6: COPY DỮ LIỆU SANG BẢNG VerifiedEvidence (Chốt sổ điểm số dạng Snapshot)
@@ -162,6 +173,9 @@ export const unlockCandidate = async (submissionId, action) => {
         companyName: challenge.companyName,
         industry: challenge.industry,
         totalScore: totalScore,
+        solutionUrl: submission.solutionUrl,
+        generalComment: submission.generalComment,
+        rubricBreakdown: rubricBreakdown,
       },
     })
 

@@ -10,12 +10,45 @@ import { AppError } from '../../shared/utils/AppError.js'
 export const getUserById = async (userId) => {
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { id: true, fullName: true, email: true },
+    select: {
+      id: true,
+      fullName: true,
+      email: true,
+      university: true,
+      year: true,
+      primarySkills: true,
+    },
   })
   if (!user) throw new AppError('Không tìm thấy người dùng', 404, 'AUTH_008')
   return {
     user_id: user.id,
     full_name: user.fullName,
     email: user.email,
+    university: user.university,
+    year: user.year,
+    primary_skills: user.primarySkills,
+  }
+}
+
+export const getUserContactById = async (userId) => {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      id: true,
+      fullName: true,
+      email: true,
+      university: true,
+      year: true,
+      primarySkills: true,
+    },
+  })
+  if (!user) throw new AppError('Không tìm thấy người dùng', 404, 'AUTH_008')
+  return {
+    userId: user.id,
+    fullName: user.fullName,
+    email: user.email,
+    university: user.university,
+    year: user.year,
+    primarySkills: user.primarySkills,
   }
 }

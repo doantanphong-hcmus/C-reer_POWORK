@@ -9,12 +9,12 @@
  */
 import minioClient from '../../shared/config/minio.js'
 import { config } from '../../shared/config/index.js'
+import { v4 as uuidv4 } from 'uuid'
 
-export const generatePresignedUploadUrl = async ({ userId, challengeId, filename }) => {
-  // object_key: submissions/{challenge_id}/{user_id}/{filename}
-  // user_id xuất hiện trong path nội bộ MinIO — KHÔNG bao giờ trả ra response
-  // nào mà Employer xem được (chỉ Backend dùng path này để lưu solution_url)
-  const objectKey = `submissions/${challengeId}/${userId}/${Date.now()}_${filename}`
+export const generatePresignedUploadUrl = async ({ challengeId, filename }) => {
+  // Sử dụng UUID ngẫu nhiên thay vì userId để tránh rò rỉ danh tính ứng viên qua link tải bài
+  const randomDir = uuidv4()
+  const objectKey = `submissions/${challengeId}/${randomDir}/${Date.now()}_${filename}`
 
   const uploadUrl = await minioClient.presignedPutObject(
     config.minio.bucket,

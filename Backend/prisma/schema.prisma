@@ -21,6 +21,9 @@ model User {
   passwordHash String   @map("password_hash")
   fullName     String   @map("full_name")
   role         UserRole
+  university   String?
+  year         String?
+  primarySkills Json?            @map("primary_skills")
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
@@ -140,13 +143,16 @@ model EvaluationResult {
 // Dữ liệu được copy tại thời điểm unlock, tồn tại vĩnh viễn
 // kể cả khi Challenge gốc bị xóa
 model VerifiedEvidence {
-  id            String   @id @default(uuid()) @map("evidence_id")
-  userId        String   @map("user_id")          // Lưu như data field
-  challengeName String   @map("challenge_name")   // SNAPSHOT từ Challenge
-  companyName   String   @map("company_name")     // SNAPSHOT từ Company
-  industry      String                            // SNAPSHOT — dùng vẽ radar chart
-  totalScore    Float    @map("total_score")
-  unlockedAt    DateTime @default(now()) @map("unlocked_at")
+  id              String   @id @default(uuid()) @map("evidence_id")
+  userId          String   @map("user_id")          // Lưu như data field
+  challengeName   String   @map("challenge_name")   // SNAPSHOT từ Challenge
+  companyName     String   @map("company_name")     // SNAPSHOT từ Company
+  industry        String                            // SNAPSHOT — dùng vẽ radar chart
+  totalScore      Float    @map("total_score")
+  solutionUrl     String?  @map("solution_url")
+  generalComment  String?  @map("general_comment")
+  rubricBreakdown Json?    @map("rubric_breakdown")
+  unlockedAt      DateTime @default(now()) @map("unlocked_at")
 
   @@map("verified_evidences")
 }

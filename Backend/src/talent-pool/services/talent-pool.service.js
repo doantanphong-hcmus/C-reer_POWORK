@@ -68,11 +68,9 @@ export const getTalentPool = async ({ companyId }) => {
         candidate: {
           user_id: userInfo.user_id,
           full_name: userInfo.full_name,
-          // Lưu ý: bảng User chưa có university, year
-          // → tạm trả null, cập nhật sau khi schema bổ sung
-          university: null,
-          year: null,
-          primary_skills: [], // TODO: bổ sung khi có skill table
+          university: userInfo.university,
+          year: userInfo.year,
+          primary_skills: userInfo.primary_skills || [],
         },
         highest_score: evidenceSummary.highest_score,
         challenges_taken: evidenceSummary.challenges_taken,
