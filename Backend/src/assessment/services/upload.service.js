@@ -22,8 +22,12 @@ export const generatePresignedUploadUrl = async ({ userId, challengeId, filename
     config.minio.presignedExpirySeconds,
   )
 
+  // FIX: Chuyển đổi URL nội bộ (minio:9000) thành Public URL để Frontend (Browser) có thể upload
+  const publicMinioUrl = process.env.NEXT_PUBLIC_MINIO_URL || 'http://localhost:9000'
+  const finalUrl = uploadUrl.replace(/^https?:\/\/minio:9000/, publicMinioUrl)
+
   return {
-    upload_url: uploadUrl,
+    upload_url: finalUrl,
     object_key: objectKey,
     expires_in: config.minio.presignedExpirySeconds,
   }
