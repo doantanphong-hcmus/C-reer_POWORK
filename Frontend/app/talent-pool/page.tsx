@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useMemo, useState } from 'react';
@@ -49,7 +48,8 @@ export default function TalentPoolPage() {
               setActivities((actPrev) => [newActivity, ...actPrev]);
 
               const updated = { ...entry, status: newStatus };
-              if (selectedCandidate?.pool_id === poolId) { // Using 'pool_id'
+              if (selectedCandidate?.pool_id === poolId) {
+                // Using 'pool_id'
                 setSelectedCandidate(updated);
               }
             }

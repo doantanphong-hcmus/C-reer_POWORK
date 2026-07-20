@@ -1,7 +1,10 @@
 import type { ChallengeSummary, SubmissionStatus } from '@/lib/types';
 
 export type OverviewMetricKey =
-  'activeChallenges' | 'pendingReviews' | 'unlockedProfiles' | 'nextDeadline';
+  | 'activeChallenges'
+  | 'pendingReviews'
+  | 'unlockedProfiles'
+  | 'nextDeadline';
 export type TaskKey = 'createChallenge' | 'reviewSubmissions' | 'deadlineSoon';
 export type ActivityAction = 'challengeCreated' | 'submissionReceived';
 export type BookmarkFilter = 'all' | 'active' | 'endingSoon';

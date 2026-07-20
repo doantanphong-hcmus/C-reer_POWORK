@@ -1,8 +1,8 @@
-import apiClient from "./client";
+import apiClient from './client';
 import { TalentPoolEntry, TalentPoolStatus, TalentPoolCandidate } from '../types/talent-pool';
 
 export const getTalentPool = async (): Promise<TalentPoolEntry[]> => {
-  const response = await apiClient.get<TalentPoolEntry[]>("/api/v1/talent-pool");
+  const response = await apiClient.get<TalentPoolEntry[]>('/api/v1/talent-pool');
   return response.data;
 };
 
@@ -14,5 +14,5 @@ export const updateTalentPoolStatus = async (
 };
 
 export const addToTalentPool = async (userId: string): Promise<void> => {
-  await apiClient.post("/api/v1/talent-pool", { user_id: userId });
+  await apiClient.post('/api/v1/talent-pool', { user_id: userId });
 };

@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useMemo, useState } from 'react';
@@ -193,7 +192,8 @@ function UnlockPanel({
   const isSavingToPool = onSaveToTalentPoolMutation?.isPending; // Use mutation state
   const isSavedToPool = onSaveToTalentPoolMutation?.isSuccess; // Use mutation state
 
-  const handleSaveToPool = () => { // Removed async
+  const handleSaveToPool = () => {
+    // Removed async
     if (!profile || isSavingToPool || isSavedToPool) return; // Prevent multiple clicks or if already saved
 
     if (onSaveToTalentPoolMutation) {
