@@ -20,4 +20,11 @@ export const config = {
     secretKey: process.env.MINIO_SECRET_KEY,
     bucket: process.env.MINIO_BUCKET_NAME,
   },
+
+  mail: {
+    host: process.env.SMTP_HOST,
+    port: parseInt(process.env.SMTP_PORT) || 587,
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
+  },
 }
