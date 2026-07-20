@@ -18,7 +18,7 @@ Dự án được kiến trúc và phát triển bởi nhóm sinh viên đến t
 | **Đoàn Tấn Phong** | Techlead / QA | ĐH Khoa học Tự nhiên (HCMUS) |
 | **Phan Lê Thành Nhân** | Frontend Lead | ĐH Khoa học Tự nhiên (HCMUS) |
 | **Trương Minh Quang** | Backend Core | ĐH Khoa học Tự nhiên (HCMUS) |
-| **Mai Đăng Khoa** | Frontend Developer | ĐH Công nghệ Thông tin (UIT) |
+| **Mai Đăng Khoa** | Frontend Developer | ĐH Khoa học Tự nhiên (HCMUS) |
 | **Nguyễn Tấn Phúc Thịnh** | DevOps / Infrastructure | ĐH Công nghệ Thông tin (UIT) |
 
 ## 💡 Tính năng cốt lõi (Core Features)
