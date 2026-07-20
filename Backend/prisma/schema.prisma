@@ -1,0 +1,198 @@
+// POWORK — Prisma Schema
+// Theo ERD Convention: Y_Nghia_Thiet_Ke_ERD_POWORK.md
+// Kiến trúc: Modular Monolith, Loosely Coupling — KHÔNG có FK cứng xuyên module
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ══════════════════════════════════════════════════════
+// IAM MODULE — Quản lý định danh & phân quyền
+// ══════════════════════════════════════════════════════
+
+model User {
+  id           String   @id @default(uuid()) @map("user_id")
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  fullName     String   @map("full_name")
+  role         UserRole
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  company Company?
+
+  @@map("users")
+}
+
+model Company {
+  id          String  @id @default(uuid()) @map("company_id")
+  userId      String  @unique @map("user_id")   // FK nội bộ trong IAM Module
+  companyName String  @map("company_name")
+  industry    String?
+  website     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("companies")
+}
+
+// ══════════════════════════════════════════════════════
+// CHALLENGE MODULE — Quản lý thử thách & bộ tiêu chí
+// ══════════════════════════════════════════════════════
+
+model Challenge {
+  id          String          @id @default(uuid()) @map("challenge_id")
+  companyId   String          @map("company_id")   // Lưu như data field, không FK xuyên module
+  companyName String          @map("company_name") // SNAPSHOT — tránh JOIN sang IAM
+  title       String
+  description String
+  industry    String          // Phân loại đa ngành: IT, Thiết kế, Marketing...
+  deadline    DateTime
+  status      ChallengeStatus @default(OPEN)
+  createdAt   DateTime        @default(now()) @map("created_at")
+  updatedAt   DateTime        @updatedAt @map("updated_at")
+
+  // FK nội bộ trong Challenge Module
+  rubricCriteria RubricCriteria[]
+
+  @@map("challenges")
+}
+
+model RubricCriteria {
+  id           String @id @default(uuid()) @map("criteria_id")
+  challengeId  String @map("challenge_id")
+  criteriaName String @map("criteria_name")
+  weight       Int    // Tổng weight của 1 challenge = 100
+  maxScore     Float  @map("max_score")
+
+  challenge Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+
+  evaluationResults EvaluationResult[]
+
+  @@map("rubric_criteria")
+}
+
+// ══════════════════════════════════════════════════════
+// ASSESSMENT MODULE — Trái tim Blind Audition (Khu vực cách ly)
+// ══════════════════════════════════════════════════════
+
+// Bảng KÍN — chỉ hệ thống được truy cập
+// Đây là cầu nối duy nhất giữa hash_id và user_id thật
+// KHÔNG expose ra bất kỳ API response nào
+model IdentityMapping {
+  id          String   @id @default(uuid())
+  hashId      String   @unique @map("hash_id")    // "Candidate_3941"
+  userId      String   @map("user_id")            // user_id thật — KHÔNG JOIN ra ngoài
+  challengeId String   @map("challenge_id")
+  isUnlocked  Boolean  @default(false) @map("is_unlocked")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  submissions Submission[]
+
+  @@map("identity_mappings")
+}
+
+// Bảng CÔNG KHAI — employer xem khi chấm điểm
+// TUYỆT ĐỐI KHÔNG có cột user_id
+model Submission {
+  id             String           @id @default(uuid()) @map("submission_id")
+  challengeId    String           @map("challenge_id")  // Lưu như data field
+  hashId         String           @map("hash_id")
+  version        Int              @default(1)
+  solutionUrl    String           @map("solution_url")
+  status         SubmissionStatus @default(PENDING)
+  generalComment String?          @map("general_comment")
+  submittedAt    DateTime         @default(now()) @map("submitted_at")
+
+  // Nối về bảng kín qua hash_id — không trực tiếp có user_id
+  identityMapping IdentityMapping @relation(fields: [hashId], references: [hashId])
+  evaluationResults EvaluationResult[]
+
+  @@unique([hashId, version])
+  @@map("submissions")
+}
+
+// Điểm từng tiêu chí — kết nối với Submissions, KHÔNG biết user_id
+model EvaluationResult {
+  id           String   @id @default(uuid()) @map("evaluation_id")
+  submissionId String   @map("submission_id")
+  criteriaId   String   @map("criteria_id")
+  score        Float
+  comment      String?
+  evaluatedAt  DateTime @default(now()) @map("evaluated_at")
+
+  submission Submission     @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  criteria   RubricCriteria @relation(fields: [criteriaId], references: [id])
+
+  @@map("evaluation_results")
+}
+
+// ══════════════════════════════════════════════════════
+// PROFILE MODULE — Hồ sơ năng lực động
+// ══════════════════════════════════════════════════════
+
+// Snapshot Data — KHÔNG JOIN về Challenge hay IAM Module
+// Dữ liệu được copy tại thời điểm unlock, tồn tại vĩnh viễn
+// kể cả khi Challenge gốc bị xóa
+model VerifiedEvidence {
+  id            String   @id @default(uuid()) @map("evidence_id")
+  userId        String   @map("user_id")          // Lưu như data field
+  challengeName String   @map("challenge_name")   // SNAPSHOT từ Challenge
+  companyName   String   @map("company_name")     // SNAPSHOT từ Company
+  industry      String                            // SNAPSHOT — dùng vẽ radar chart
+  totalScore    Float    @map("total_score")
+  unlockedAt    DateTime @default(now()) @map("unlocked_at")
+
+  @@map("verified_evidences")
+}
+
+// ══════════════════════════════════════════════════════
+// ENUMS
+// ══════════════════════════════════════════════════════
+
+enum UserRole {
+  CANDIDATE
+  EMPLOYER
+}
+
+enum ChallengeStatus {
+  OPEN
+  CLOSED
+  ARCHIVED
+}
+
+enum SubmissionStatus {
+  PENDING
+  EVALUATED
+  APPROVED
+  REJECTED
+}
+
+// ══════════════════════════════════════════════════════
+// TALENT POOL MODULE — Lưu trữ ứng viên tiềm năng
+// ══════════════════════════════════════════════════════
+
+// Employer lưu ứng viên đã unlock để tiện theo dõi
+// company_id và user_id lưu dạng DATA FIELD — không FK cứng sang IAM Module
+// Tuân thủ Loosely Coupling: không ràng buộc FK xuyên domain
+model TalentPool {
+  id          String          @id @default(uuid()) @map("pool_id")
+  companyId   String          @map("company_id")   // Data field — không FK sang companies
+  userId      String          @map("user_id")       // Data field — không FK sang users
+  status      TalentPoolStatus @default(IN_POOL)
+  addedAt     DateTime        @default(now()) @map("added_at")
+  updatedAt   DateTime        @updatedAt @map("updated_at")
+
+  @@unique([companyId, userId])   // Mỗi cặp company+candidate chỉ xuất hiện 1 lần
+  @@map("talent_pools")
+}
+
+enum TalentPoolStatus {
+  IN_POOL
+  INVITED
+}

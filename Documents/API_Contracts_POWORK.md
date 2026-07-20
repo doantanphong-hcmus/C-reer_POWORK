@@ -1,0 +1,368 @@
+# TÀI LIỆU QUY CHUẨN API CONTRACTS
+
+---
+
+## 1. NGUYÊN TẮC THIẾT KẾ KỸ THUẬT HỆ THỐNG
+
+Tài liệu này quy định chi tiết các API Contracts thuộc phạm vi MVP của dự án POWORK. Toàn bộ đội ngũ kỹ thuật bắt buộc phải tuân thủ:
+
+- **Định dạng dữ liệu:** Toàn bộ Request/Response Body dùng định dạng JSON chuẩn. Naming convention: `snake_case`.
+- **Kiến trúc định danh:** 100% các trường khóa chính (PK) và khóa ngoại (FK) phải dùng **UUIDv4 (36 ký tự)** để chống lỗ hổng IDOR.
+- **Bảo mật luồng ẩn danh:** Server tuyệt đối không trả về thông tin cá nhân (`user_id`, tên, trường học...) tại các Endpoint duyệt bài. Danh tính ứng viên chỉ được đại diện bằng `hash_id` cho đến khi có lệnh Unlock.
+
+---
+
+## 2. MODULE INTEGRATION & ROUTING TABLE
+
+| Module Hệ thống          | Prefix URL Nghiệp vụ | Trách nhiệm            |
+| :----------------------- | :------------------- | :--------------------- |
+| **1. IAM Module**        | `/api/v1/auth`       | Backend Core (Quang)   |
+| **2. Challenge Module**  | `/api/v1/challenges` | Backend Core (Quang)   |
+| **3. Assessment Module** | `/api/v1/assessment` | BE & FE (Quang & Khoa) |
+| **4. Profile Module**    | `/api/v1/profiles`   | Frontend Lead (Nhân)   |
+
+---
+
+## 3. CHI TIẾT API CONTRACTS THEO LUỒNG NGHIỆP VỤ
+
+### 3.1 IAM Module - Định danh & Xác thực
+
+#### [POST] `/api/v1/auth/register`
+
+- **Mô tả:** Đăng ký tài khoản mới cho Ứng viên (Candidate) hoặc Doanh nghiệp (Employer).
+- **Request Body:**
+  ```json
+  {
+    "email": "string (required)",
+    "password": "string (required, min 8 chars)",
+    "full_name": "string (required)",
+    "role": "string (Enum: Candidate, Employer) (required)",
+    "company_name": "string (optional, bắt buộc nếu role là Employer)"
+  }
+  ```
+- **Response (201 Created):**
+  ```json
+  {
+    "status": "success",
+    "message": "User registered successfully",
+    "data": {
+      "user": {
+        "user_id": "de305d54-75b4-431b-adb2-eb6b9e546014",
+        "email": "phong.dt@gmail.com",
+        "full_name": "Đoàn Tấn Phong",
+        "role": "Candidate",
+        "company_id": "null hoặc UUID nếu là Employer"
+      }
+    }
+  }
+  ```
+
+---
+
+#### [POST] `/api/v1/auth/login`
+
+- **Mô tả:** Xác thực tài khoản, trả về JWT Access Token.
+- **Request Body:**
+  ```json
+  {
+    "email": "string (required)",
+    "password": "string (required)"
+  }
+  ```
+- **Response (200 OK):**
+  ```json
+  {
+    "status": "success",
+    "data": {
+      "access_token": "eyJhbG...",
+      "token_type": "Bearer",
+      "user": {
+        "user_id": "de305d54-75b4-431b-adb2-eb6b9e546014",
+        "full_name": "Đoàn Tấn Phong",
+        "role": "Candidate"
+      }
+    }
+  }
+  ```
+
+---
+
+### 3.2 Challenge Module - Quản lý thử thách
+
+#### [POST] `/api/v1/challenges`
+
+- **Mô tả:** Doanh nghiệp tạo bài toán kèm bộ tiêu chí chấm điểm.
+- **Auth:** `Bearer <Employer_Token>`
+- **Rule:** Tổng `weight` của mảng `rubrics` bắt buộc = 100.
+- **Request Body:**
+  ```json
+  {
+    "title": "Tối ưu Thuật toán Xử lý Bản đồ",
+    "description": "Mô tả chi tiết...",
+    "industry": "Công nghệ thông tin",
+    "deadline": "2026-06-30T23:59:59Z",
+    "rubrics": [
+      {
+        "criteria_name": "Kiến trúc mã nguồn",
+        "weight": 40,
+        "max_score": 10
+      },
+      {
+        "criteria_name": "Tối ưu bộ nhớ",
+        "weight": 60,
+        "max_score": 10
+      }
+    ]
+  }
+  ```
+- **Response (201 Created):** Trả về object challenge vừa tạo kèm list criteria có `criteria_id` (UUID).
+
+#### [GET] `/api/v1/challenges`
+
+- **Mô tả:** Lấy danh sách thử thách công khai cho ứng viên. Hỗ trợ query params `?industry=...` để lọc theo ngành nghề (IT, Thiết kế, Marketing...).
+- **Response (200 OK):**
+  ```json
+  {
+    "status": "success",
+    "data": [
+      {
+        "challenge_id": "403bf47b-231a-4d22-9214-722a4669812a",
+        "title": "Tối ưu Thuật toán Xử lý Bản đồ",
+        "company_name": "MTech Solutions",
+        "industry": "Công nghệ thông tin",
+        "deadline": "2026-06-30T23:59:59Z"
+      }
+    ]
+  }
+  ```
+
+---
+
+### 3.3 Assessment Module - Lõi Ẩn Danh (KHU VỰC CÁCH LY)
+
+#### [GET] `/api/v1/assessment/challenges/{challenge_id}/presigned-url`
+
+- **Mô tả:** Ứng viên xin cấp phép nộp bài. Backend tạo một URL tạm thời (Presigned URL) trỏ thẳng vào MinIO để Frontend tự tải file lên.
+- **Auth:** `Bearer <Candidate_Token>`
+- **Query Params:** `?filename=bai_lam.zip&content_type=application/zip`
+- **Response (200 OK):**
+  ```json
+  {
+    "status": "success",
+    "data": {
+      "upload_url": "http://minio:9000/powork-submissions/...",
+      "object_key": "submissions/challenge_id/user_id/bai_lam.zip",
+      "expires_in": 300
+    }
+  }
+  ```
+
+#### [POST] `/api/v1/assessment/submissions`
+
+- **Mô tả:** Ứng viên xác nhận nộp bài (sau khi upload file lên MinIO thành công). Backend tự động bóc `user_id` từ Token, sinh `hash_id` (nếu chưa có) và cất vào bảng kín. Tự động tăng `version` nếu đã từng nộp.
+- **Auth:** `Bearer <Candidate_Token>`
+- **Request Body:**
+  ```json
+  {
+    "challenge_id": "403bf47b-231a-4d22-9214-722a4669812a",
+    "solution_url": "submissions/challenge_id/user_id/bai_lam.zip"
+  }
+  ```
+- **Response (201 Created):** > **Lưu ý:** Tuyệt đối không có `user_id`. Chỉ trả về `hash_id` và `version`.
+  ```json
+  {
+    "status": "success",
+    "data": {
+      "submission_id": "f5e921dd-14bb-421c-a32e-11bc9aef4421",
+      "hash_id": "Candidate_3941",
+      "version": 2,
+      "status": "Pending",
+      "submitted_at": "2026-06-10T02:15:00Z"
+    }
+  }
+  ```
+
+#### [GET] `/api/v1/assessment/challenges/{challenge_id}/submissions`
+
+- **Mô tả:** Doanh nghiệp lấy danh sách bài nộp để chấm. Trả về danh sách ứng viên, mỗi ứng viên chứa mảng các `versions` bài làm.
+- **Auth:** `Bearer <Employer_Token>`
+- **Response (200 OK):**
+  > **NGHIÊM CẤM:** Trả về data dính dáng đến profile ứng viên. Chỉ trả list chứa `hash_id` và link file.
+  ```json
+  {
+    "status": "success",
+    "data": [
+      {
+        "hash_id": "Candidate_3941",
+        "is_unlocked": false,
+        "submissions": [
+          {
+            "submission_id": "f5e921dd-14bb-421c-a32e-11bc9aef4421",
+            "version": 2,
+            "status": "Pending",
+            "solution_url": "https://powork-storage...",
+            "submitted_at": "2026-06-10T02:15:00Z"
+          },
+          {
+            "submission_id": "old_uuid_here",
+            "version": 1,
+            "status": "Pending",
+            "solution_url": "https://powork-storage...",
+            "submitted_at": "2026-06-09T10:00:00Z"
+          }
+        ]
+      }
+    ]
+  }
+  ```
+
+#### [POST] `/api/v1/assessment/submissions/{submission_id}/evaluate`
+
+- **Mô tả:** Gửi kết quả chấm điểm Rubric.
+- **Auth:** `Bearer <Employer_Token>`
+- **Request Body:**
+  ```json
+  {
+    "evaluations": [
+      {
+        "criteria_id": "aa152d43-014b-4892-ba21-cb9e443101d2",
+        "score": 8.5,
+        "comment": "Tốt"
+      }
+    ],
+    "general_comment": "Bài làm xuất sắc"
+  }
+  ```
+- **Response (403 Forbidden):** Trả về khi hồ sơ đã được Unlock (Đóng băng điểm số).
+  ```json
+  {
+    "status": "error",
+    "message": "Cannot evaluate. This submission has already been unlocked and frozen."
+  }
+  ```
+
+#### [POST] `/api/v1/assessment/submissions/{submission_id}/unlock`
+
+- **Mô tả:** Duyệt bài và Mở khóa danh tính (Bắn Event chứa `user_id`, `challenge_id` sang Profile Module xử lý).
+- **Auth:** `Bearer <Employer_Token>`
+- **Request Body:**
+  ```json
+  {
+    "action": "APPROVE"
+  }
+  ```
+- **Response (200 OK):**
+  > Giai đoạn này mới được phép lột mặt nạ, trả về `unlocked_candidate_profile` thật.
+  ```json
+  {
+    "status": "success",
+    "message": "Identity unlocked.",
+    "unlocked_candidate_profile": {
+      "user_id": "de305d54-...",
+      "full_name": "Đoàn Tấn Phong",
+      "email": "phong.dt@gmail.com"
+    }
+  }
+  ```
+- **Response (409 Conflict):** Trả về khi xảy ra hiện tượng Race Condition (2 giám khảo cùng bấm Unlock). Yêu cầu Backend dùng Prisma Interactive Transaction để bắt lỗi này.
+  ```json
+  {
+    "status": "error",
+    "message": "Conflict! This candidate has already been unlocked by another evaluator."
+  }
+  ```
+
+---
+
+### 3.4 Profile Module - Hồ sơ năng lực
+
+#### [GET] `/api/v1/profiles/{user_id}`
+
+- **Mô tả:** Lấy thông tin chứng nhận thực chiến của ứng viên (Công khai).
+- **Response (200 OK):**
+  ```json
+  {
+    "status": "success",
+    "data": {
+      "user_id": "de305d54-...",
+      "full_name": "Đoàn Tấn Phong",
+      "verified_evidences": [
+        {
+          "evidence_id": "7712aaeb-...",
+          "challenge_name": "Tối ưu Thuật toán Xử lý Bản đồ Geolocation Grid-Defense",
+          "company_name": "MTech Solutions",
+          "industry": "Công nghệ thông tin",
+          "total_score": 8.6,
+          "unlocked_at": "2026-06-10T02:16:45Z"
+        }
+      ]
+    }
+  }
+  ```
+
+---
+
+### 3.5 Talent Pool Module - Lưu trữ ứng viên (Dành cho Employer)
+
+#### [POST] `/api/v1/talent-pool`
+
+- **Mô tả:** Thêm một ứng viên đã được mở khóa (unlock) vào Talent Pool của công ty.
+- **Auth:** `Bearer <Employer_Token>`
+- **Request Body:**
+  ```json
+  {
+    "user_id": "de305d54-75b4-431b-adb2-eb6b9e546014"
+  }
+  ```
+- **Response (201 Created):**
+  ```json
+  {
+    "status": "success",
+    "message": "Candidate added to Talent Pool"
+  }
+  ```
+
+#### [GET] `/api/v1/talent-pool`
+
+- **Mô tả:** Lấy danh sách ứng viên trong Talent Pool của công ty hiện tại.
+- **Auth:** `Bearer <Employer_Token>`
+- **Response (200 OK):**
+  ```json
+  {
+    "status": "success",
+    "data": [
+      {
+        "pool_id": "8b9e67a1-1234-421c-a32e-11bc9aef4421",
+        "candidate": {
+          "user_id": "de305d54-75b4-431b-adb2-eb6b9e546014",
+          "full_name": "Đoàn Tấn Phong",
+          "university": "HCMUS",
+          "year": "Năm 4",
+          "primary_skills": ["System Design", "Redis"]
+        },
+        "highest_score": 92.0,
+        "challenges_taken": ["Caching", "API Design"],
+        "status": "INVITED",
+        "added_at": "2026-06-12T10:00:00Z"
+      }
+    ]
+  }
+  ```
+
+#### [PATCH] `/api/v1/talent-pool/:pool_id/status`
+
+- **Mô tả:** Cập nhật trạng thái của ứng viên trong Talent Pool.
+- **Auth:** `Bearer <Employer_Token>`
+- **Request Body:**
+  ```json
+  {
+    "status": "INVITED" // Chỉ nhận: "IN_POOL" hoặc "INVITED"
+  }
+  ```
+- **Response (200 OK):**
+  ```json
+  {
+    "status": "success",
+    "message": "Cập nhật trạng thái thành công"
+  }
+  ```
