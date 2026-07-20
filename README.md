@@ -21,7 +21,7 @@ Dự án được kiến trúc và phát triển bởi nhóm sinh viên đến t
 | **Mai Đăng Khoa** | Frontend Developer | ĐH Khoa học Tự nhiên (HCMUS) |
 | **Nguyễn Tấn Phúc Thịnh** | DevOps / Infrastructure | ĐH Công nghệ Thông tin (UIT) |
 
-## 💡 Tính năng cốt lõi (Core Features)
+## 💡 Tính năng cốt lõi 
 
 - 🎯 **Thử thách thực chiến (Challenges):** Doanh nghiệp tự định nghĩa đề bài và bộ tiêu chí chấm điểm (Rubric) tùy biến theo văn hóa và đặc thù của dự án nội bộ.
 - 🎭 **Chấm điểm mù (Blind Audition):** Cách ly hoàn toàn thông tin định danh (Tên, Trường học, Tuổi tác) khỏi luồng đánh giá. Mọi ID đều được mã hóa ẩn danh một chiều (SHA-256). Thông tin chỉ được "mở khóa" khi năng lực thực tế thuyết phục được nhà tuyển dụng.
@@ -30,7 +30,7 @@ Dự án được kiến trúc và phát triển bởi nhóm sinh viên đến t
 
 ![POWORK Workflow](./po_workflow.svg)
 
-## 🏗️ Kiến trúc & Công nghệ (Tech Stack)
+## 🏗️ Kiến trúc & Công nghệ 
 
 POWORK được thiết kế theo kiến trúc **Modular Monolith** kết hợp nguyên lý *Loosely Coupling*, tối ưu cho tốc độ phát triển nhưng vẫn sẵn sàng (Microservices-ready) cho các giai đoạn mở rộng.
 
@@ -51,7 +51,30 @@ POWORK được thiết kế theo kiến trúc **Modular Monolith** kết hợp 
 - **Containerization:** Docker & Docker Compose.
 - **CI/CD:** GitHub Actions (Tự động Linting, Build test và kiểm định cấu trúc Database).
 
-## 🚀 Hướng dẫn khởi chạy (Getting Started)
+## 📂 Cấu trúc thư mục 
+
+```text
+POWORK/
+├── Backend/                 # Server Node.js (API Core)
+│   ├── prisma/              # Database Schema & Data Seeders
+│   ├── src/                 # Mã nguồn Backend (Controllers, Services...)
+│   ├── Dockerfile
+│   └── package.json
+├── Frontend/                # Giao diện người dùng Next.js
+│   ├── app/                 # Next.js App Router (Pages & Layouts)
+│   ├── components/          # Reusable UI Components
+│   ├── lib/                 # Utilities, Hooks, API Clients
+│   ├── public/              # Static Assets (Images, Icons)
+│   ├── Dockerfile
+│   └── package.json
+├── .env.example             # Biến môi trường mẫu cho toàn dự án
+├── docker-compose.yml       # Cấu hình triển khai hệ thống (Database, MinIO, ClamAV...)
+├── start.bat                # Script khởi động nhanh cho Windows
+├── stop.bat                 # Script tắt hệ thống cho Windows
+└── README.md                # Tài liệu hướng dẫn chính
+```
+
+## 🚀 Hướng dẫn khởi chạy 
 
 Dự án đã được cấu hình sẵn các tệp lệnh để khởi động tự động thông qua Docker.
 
