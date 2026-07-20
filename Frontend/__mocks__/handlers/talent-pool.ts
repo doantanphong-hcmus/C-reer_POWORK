@@ -54,17 +54,20 @@ export const talentPoolHandlers = [
   }),
 
   // PATCH /api/v1/talent-pool/:poolId/status
-  http.patch('/api/v1/talent-pool/:poolId/status', async ({ request, params, cookies: _cookies }) => {
-    const { poolId } = params;
-    const { status } = (await request.json()) as { status: TalentPoolStatus }; // Use request.json()
+  http.patch(
+    '/api/v1/talent-pool/:poolId/status',
+    async ({ request, params, cookies: _cookies }) => {
+      const { poolId } = params;
+      const { status } = (await request.json()) as { status: TalentPoolStatus }; // Use request.json()
 
-    const entryIndex = mockTalentPool.findIndex((entry) => entry.pool_id === poolId); // Use pool_id
-    if (entryIndex > -1) {
-      mockTalentPool[entryIndex].status = status;
-      return HttpResponse.json(null, { status: 200 }); // Return empty body with status
+      const entryIndex = mockTalentPool.findIndex((entry) => entry.pool_id === poolId); // Use pool_id
+      if (entryIndex > -1) {
+        mockTalentPool[entryIndex].status = status;
+        return HttpResponse.json(null, { status: 200 }); // Return empty body with status
+      }
+      return HttpResponse.json({ message: 'Talent Pool Entry not found' }, { status: 404 });
     }
-    return HttpResponse.json({ message: 'Talent Pool Entry not found' }, { status: 404 });
-  }),
+  ),
 
   // POST /api/v1/talent-pool
   http.post('/api/v1/talent-pool', async ({ request, params: _params, cookies: _cookies }) => {
