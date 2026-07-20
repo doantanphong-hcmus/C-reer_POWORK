@@ -1,5 +1,5 @@
 import apiClient from './client';
-import { TalentPoolEntry, TalentPoolStatus, TalentPoolCandidate } from '../types/talent-pool';
+import { TalentPoolEntry, TalentPoolStatus } from '../types/talent-pool';
 
 export const getTalentPool = async (): Promise<TalentPoolEntry[]> => {
   const response = await apiClient.get<TalentPoolEntry[]>('/api/v1/talent-pool');

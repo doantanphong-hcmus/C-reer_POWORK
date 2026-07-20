@@ -202,7 +202,7 @@ function UnlockPanel({
           // Toast message is handled by the hook itself.
           // Any additional local UI updates can go here if needed.
         },
-        onError: (error) => {
+        onError: (_error) => {
           // Handle error if necessary, e.g., show a toast.
           // For now, the hook handles the error toast.
         },

@@ -7,6 +7,7 @@ import { useUIStore } from '@/lib/store/uiStore';
 import { NAV_BY_ROLE, type NavIconName } from '@/lib/constants/nav';
 import { cn } from '@/lib/utils/cn';
 import { MenuIcon, SettingsIcon, SidebarNavIcon } from './SidebarIcons';
+import Image from 'next/image';
 
 type WorkspaceItem = {
   label: string;
@@ -196,9 +197,11 @@ export function Sidebar() {
       >
         {sidebarOpen && (
           <div className="flex min-w-0 items-center gap-3">
-            <img
+            <Image
               src="/favicon/favicon-96x96.png"
               alt="POWORK Favicon"
+              width={48}
+              height={48}
               className="h-12 w-12 shrink-0 rounded-xl object-contain shadow-md"
             />
             <div className="min-w-0">
@@ -225,9 +228,11 @@ export function Sidebar() {
           {sidebarOpen ? (
             <MenuIcon className="h-[22px] w-[22px]" />
           ) : (
-            <img
+            <Image
               src="/favicon/favicon-96x96.png"
               alt="Favicon"
+              width={48}
+              height={48}
               className="h-12 w-12 rounded-xl object-contain shadow-md transition-transform hover:scale-105"
             />
           )}

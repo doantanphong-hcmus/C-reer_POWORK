@@ -2,11 +2,11 @@ import { http, HttpResponse } from 'msw'; // Changed from 'rest' to 'http', adde
 import {
   TalentPoolEntry,
   TalentPoolStatus,
-  TalentPoolCandidate,
+  TalentPoolCandidate, // Reverted line 5
 } from '../../lib/types/talent-pool'; // Import types from common types file
 
 // Mock data
-let mockTalentPool: TalentPoolEntry[] = [
+const mockTalentPool: TalentPoolEntry[] = [
   {
     pool_id: 'tp1',
     candidate: {
@@ -49,12 +49,12 @@ let mockTalentPool: TalentPoolEntry[] = [
 
 export const talentPoolHandlers = [
   // GET /api/v1/talent-pool
-  http.get('/api/v1/talent-pool', ({ request, params, cookies }) => {
+  http.get('/api/v1/talent-pool', ({ request: _request, params: _params, cookies: _cookies }) => {
     return HttpResponse.json(mockTalentPool); // Use HttpResponse.json directly
   }),
 
   // PATCH /api/v1/talent-pool/:poolId/status
-  http.patch('/api/v1/talent-pool/:poolId/status', async ({ request, params, cookies }) => {
+  http.patch('/api/v1/talent-pool/:poolId/status', async ({ request, params, cookies: _cookies }) => {
     const { poolId } = params;
     const { status } = (await request.json()) as { status: TalentPoolStatus }; // Use request.json()
 
@@ -67,7 +67,7 @@ export const talentPoolHandlers = [
   }),
 
   // POST /api/v1/talent-pool
-  http.post('/api/v1/talent-pool', async ({ request, params, cookies }) => {
+  http.post('/api/v1/talent-pool', async ({ request, params: _params, cookies: _cookies }) => {
     const { user_id } = (await request.json()) as { user_id: string }; // Use request.json()
 
     if (!user_id) {
