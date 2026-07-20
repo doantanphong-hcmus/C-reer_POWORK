@@ -4,7 +4,7 @@
 
 POWORK là dự án công nghệ tham dự **VietFuture Awards 2026**, hạng mục *Các sản phẩm, ứng dụng công nghệ khác*. 
 
-Dự án hướng tới việc giải quyết triệt để bài toán bất đối xứng thông tin trong tuyển dụng CNTT hiện nay. Bằng cách thay thế các bản CV tĩnh dễ dàng bị thổi phồng, POWORK buộc ứng viên phải chứng minh năng lực thông qua các bài toán nghiệp vụ thực tế, đồng thời bảo vệ họ khỏi mọi thiên kiến tuyển dụng.
+Dự án hướng tới việc giải quyết triệt để bài toán bất đối xứng thông tin trong tuyển dụng hiện nay. Bằng cách thay thế các bản CV tĩnh dễ dàng bị thổi phồng, POWORK buộc ứng viên phải chứng minh năng lực thông qua các bài toán nghiệp vụ thực tế, đồng thời bảo vệ họ khỏi mọi thiên kiến tuyển dụng.
 
 <p align="center">
   <img width="800" height="512" alt="powork_pureblack_blue_logo" src="https://github.com/user-attachments/assets/8fb3f03b-5a46-43d5-b04a-f8a4c5c8c7e2" />
