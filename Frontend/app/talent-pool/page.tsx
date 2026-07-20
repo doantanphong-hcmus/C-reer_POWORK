@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useMemo, useState } from 'react';
@@ -11,48 +12,57 @@ import {
   TalentPoolStats,
   TalentPoolToolbar,
 } from '@/components/talent-pool';
-import { MOCK_RECENT_ACTIVITIES, MOCK_TALENT_POOL } from '@/lib/data/mockTalentPool';
-import type { RecentActivity, TalentPoolEntry, TalentPoolStatus } from '@/lib/types/talent-pool';
+import type { RecentActivity, TalentPoolEntry, TalentPoolStatus } from '@/lib/types/talent-pool'; // Use types from here
+import { useTalentPool, useUpdateTalentPoolStatus } from '@/lib/hooks/useTalentPool'; // Import hooks
 
 export default function TalentPoolPage() {
-  const [entries, setEntries] = useState<TalentPoolEntry[]>(MOCK_TALENT_POOL);
-  const [activities, setActivities] = useState<RecentActivity[]>(MOCK_RECENT_ACTIVITIES);
+  const { data: entries, isLoading, isError } = useTalentPool(); // Use data from hook
+  const updateStatusMutation = useUpdateTalentPoolStatus(); // Use mutation hook
+
+  const [activities, setActivities] = useState<RecentActivity[]>([]); // Initialize activities as empty, or fetch from API
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState<FilterTabOption>('ALL');
   const [selectedCandidate, setSelectedCandidate] = useState<TalentPoolEntry | null>(null);
 
-  // Status Change Handler (Local State + Mock Callback readiness)
+  // Status Change Handler
   const handleStatusChange = (poolId: string, newStatus: TalentPoolStatus) => {
-    setEntries((prev) =>
-      prev.map((entry) => {
-        if (entry.pool_id === poolId) {
-          // Log recent activity
-          const newActivity: RecentActivity = {
-            id: `act-${Date.now()}`,
-            candidate_name: entry.candidate.full_name,
-            action:
-              newStatus === 'INVITED'
-                ? 'vừa được chuyển trạng thái sang "Đã mời (INVITED)"'
-                : 'vừa được chuyển lại vào Talent Pool (IN POOL)',
-            timestamp: 'Vừa xong',
-            type: newStatus === 'INVITED' ? 'invited' : 'status_change',
-          };
-          setActivities((actPrev) => [newActivity, ...actPrev]);
+    updateStatusMutation.mutate(
+      { poolId, status: newStatus },
+      {
+        onSuccess: () => {
+          // No need to manually update entries here, react-query will re-fetch
+          // Log recent activity (can be moved to backend or a separate hook)
+          // For now, keep local for immediate feedback
+          if (entries) {
+            const entry = entries.find((e) => e.pool_id === poolId); // Using 'pool_id'
+            if (entry) {
+              const newActivity: RecentActivity = {
+                id: `act-${Date.now()}`,
+                candidate_name: entry.candidate.full_name, // Using 'candidate.full_name'
+                action:
+                  newStatus === 'INVITED'
+                    ? 'vừa được chuyển trạng thái sang "Đã mời (INVITED)"'
+                    : 'vừa được chuyển lại vào Talent Pool (IN POOL)',
+                timestamp: 'Vừa xong',
+                type: newStatus === 'INVITED' ? 'invited' : 'status_change',
+              };
+              setActivities((actPrev) => [newActivity, ...actPrev]);
 
-          const updated = { ...entry, status: newStatus };
-          // If modal is currently viewing this candidate, update modal state too
-          if (selectedCandidate?.pool_id === poolId) {
-            setSelectedCandidate(updated);
+              const updated = { ...entry, status: newStatus };
+              if (selectedCandidate?.pool_id === poolId) { // Using 'pool_id'
+                setSelectedCandidate(updated);
+              }
+            }
           }
-          return updated;
-        }
-        return entry;
-      })
+        },
+      }
     );
   };
 
   // Filter & Search computation
   const filteredEntries = useMemo(() => {
+    if (isLoading || isError || !entries) return []; // Handle loading/error states
+
     return entries.filter((entry) => {
       // 1. Status Filter
       if (activeFilter !== 'ALL' && entry.status !== activeFilter) {
@@ -76,52 +86,52 @@ export default function TalentPoolPage() {
 
       return true;
     });
-  }, [entries, activeFilter, searchQuery]);
+  }, [entries, activeFilter, searchQuery, isLoading, isError]); // Added isLoading, isError to dependencies
 
   // Statistics counters
-  const totalCandidates = entries.length;
+  const totalCandidates = entries?.length || 0; // Handle entries being undefined during loading
   const inPoolCount = useMemo(
-    () => entries.filter((e) => e.status === 'IN_POOL').length,
+    () => entries?.filter((e) => e.status === 'IN_POOL').length || 0,
     [entries]
   );
   const invitedCount = useMemo(
-    () => entries.filter((e) => e.status === 'INVITED').length,
+    () => entries?.filter((e) => e.status === 'INVITED').length || 0,
     [entries]
   );
   const highScorerCount = useMemo(
-    () => entries.filter((e) => e.highest_score >= 85).length,
+    () => entries?.filter((e) => e.highest_score >= 85).length || 0,
     [entries]
   );
 
   // Suggested Actions handler
   const handleSuggestedAction = (actionType: string) => {
     if (actionType === 'invite_top') {
-      // Filter candidates with score >= 90 and set filter to ALL
       setActiveFilter('ALL');
       setSearchQuery('');
-      // Highlight high scorers in list or invite them
-      const topCandidateIds = entries
-        .filter((e) => e.highest_score >= 90 && e.status === 'IN_POOL')
-        .map((e) => e.pool_id);
+      if (entries) {
+        const topCandidateIds = entries
+          .filter((e) => e.highest_score >= 90 && e.status === 'IN_POOL')
+          .map((e) => e.pool_id);
 
-      if (topCandidateIds.length === 0) {
-        alert('Tất cả ứng viên xuất sắc ≥ 90 điểm đã được gửi lời mời.');
-        return;
+        if (topCandidateIds.length === 0) {
+          alert('Tất cả ứng viên xuất sắc ≥ 90 điểm đã được gửi lời mời.');
+          return;
+        }
+
+        // Using mutate for each candidate status update
+        topCandidateIds.forEach((poolId) => {
+          updateStatusMutation.mutate({ poolId, status: 'INVITED' });
+        });
+
+        const newAct: RecentActivity = {
+          id: `act-${Date.now()}`,
+          candidate_name: `${topCandidateIds.length} ứng viên xuất sắc (≥90 điểm)`,
+          action: 'vừa được tự động gửi lời mời phỏng vấn',
+          timestamp: 'Vừa xong',
+          type: 'invited',
+        };
+        setActivities((prev) => [newAct, ...prev]);
       }
-
-      setEntries((prev) =>
-        prev.map((e) => (topCandidateIds.includes(e.pool_id) ? { ...e, status: 'INVITED' } : e))
-      );
-
-      // Log activity batch
-      const newAct: RecentActivity = {
-        id: `act-${Date.now()}`,
-        candidate_name: `${topCandidateIds.length} ứng viên xuất sắc (≥90 điểm)`,
-        action: 'vừa được tự động gửi lời mời phỏng vấn',
-        timestamp: 'Vừa xong',
-        type: 'invited',
-      };
-      setActivities((prev) => [newAct, ...prev]);
     } else if (actionType === 'export') {
       alert(`Đã xuất báo cáo ${filteredEntries.length} ứng viên dạng CSV!`);
     }
@@ -197,7 +207,11 @@ export default function TalentPoolPage() {
             />
 
             {/* Candidate List or Empty State */}
-            {filteredEntries.length === 0 ? (
+            {isLoading ? (
+              <p>Đang tải danh sách ứng viên...</p>
+            ) : isError ? (
+              <p>Đã xảy ra lỗi khi tải danh sách ứng viên.</p>
+            ) : filteredEntries.length === 0 ? (
               <TalentPoolEmptyState
                 isFiltered={isFiltered}
                 onResetFilter={() => {

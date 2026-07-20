@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useMemo, useState } from 'react';
@@ -5,7 +6,9 @@ import { useParams, useSearchParams } from 'next/navigation';
 import { DocumentViewer, RubricScoringForm } from '@/components/assessment';
 import { Badge, Button } from '@/components/ui';
 import { useEvaluateSubmission, useGradingSubmission, useUnlockSubmission } from '@/lib/hooks';
+import { useAddToTalentPool } from '../../../../../lib/hooks/useTalentPool'; // Import useAddToTalentPool hook
 import { cn } from '@/lib/utils/cn';
+import type { UseMutationResult } from '@tanstack/react-query'; // Import UseMutationResult for typing
 import type {
   EvaluateRequest,
   EvaluateResponse,
@@ -173,7 +176,7 @@ function UnlockPanel({
   canUnlock,
   isUnlocking,
   onUnlock,
-  onSaveToTalentPool,
+  onSaveToTalentPoolMutation, // New prop
 }: {
   submission: GradingSubmission;
   evaluationResult: EvaluateResponse | null;
@@ -181,26 +184,29 @@ function UnlockPanel({
   canUnlock: boolean;
   isUnlocking: boolean;
   onUnlock: () => void;
-  onSaveToTalentPool?: (userId: string) => Promise<void> | void;
+  onSaveToTalentPoolMutation?: UseMutationResult<void, Error, string>; // Use the mutation result type
 }) {
   const profile =
     unlockResult?.unlocked_candidate_profile ?? submission.unlocked_candidate_profile ?? null;
-  const [savePoolState, setSavePoolState] = useState<'idle' | 'loading' | 'saved'>('idle');
+  // const [savePoolState, setSavePoolState] = useState<'idle' | 'loading' | 'saved'>('idle'); // Removed local state
 
-  const handleSaveToPool = async () => {
-    if (savePoolState !== 'idle' || !profile) return;
-    setSavePoolState('loading');
+  const isSavingToPool = onSaveToTalentPoolMutation?.isPending; // Use mutation state
+  const isSavedToPool = onSaveToTalentPoolMutation?.isSuccess; // Use mutation state
 
-    try {
-      if (onSaveToTalentPool) {
-        await onSaveToTalentPool(profile.user_id);
-      } else {
-        // Mock delay for UI response if no callback passed
-        await new Promise((resolve) => setTimeout(resolve, 800));
-      }
-      setSavePoolState('saved');
-    } catch {
-      setSavePoolState('idle');
+  const handleSaveToPool = () => { // Removed async
+    if (!profile || isSavingToPool || isSavedToPool) return; // Prevent multiple clicks or if already saved
+
+    if (onSaveToTalentPoolMutation) {
+      onSaveToTalentPoolMutation.mutate(profile.user_id, {
+        onSuccess: () => {
+          // Toast message is handled by the hook itself.
+          // Any additional local UI updates can go here if needed.
+        },
+        onError: (error) => {
+          // Handle error if necessary, e.g., show a toast.
+          // For now, the hook handles the error toast.
+        },
+      });
     }
   };
 
@@ -233,7 +239,7 @@ function UnlockPanel({
 
         {/* Button Lưu vào Talent Pool với 3 trạng thái: Normal, Loading, Disabled ("Đã lưu vào Pool") */}
         <div className="mt-4">
-          {savePoolState === 'saved' ? (
+          {isSavedToPool ? (
             <Button
               type="button"
               variant="default"
@@ -254,27 +260,6 @@ function UnlockPanel({
                 Đã lưu vào Pool
               </span>
             </Button>
-          ) : savePoolState === 'loading' ? (
-            <Button
-              type="button"
-              variant="accent"
-              size="md"
-              className="w-full opacity-70 cursor-not-allowed"
-              disabled
-            >
-              <span className="flex items-center justify-center gap-2 font-medium">
-                <svg
-                  className="h-4 w-4 animate-spin text-accent"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <circle cx="12" cy="12" r="10" strokeDasharray="32" strokeDashoffset="10" />
-                </svg>
-                Đang lưu...
-              </span>
-            </Button>
           ) : (
             <Button
               type="button"
@@ -282,20 +267,33 @@ function UnlockPanel({
               size="md"
               className="w-full shadow-xs transition-all hover:opacity-95 active:scale-[0.99]"
               onClick={handleSaveToPool}
+              disabled={!profile || isSavingToPool} // Disable if no profile or saving
             >
               <span className="flex items-center justify-center gap-1.5 font-medium">
-                <svg
-                  className="h-4 w-4 text-accent"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
-                  <polyline points="17 21 17 13 7 13 7 21" />
-                  <polyline points="7 3 7 8 15 8" />
-                </svg>
-                Lưu vào Talent Pool
+                {isSavingToPool ? (
+                  <svg
+                    className="h-4 w-4 animate-spin text-accent"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <circle cx="12" cy="12" r="10" strokeDasharray="32" strokeDashoffset="10" />
+                  </svg>
+                ) : (
+                  <svg
+                    className="h-4 w-4 text-accent"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                    <polyline points="17 21 17 13 7 13 7 21" />
+                    <polyline points="7 3 7 8 15 8" />
+                  </svg>
+                )}
+                {isSavingToPool ? 'Đang lưu...' : 'Lưu vào Talent Pool'}
               </span>
             </Button>
           )}
@@ -381,6 +379,7 @@ export default function GradeSubmissionPage() {
 function GradeSubmissionWorkspace({ submission }: { submission: GradingSubmission }) {
   const evaluateMutation = useEvaluateSubmission();
   const unlockMutation = useUnlockSubmission();
+  const addToTalentPoolMutation = useAddToTalentPool(); // Instantiate hook
   const [activeDocIndex, setActiveDocIndex] = useState(0);
   const [evaluationResult, setEvaluationResult] = useState<EvaluateResponse | null>(null);
   const [unlockResult, setUnlockResult] = useState<UnlockResponse | null>(null);
@@ -541,6 +540,7 @@ function GradeSubmissionWorkspace({ submission }: { submission: GradingSubmissio
             canUnlock={canUnlock}
             isUnlocking={unlockMutation.isPending}
             onUnlock={handleUnlock}
+            onSaveToTalentPoolMutation={addToTalentPoolMutation} // Pass mutation
           />
         </aside>
       </div>
