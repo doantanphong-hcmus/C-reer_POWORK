@@ -32,7 +32,7 @@ vi.mock('../../../src/assessment/repositories/submission.repository.js', () => (
   updateSubmissionStatus: vi.fn()
 }));
 vi.mock('../../../src/iam/services/user-lookup.service.js', () => ({
-  getUserContactById: vi.fn()
+  getUserById: vi.fn()
 }));
 vi.mock('../../../src/assessment/jobs/scan.job.js', () => ({
   queueScanJob: vi.fn()
@@ -62,7 +62,7 @@ describe('Submission Service Core Logic', () => {
       submissionRepository.createSubmission.mockResolvedValue({
         id: 'SUB_1', hashId: 'NEW_HASH', version: 1, status: 'PENDING', submittedAt: new Date()
       });
-      userLookupService.getUserContactById.mockResolvedValue({ email: 'test@email.com' });
+      userLookupService.getUserById.mockResolvedValue({ email: 'test@email.com' });
 
       // 2. THỰC THI
       const result = await submitSolution({ userId: 'U1', challengeId: 'C1', solutionUrl: 'url' });
@@ -80,7 +80,7 @@ describe('Submission Service Core Logic', () => {
       submissionRepository.createSubmission.mockResolvedValue({
         id: 'SUB_3', hashId: 'OLD_HASH', version: 3, status: 'PENDING', submittedAt: new Date()
       });
-      userLookupService.getUserContactById.mockResolvedValue({ email: 'test@email.com' });
+      userLookupService.getUserById.mockResolvedValue({ email: 'test@email.com' });
 
       // 2. THỰC THI
       const result = await submitSolution({ userId: 'U1', challengeId: 'C1', solutionUrl: 'url' });
@@ -96,7 +96,7 @@ describe('Submission Service Core Logic', () => {
       submissionRepository.createSubmission.mockResolvedValue({
         id: 'SUB_2', hashId: 'SECURE_HASH', version: 2, status: 'PENDING', submittedAt: new Date()
       });
-      userLookupService.getUserContactById.mockResolvedValue({ email: 'test@email.com' });
+      userLookupService.getUserById.mockResolvedValue({ email: 'test@email.com' });
 
       const result = await submitSolution({ userId: 'REAL_USER_ID_123', challengeId: 'C1', solutionUrl: 'url' });
 
@@ -167,7 +167,7 @@ describe('Submission Service Core Logic', () => {
         });
       });
 
-      userLookupService.getUserContactById.mockResolvedValue({ email: 'real@email.com', fullName: 'John Doe' });
+      userLookupService.getUserById.mockResolvedValue({ email: 'real@email.com', full_name: 'John Doe' });
 
       const result = await unlockCandidate('SUB_1', 'APPROVE');
 

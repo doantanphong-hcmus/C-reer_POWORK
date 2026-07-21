@@ -50,7 +50,7 @@ export const submitSolution = async ({ userId, challengeId, solutionUrl, challen
   // 5. Gửi email xác nhận — KHÔNG await trong luồng chính (fire-and-forget),
   //    lấy email qua IAM Interface, không lộ ra response cho FE
   userLookupService
-    .getUserContactById(userId)
+    .getUserById(userId)
     .then(({ email }) =>
       sendSubmissionConfirmationEmail({
         toEmail: email,
@@ -170,7 +170,7 @@ export const unlockCandidate = async (submissionId, action) => {
   })
 
   // Lấy thông tin thật qua IAM Interface
-  const { email, fullName } = await userLookupService.getUserContactById(mappingResult.userId)
+  const { email, full_name: fullName } = await userLookupService.getUserById(mappingResult.userId)
 
   return {
     message: 'Identity unlocked successfully.',

@@ -1,18 +1,17 @@
 /**
- * @file upload.service.test.js
  * @description File Unit Test cho module Upload Service (thuộc nhóm Assessment)
  * 
  * ==========================================
- * QUY TRÌNH KIỂM THỬ (TESTING PROCESS)
+ * QUY TRÌNH KIỂM THỬ 
  * ==========================================
- * 1. KHỞI TẠO (SETUP): 
+ * 1. KHỞI TẠO: 
  *    - Sử dụng `vi.mock` để giả lập (mock) các dependencies bên ngoài (như `minioClient`, `config`).
  *    - Đảm bảo Unit Test không gọi thật xuống MinIO server để giữ tốc độ nhanh và độc lập.
  * 
- * 2. THỰC THI (EXECUTE): 
+ * 2. THỰC THI: 
  *    - Gọi hàm `generatePresignedUploadUrl` với các đầu vào (input) giả lập như `userId`, `challengeId`, `filename`.
  * 
- * 3. KẾT QUẢ MONG ĐỢI (EXPECTED RESULTS):
+ * 3. KẾT QUẢ MONG ĐỢI:
  *    - Hàm phải gọi đúng phương thức của `minioClient` với bucket name và object key chuẩn xác.
  *    - Phải trả về một Object chứa URL (đã được map từ host nội bộ ra host public), object_key và thời gian hết hạn (expires_in).
  * 
