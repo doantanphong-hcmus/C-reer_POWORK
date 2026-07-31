@@ -37,7 +37,7 @@ export class AuthError extends Error {
 const MOCK_USER: User = {
   user_id: 'de305d54-75b4-431b-adb2-eb6b9e546014',
   email: 'test@example.com',
-  full_name: 'Trương Minh Quang',
+  full_name: 'Nguyễn Minh Anh',
   role: 'Candidate',
 };
 
@@ -65,7 +65,12 @@ export async function loginUpstream(payload: LoginRequest): Promise<UpstreamSess
   const role = payload.role ?? 'Candidate';
   const user: User =
     payload.email === 'test@example.com'
-      ? { ...MOCK_USER, email: payload.email, role }
+      ? {
+          ...MOCK_USER,
+          email: payload.email,
+          role,
+          full_name: role === 'Employer' ? 'Trần Hoàng Nam' : 'Nguyễn Minh Anh',
+        }
       : {
           user_id: `mock-${payload.email}`,
           email: payload.email,

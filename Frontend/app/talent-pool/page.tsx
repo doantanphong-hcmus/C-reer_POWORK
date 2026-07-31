@@ -13,12 +13,13 @@ import {
 } from '@/components/talent-pool';
 import type { RecentActivity, TalentPoolEntry, TalentPoolStatus } from '@/lib/types/talent-pool'; // Use types from here
 import { useTalentPool, useUpdateTalentPoolStatus } from '@/lib/hooks/useTalentPool'; // Import hooks
+import { MOCK_RECENT_ACTIVITIES } from '@/lib/data/mockTalentPool';
 
 export default function TalentPoolPage() {
   const { data: entries, isLoading, isError } = useTalentPool(); // Use data from hook
   const updateStatusMutation = useUpdateTalentPoolStatus(); // Use mutation hook
 
-  const [activities, setActivities] = useState<RecentActivity[]>([]); // Initialize activities as empty, or fetch from API
+  const [activities, setActivities] = useState<RecentActivity[]>(MOCK_RECENT_ACTIVITIES);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState<FilterTabOption>('ALL');
   const [selectedCandidate, setSelectedCandidate] = useState<TalentPoolEntry | null>(null);

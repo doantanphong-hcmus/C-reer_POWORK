@@ -6,34 +6,45 @@ import type {
   CreateChallengeRequest,
   UpdateChallengeStatusRequest,
 } from '@/lib/types';
+import { MOCK_CHALLENGES } from '@/lib/data/mockChallenges';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 const BASE = `${API_URL}/api/v1/challenges`;
 
-const MOCK_CHALLENGE: Challenge = {
-  challenge_id: '403bf47b-231a-4d22-9214-722a4669812a',
-  title: 'Tối ưu Thuật toán Xử lý Bản đồ',
-  description: 'Thiết kế và tối ưu thuật toán xử lý bản đồ địa lý...',
-  industry: 'Công nghệ thông tin',
-  company_name: 'MTech Solutions',
-  deadline: '2026-06-30T23:59:59Z',
+const toDetail = (summary: ChallengeSummary): Challenge => ({
+  ...summary,
+  description:
+    'Doanh nghiệp cung cấp bối cảnh và dữ liệu mô phỏng từ một vấn đề đang gặp trong thực tế. ' +
+    'Ứng viên cần phân tích yêu cầu, đề xuất giải pháp khả thi và trình bày rõ các quyết định, rủi ro cùng kế hoạch triển khai.',
   status: 'Open',
   rubrics: [
     {
-      criteria_id: 'aa152d43-014b-4892-ba21-cb9e443101d2',
-      criteria_name: 'Kiến trúc mã nguồn',
-      weight: 40,
+      criteria_id: `${summary.challenge_id}-01`,
+      criteria_name: 'Mức độ thấu hiểu bài toán',
+      weight: 25,
       max_score: 10,
     },
     {
-      criteria_id: 'bb263e54-125c-5903-cb32-dc0f554212e3',
-      criteria_name: 'Tối ưu bộ nhớ',
-      weight: 60,
+      criteria_id: `${summary.challenge_id}-02`,
+      criteria_name: 'Tính khả thi và sáng tạo của giải pháp',
+      weight: 35,
+      max_score: 10,
+    },
+    {
+      criteria_id: `${summary.challenge_id}-03`,
+      criteria_name: 'Chất lượng sản phẩm minh họa',
+      weight: 25,
+      max_score: 10,
+    },
+    {
+      criteria_id: `${summary.challenge_id}-04`,
+      criteria_name: 'Khả năng trình bày và phản biện',
+      weight: 15,
       max_score: 10,
     },
   ],
-  created_at: new Date().toISOString(),
-};
+  created_at: '2026-07-20T08:00:00.000Z',
+});
 
 const success = <T>(data: T, message?: string): ApiSuccess<T> => ({
   status: 'success',
@@ -45,22 +56,18 @@ export const challengeHandlers = [
   http.get(BASE, ({ request }) => {
     const url = new URL(request.url);
     const industry = url.searchParams.get('industry');
-    const all: ChallengeSummary[] = [
-      {
-        challenge_id: MOCK_CHALLENGE.challenge_id,
-        title: MOCK_CHALLENGE.title,
-        company_name: MOCK_CHALLENGE.company_name,
-        industry: MOCK_CHALLENGE.industry,
-        deadline: MOCK_CHALLENGE.deadline,
-      },
-    ];
-    const filtered = industry ? all.filter((c) => c.industry === industry) : all;
+    const filtered = industry
+      ? MOCK_CHALLENGES.filter((challenge) => challenge.industry === industry)
+      : MOCK_CHALLENGES;
     return HttpResponse.json(success(filtered), { status: 200 });
   }),
 
   http.get(`${BASE}/:challenge_id`, ({ params }) => {
+    const summary =
+      MOCK_CHALLENGES.find((item) => item.challenge_id === String(params.challenge_id)) ??
+      MOCK_CHALLENGES[0];
     return HttpResponse.json(
-      success({ ...MOCK_CHALLENGE, challenge_id: String(params.challenge_id) }),
+      success(toDetail({ ...summary, challenge_id: String(params.challenge_id) })),
       { status: 200 }
     );
   }),
@@ -72,7 +79,7 @@ export const challengeHandlers = [
       title: body.title,
       description: body.description,
       industry: body.industry,
-      company_name: 'MTech Solutions',
+      company_name: 'VietMove Logistics',
       deadline: body.deadline,
       status: 'Open',
       rubrics: body.rubrics.map((r, i) => ({

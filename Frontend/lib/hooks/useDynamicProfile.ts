@@ -3,7 +3,7 @@ import { dynamicProfileAPI } from '@/lib/api/dynamic-profile';
 
 export function useCandidateProfile(userId: string) {
   return useQuery({
-    queryKey: ['candidate-profile'],
+    queryKey: ['candidate-profile', userId],
     queryFn: () => dynamicProfileAPI.getCandidateProfile(userId),
     enabled: Boolean(userId),
   });

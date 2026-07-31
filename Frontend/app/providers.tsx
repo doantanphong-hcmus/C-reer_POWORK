@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactNode, useEffect, useState } from 'react';
 import { useAuthStore } from '@/lib/store/authStore';
 import { checkSession } from '@/lib/hooks/useAuth';
+import { ThemeProvider } from '@/components/theme/ThemeProvider';
 
 export function Providers({ children }: { children: ReactNode }) {
   const [queryClient] = useState(
@@ -20,17 +21,15 @@ export function Providers({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const init = async () => {
-      // ── 1. MSW (chỉ dev) ─────────────────────────────────────────────
-      // Bọc riêng try/catch: nếu MSW fail thì log cảnh báo và VẪN tiếp
-      // tục xuống bước khôi phục phiên — không để MSW kéo chết cả init.
-      // if (process.env.NODE_ENV === 'development') {
-      //   try {
-      //     const { worker } = await import('@/__mocks__/client');
-      //     await worker.start({ onUnhandledRequest: 'bypass' });
-      //   } catch (err) {
-      //     console.warn('[MSW] Không khởi động được mock worker, bỏ qua:', err);
-      //   }
-      // }
+      // Demo mode bật mặc định; đặt NEXT_PUBLIC_DEMO_MODE=false để gọi Backend thật.
+      if (process.env.NEXT_PUBLIC_DEMO_MODE !== 'false') {
+        try {
+          const { worker } = await import('@/__mocks__/client');
+          await worker.start({ onUnhandledRequest: 'bypass' });
+        } catch (err) {
+          console.warn('[MSW] Không khởi động được mock worker, bỏ qua:', err);
+        }
+      }
 
       // ── 2. Khôi phục phiên ───────────────────────────────────────────
       // checkSession() đã tự bọc try/catch, luôn kết thúc ở
@@ -45,5 +44,9 @@ export function Providers({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
+  return (
+    <ThemeProvider>
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    </ThemeProvider>
+  );
 }

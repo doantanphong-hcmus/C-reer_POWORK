@@ -1,5 +1,8 @@
 import type { CandidateProfile, Evidence, VerifiedEvidence } from '@/lib/types';
 import { apiClient } from './client';
+import { mockCandidateProfile, mockEvidenceById } from '@/lib/data/mockCandidateProfile';
+
+const demoMode = process.env.NEXT_PUBLIC_DEMO_MODE !== 'false';
 
 function normalizeProfile(profile: CandidateProfile): CandidateProfile {
   const evidences = profile.evidences ?? [];
@@ -29,7 +32,11 @@ function normalizeProfile(profile: CandidateProfile): CandidateProfile {
 
 export const dynamicProfileAPI = {
   async getCandidateProfile(userId: string): Promise<CandidateProfile> {
-    const response = await apiClient.get('/api/v1/profiles/' + userId);
+    if (demoMode) {
+      return { ...mockCandidateProfile, id: userId };
+    }
+
+    const response = await apiClient.get('/profiles/' + userId);
     const data = response.data.data;
 
     const mappedProfile: CandidateProfile = {
@@ -69,8 +76,7 @@ export const dynamicProfileAPI = {
     return normalizeProfile(mappedProfile);
   },
 
-  async getEvidenceDetail(_evidenceId: string): Promise<Evidence | null> {
-    // TODO: Implement actual API call for evidence detail
-    return null;
+  async getEvidenceDetail(evidenceId: string): Promise<Evidence | null> {
+    return demoMode ? (mockEvidenceById[evidenceId] ?? null) : null;
   },
 };

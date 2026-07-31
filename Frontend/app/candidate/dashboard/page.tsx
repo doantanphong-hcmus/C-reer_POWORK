@@ -19,6 +19,12 @@ const TIPS: { Icon: ComponentType<SVGProps<SVGSVGElement>>; text: string }[] = [
   { Icon: RepeatIcon, text: 'Làm nhiều thử thách để xây dựng hồ sơ bằng chứng.' },
 ];
 
+const RECENT_ACTIVITIES = [
+  'VietMove Logistics đã xác thực bài làm “Thiết kế hệ thống giao hàng thông minh”.',
+  'Bạn đạt 94/100 điểm ở tiêu chí Tư duy giải quyết vấn đề.',
+  'Hồ sơ năng lực của bạn vừa được một nhà tuyển dụng lưu vào Talent Pool.',
+];
+
 export default function DashboardPage() {
   const { user } = useAuth();
   if (!user) return null;
@@ -95,7 +101,13 @@ export default function DashboardPage() {
 
           <div>
             <h2 className="mb-3 text-lg font-semibold text-foreground">Hoạt động gần đây</h2>
-            <div className="card text-sm text-foreground-secondary">Chưa có hoạt động gần đây.</div>
+            <div className="space-y-2">
+              {RECENT_ACTIVITIES.map((activity) => (
+                <div key={activity} className="card py-4 text-sm text-foreground-secondary">
+                  {activity}
+                </div>
+              ))}
+            </div>
           </div>
         </aside>
       </section>
