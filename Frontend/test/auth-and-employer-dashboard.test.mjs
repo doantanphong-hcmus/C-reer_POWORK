@@ -17,14 +17,16 @@ test('auth pages use the shared professional brand panel and require terms conse
   assert.match(schema, /accepted_terms:\s*z\.boolean\(\)\.refine\(Boolean/);
 });
 
-test('Employer dashboard renders the real overview instead of hard-coded metrics', async () => {
-  const [page, hook, evidence] = await Promise.all([
+test('Employer dashboard renders the real overview inside its required providers', async () => {
+  const [page, hook, evidence, providers] = await Promise.all([
     read('../app/employer/dashboard/page.tsx'),
     read('../lib/hooks/useEmployerOverview.ts'),
     read('../components/assessment/VerificationDashboardSections.tsx'),
+    read('../app/providers.tsx'),
   ]);
 
   assert.match(page, /<EmployerOverview user=\{user\}/);
+  assert.match(providers, /<ThemeProvider>\{children\}<\/ThemeProvider>/);
   assert.match(hook, /assessmentAPI\.listByChallenge/);
   assert.match(hook, /submission\.status === PENDING_STATUS/);
   assert.doesNotMatch(evidence, /Questions & Answers/);
