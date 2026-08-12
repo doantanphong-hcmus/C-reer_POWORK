@@ -17,12 +17,12 @@ const getSubmissionId = (value: string | string[] | undefined) =>
   Array.isArray(value) ? (value[0] ?? '') : (value ?? '');
 
 const getErrorMessage = (error: unknown) => {
-  if (!axios.isAxiosError(error)) return 'Không thể tải evidence xác minh lúc này.';
+  if (!axios.isAxiosError(error)) return 'Không thể tải bằng chứng xác minh lúc này.';
   if (error.response?.status === 403)
-    return 'Evidence chỉ được xem sau khi Submission đã được mở khóa.';
-  if (error.response?.status === 404) return 'Submission chưa có evidence xác minh.';
+    return 'Bằng chứng chỉ được xem sau khi bài nộp đã được mở khóa.';
+  if (error.response?.status === 404) return 'Bài nộp chưa có bằng chứng xác minh.';
   if (error.response?.status === 409) return 'Phiên xác minh chưa sẵn sàng để xem.';
-  return 'Không thể tải evidence xác minh lúc này.';
+  return 'Không thể tải bằng chứng xác minh lúc này.';
 };
 
 export default function EmployerVerificationDashboardPage() {
@@ -52,7 +52,7 @@ export default function EmployerVerificationDashboardPage() {
           className="w-full rounded-2xl border border-error/35 bg-error-bg p-7 text-center"
           role="alert"
         >
-          <h1 className="text-xl font-semibold text-error">Chưa thể mở verification dashboard</h1>
+          <h1 className="text-xl font-semibold text-error">Chưa thể mở báo cáo xác minh</h1>
           <p className="mt-2 text-sm leading-6 text-foreground-secondary">
             {getErrorMessage(dashboard.error)}
           </p>
@@ -74,13 +74,13 @@ export default function EmployerVerificationDashboardPage() {
       <header className="flex flex-col gap-4 border-b border-border pb-5 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <button type="button" onClick={() => router.back()} className="back-link hover:underline">
-            &larr; Quay lại Submission
+            &larr; Quay lại bài nộp
           </button>
           <h1 className="mt-4 text-3xl font-semibold tracking-tight text-foreground">
-            Verification evidence
+            Báo cáo xác minh ứng viên
           </h1>
           <p className="mt-2 text-sm text-foreground-secondary">
-            Tổng hợp bằng chứng xác minh đã mở khóa cho Submission {submissionId}.
+            Tổng hợp phần trình bày, câu trả lời tự luận và các tín hiệu của bài nộp {submissionId}.
           </p>
         </div>
       </header>

@@ -53,7 +53,7 @@ function getStatusBadgeVariant(status: ReturnType<typeof normalizeStatus>) {
 function getStatusLabel(status: ReturnType<typeof normalizeStatus>): string {
   if (status === 'pending') return 'Đang chấm mù';
   if (status === 'evaluated') return 'Đã lưu điểm';
-  if (status === 'approved') return 'Đã unlock';
+  if (status === 'approved') return 'Đã mở khóa';
   return 'Không đạt';
 }
 
@@ -101,15 +101,15 @@ function getFormLockReason({
   evaluationResult: EvaluateResponse | null;
 }) {
   if (isUnlocked) {
-    return 'Ứng viên đã được mở khóa. Form chấm điểm đã khóa để giữ lịch sử đánh giá.';
+    return 'Ứng viên đã được mở khóa. Bảng chấm điểm đã khóa để giữ lịch sử đánh giá.';
   }
 
   if (evaluationResult || status === 'evaluated') {
-    return 'Điểm đã được lưu. Reviewer có thể unlock nếu bài nộp đạt điều kiện.';
+    return 'Điểm đã được lưu. Người đánh giá có thể mở khóa nếu bài nộp đạt điều kiện.';
   }
 
   if (status === 'approved' || status === 'rejected') {
-    return 'Backend trả trạng thái không cho phép chấm lại bài nộp này.';
+    return 'Trạng thái hiện tại không cho phép chấm lại bài nộp này.';
   }
 
   return undefined;
@@ -127,7 +127,7 @@ function DocumentsTabs({
   if (documents.length === 0) {
     return (
       <div className="rounded-lg border-hairline border-dashed border-border-secondary bg-background-tertiary px-3 py-2 text-xs text-foreground-secondary">
-        Chưa có file bài nộp từ backend.
+        Chưa có file bài nộp để hiển thị.
       </div>
     );
   }
@@ -227,7 +227,7 @@ function UnlockPanel({
           <div>
             <p className="text-sm font-semibold text-success">Đã mở khóa ứng viên</p>
             <p className="mt-1 text-xs leading-5 text-foreground-secondary">
-              Danh tính chỉ hiển thị sau khi unlock thành công.
+              Danh tính chỉ hiển thị sau khi mở khóa thành công.
             </p>
           </div>
           <Badge variant="open">Unlocked</Badge>
@@ -319,7 +319,7 @@ function UnlockPanel({
           <div>
             <p className="text-sm font-semibold text-success">Đã mở khóa ứng viên</p>
             <p className="mt-1 text-xs leading-5 text-foreground-secondary">
-              Backend báo bài nộp đã unlock nhưng chưa trả profile trong response hiện tại.
+              Bài nộp đã được mở khóa nhưng hồ sơ ứng viên chưa sẵn sàng để hiển thị.
             </p>
           </div>
           <Badge variant="open">Unlocked</Badge>
@@ -331,7 +331,7 @@ function UnlockPanel({
   if (!evaluationResult && normalizeStatus(submission.status) === 'pending') {
     return (
       <div className="rounded-lg border-hairline border-border-secondary bg-background p-4 text-xs leading-5 text-foreground-secondary">
-        Submit điểm trước. Nếu bài đạt điều kiện, nút unlock sẽ xuất hiện tại đây.
+        Hãy hoàn tất chấm điểm trước. Nếu bài đạt điều kiện, nút mở khóa sẽ xuất hiện tại đây.
       </div>
     );
   }
@@ -340,7 +340,7 @@ function UnlockPanel({
     <div className="rounded-lg border-hairline border-border-secondary bg-background p-4">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-sm font-semibold text-foreground">Unlock thông tin ứng viên</p>
+          <p className="text-sm font-semibold text-foreground">Mở khóa thông tin ứng viên</p>
           <p className="mt-1 text-xs leading-5 text-foreground-secondary">
             Chỉ mở khóa khi bài nộp đã được chấm và đạt tiêu chí tuyển dụng.
           </p>
@@ -359,7 +359,7 @@ function UnlockPanel({
         disabled={!canUnlock || isUnlocking}
         onClick={onUnlock}
       >
-        {isUnlocking ? 'Đang mở khóa...' : 'Unlock ứng viên'}
+        {isUnlocking ? 'Đang mở khóa...' : 'Mở khóa ứng viên'}
       </Button>
     </div>
   );
@@ -424,7 +424,7 @@ function GradeSubmissionWorkspace({ submission }: { submission: GradingSubmissio
         payload,
       });
       setEvaluationResult(result);
-      setNotice('Đã lưu điểm. Bạn có thể unlock nếu bài nộp đạt điều kiện.');
+      setNotice('Đã lưu điểm. Bạn có thể mở khóa nếu bài nộp đạt điều kiện.');
     } catch (error) {
       setActionError(getActionError(error, 'Không thể lưu điểm. Vui lòng thử lại.'));
     }
@@ -441,9 +441,9 @@ function GradeSubmissionWorkspace({ submission }: { submission: GradingSubmissio
         submissionId: submission.submission_id,
       });
       setUnlockResult(result);
-      setNotice('Đã unlock ứng viên và ghi nhận vào luồng Dynamic Profile.');
+      setNotice('Đã mở khóa ứng viên và cập nhật hồ sơ năng lực.');
     } catch (error) {
-      setActionError(getActionError(error, 'Không thể unlock ứng viên. Vui lòng thử lại.'));
+      setActionError(getActionError(error, 'Không thể mở khóa ứng viên. Vui lòng thử lại.'));
     }
   };
 
@@ -462,7 +462,7 @@ function GradeSubmissionWorkspace({ submission }: { submission: GradingSubmissio
               {submission.challenge_title}
             </h1>
             <p className="mt-1 text-xs text-foreground-tertiary">
-              Submission {submission.submission_id} - Nộp lúc {submittedLabel}
+              Mã bài nộp {submission.submission_id} · Nộp lúc {submittedLabel}
             </p>
           </div>
 
@@ -510,7 +510,7 @@ function GradeSubmissionWorkspace({ submission }: { submission: GradingSubmissio
             <div>
               <h2 className="text-sm font-semibold text-foreground">Bài làm ứng viên</h2>
               <p className="mt-0.5 text-2xs text-foreground-tertiary">
-                Chỉ hiển thị mã ẩn danh trước khi unlock.
+                Chỉ hiển thị mã ẩn danh trước khi mở khóa.
               </p>
             </div>
           </div>

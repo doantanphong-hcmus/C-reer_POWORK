@@ -68,7 +68,7 @@ function getFallbackCopy({
     return {
       title: 'Chưa có file để xem trước',
       description:
-        'Backend chưa trả URL hợp lệ cho bài nộp này. Reviewer vẫn có thể tiếp tục chấm rubric khi dữ liệu file được bổ sung.',
+        'Hệ thống chưa nhận được liên kết hợp lệ cho bài nộp này. Người đánh giá vẫn có thể chấm theo các tiêu chí khi dữ liệu được bổ sung.',
     };
   }
 
