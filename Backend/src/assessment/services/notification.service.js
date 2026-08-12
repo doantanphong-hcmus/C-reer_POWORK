@@ -1,5 +1,7 @@
 import transporter from '../../shared/config/mailer.js'
 import { config } from '../../shared/config/index.js'
+import prisma from '../../shared/config/prisma.js'
+import * as userLookupService from '../../iam/services/user-lookup.service.js'
 
 const escapeHtml = (value = '') =>
   String(value)
