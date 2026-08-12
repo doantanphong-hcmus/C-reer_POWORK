@@ -11,8 +11,6 @@ const escapeHtml = (value = '') =>
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#039;')
 
-const brandLogoUrl = `${config.clientUrl.replace(/\/$/, '')}/favicon/favicon-96x96.png`
-
 const renderEmail = ({ eyebrow, title, greeting, introduction, content, footer }) => `
 <!doctype html>
 <html lang="vi">
@@ -23,17 +21,8 @@ const renderEmail = ({ eyebrow, title, greeting, introduction, content, footer }
           <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:640px;background:#ffffff;border:1px solid #dce4e8;border-radius:16px;overflow:hidden">
             <tr>
               <td style="background:#0b1720;padding:24px 32px">
-                <table role="presentation" cellspacing="0" cellpadding="0">
-                  <tr>
-                    <td style="padding-right:12px">
-                      <img src="${escapeHtml(brandLogoUrl)}" width="44" height="44" alt="POWORK" style="display:block;border-radius:10px;background:#ffffff" />
-                    </td>
-                    <td>
-                      <div style="font-size:18px;font-weight:700;letter-spacing:2px;color:#ffffff">POWORK</div>
-                      <div style="margin-top:3px;font-size:12px;color:#a9bbc5">Blind Audition Platform</div>
-                    </td>
-                  </tr>
-                </table>
+                <div style="font-size:30px;font-weight:800;letter-spacing:5px;line-height:1;color:#ffffff">POWORK</div>
+                <div style="margin-top:9px;font-size:12px;letter-spacing:0.6px;color:#a9bbc5">Blind Audition Platform</div>
               </td>
             </tr>
             <tr>

@@ -25,7 +25,8 @@ test('evaluation email is branded, informative, and escapes user-provided conten
 
   assert.equal(message.to, 'candidate@example.com')
   assert.match(message.subject, /đã được chấm/)
-  assert.match(message.html, /favicon-96x96\.png/)
+  assert.doesNotMatch(message.html, /favicon/)
+  assert.match(message.html, /letter-spacing:5px[^>]*>POWORK</)
   assert.match(message.html, /POWORK/)
   assert.match(message.html, /Lập luận/)
   assert.match(message.html, /8\/10/)

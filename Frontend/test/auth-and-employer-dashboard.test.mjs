@@ -30,3 +30,13 @@ test('Employer dashboard renders the real overview instead of hard-coded metrics
   assert.doesNotMatch(evidence, /Questions & Answers/);
   assert.match(evidence, /Câu trả lời phần tự luận/);
 });
+
+test('role selection uses professional SVG icons and Vietnamese product copy', async () => {
+  const page = await read('../app/page.tsx');
+
+  assert.match(page, /function CandidateIcon/);
+  assert.match(page, /function EmployerIcon/);
+  assert.match(page, /Ứng viên/);
+  assert.match(page, /Nhà tuyển dụng/);
+  assert.doesNotMatch(page, /🎓|🏢/u);
+});

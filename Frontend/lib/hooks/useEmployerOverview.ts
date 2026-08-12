@@ -33,13 +33,16 @@ export function useEmployerOverview() {
 
   const data = useMemo<EmployerOverviewData>(() => {
     const allSubmissions = challenges.flatMap((challenge, index) => {
-      const groups = (submissionQueries[index]?.data ?? []) as SubmissionGroup[];
+      const response = submissionQueries[index]?.data;
+      const groups = Array.isArray(response) ? (response as SubmissionGroup[]) : [];
       return groups.flatMap((group) =>
-        group.submissions.map((submission) => ({
-          challenge,
-          submission,
-          hashId: group.hash_id,
-        }))
+        Array.isArray(group?.submissions)
+          ? group.submissions.map((submission) => ({
+              challenge,
+              submission,
+              hashId: group.hash_id,
+            }))
+          : []
       );
     });
 
@@ -89,7 +92,10 @@ export function useEmployerOverview() {
   return {
     data,
     unlockedCount: challenges
-      .flatMap((_, index) => (submissionQueries[index]?.data ?? []) as SubmissionGroup[])
+      .flatMap((_, index) => {
+        const response = submissionQueries[index]?.data;
+        return Array.isArray(response) ? (response as SubmissionGroup[]) : [];
+      })
       .filter((group) => group.is_unlocked).length,
     isLoading: challengesQuery.isLoading,
     isError: challengesQuery.isError,
