@@ -1,4 +1,4 @@
-import type { WorkspaceState } from '@/lib/types/employerOverview';
+import type { WorkspaceSettings, WorkspaceState } from '@/lib/types/employerOverview';
 
 const STORAGE_KEY = 'powork-employer-workspace';
 const CHANGE_EVENT = 'powork-employer-workspace-change';
@@ -30,9 +30,26 @@ export function getWorkspaceState(): WorkspaceState {
       return cachedState;
     }
     const parsed = JSON.parse(raw) as Partial<WorkspaceState>;
+    const savedSettings: Partial<WorkspaceSettings> = parsed.settings ?? {};
     cachedState = {
-      bookmarkIds: Array.isArray(parsed.bookmarkIds) ? parsed.bookmarkIds : [],
-      settings: { ...DEFAULT_WORKSPACE_STATE.settings, ...parsed.settings },
+      bookmarkIds: Array.isArray(parsed.bookmarkIds)
+        ? parsed.bookmarkIds.filter((id): id is string => typeof id === 'string')
+        : [],
+      settings: {
+        ...DEFAULT_WORKSPACE_STATE.settings,
+        ...savedSettings,
+        workspaceName:
+          typeof savedSettings.workspaceName === 'string'
+            ? savedSettings.workspaceName
+            : DEFAULT_WORKSPACE_STATE.settings.workspaceName,
+        companyName:
+          typeof savedSettings.companyName === 'string'
+            ? savedSettings.companyName
+            : DEFAULT_WORKSPACE_STATE.settings.companyName,
+        memberEmails: Array.isArray(savedSettings.memberEmails)
+          ? savedSettings.memberEmails.filter((email): email is string => typeof email === 'string')
+          : [],
+      },
     };
     hasLoadedStorage = true;
     return cachedState;

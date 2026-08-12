@@ -38,7 +38,7 @@ export function Footer({ variant = 'full' }: FooterProps) {
   const pathname = usePathname();
 
   if (isCandidateVerificationPath(pathname)) return null;
-  if (pathname === '/login' || pathname === '/register') return null;
+  if (pathname === '/' || pathname === '/login' || pathname === '/register') return null;
 
   if (variant === 'compact') {
     return (
