@@ -1,6 +1,8 @@
 import { AppError } from '../../shared/utils/AppError.js'
 import prisma from '../../shared/config/prisma.js'
 import { assertChallengeOwnership, assertSubmissionReviewable } from './ownership.service.js'
+import * as userLookupService from '../../iam/services/user-lookup.service.js'
+import { sendEvaluationCompletedEmail } from './notification.service.js'
 
 export const evaluateSubmission = async (
   submissionId,
@@ -8,7 +10,7 @@ export const evaluateSubmission = async (
   companyId,
   database = prisma,
 ) => {
-  await database.$transaction(async (tx) => {
+  const notification = await database.$transaction(async (tx) => {
     const submission = await tx.submission.findUnique({
       where: { id: submissionId },
       include: { identityMapping: true },
@@ -42,7 +44,7 @@ export const evaluateSubmission = async (
 
     const criteria = await tx.rubricCriteria.findMany({
       where: { id: { in: criteriaIds }, challengeId: submission.challengeId },
-      select: { id: true, maxScore: true },
+      select: { id: true, criteriaName: true, maxScore: true },
     })
     if (criteria.length !== criteriaIds.length) {
       throw new AppError('Rubric criteria không thuộc challenge của submission.', 400, 'ASSESS_007')
@@ -70,7 +72,35 @@ export const evaluateSubmission = async (
       where: { id: submissionId },
       data: { status: 'EVALUATED', generalComment },
     })
+
+    const criteriaById = new Map(criteria.map((item) => [item.id, item]))
+    return {
+      userId: submission.identityMapping.userId,
+      challengeTitle: challenge.title,
+      hashId: submission.hashId,
+      evaluations: evaluations.map((evaluation) => ({
+        criteriaName: criteriaById.get(evaluation.criteriaId).criteriaName,
+        score: evaluation.score,
+        maxScore: criteriaById.get(evaluation.criteriaId).maxScore,
+      })),
+    }
   })
+
+  if (notification.userId) {
+    userLookupService
+      .getUserById(notification.userId)
+      .then((user) =>
+        sendEvaluationCompletedEmail({
+          toEmail: user.email,
+          fullName: user.full_name,
+          challengeTitle: notification.challengeTitle,
+          hashId: notification.hashId,
+          evaluations: notification.evaluations,
+          generalComment,
+        }),
+      )
+      .catch((error) => console.error('[Evaluation] Không gửi được email kết quả:', error.message))
+  }
 
   const totalScore = evaluations.reduce((sum, e) => sum + e.score, 0)
 
