@@ -130,7 +130,7 @@ function getTotalMood(percent: number): string {
   if (percent < 45) return 'Cần cân nhắc';
   if (percent < 70) return 'Có tín hiệu';
   if (percent < 85) return 'Ứng viên mạnh';
-  return 'Rất đáng unlock';
+  return 'Rất đáng mở khóa';
 }
 
 function getQuickScores(criterion: RubricCriteria): QuickScore[] {
@@ -140,7 +140,7 @@ function getQuickScores(criterion: RubricCriteria): QuickScore[] {
     { label: 'Cơ bản', value: criterion.max_score * 0.4, hint: 'Có phần đúng' },
     { label: 'Khá', value: criterion.max_score * 0.7, hint: 'Đạt yêu cầu' },
     { label: 'Tốt', value: criterion.max_score * 0.9, hint: 'Nổi bật' },
-    { label: 'Max', value: criterion.max_score, hint: 'Trọn điểm' },
+    { label: 'Tối đa', value: criterion.max_score, hint: 'Trọn điểm' },
   ];
   const seen = new Set<number>();
 
@@ -341,7 +341,7 @@ export function RubricScoringForm({
   if (criteria.length === 0) {
     return (
       <div className="rounded-lg border-hairline border-border-secondary bg-background p-4 text-sm text-foreground-secondary">
-        Challenge này chưa có rubric để chấm điểm.
+        Thử thách này chưa có tiêu chí để chấm điểm.
       </div>
     );
   }

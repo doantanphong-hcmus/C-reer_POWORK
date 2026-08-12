@@ -28,13 +28,13 @@ export function VerificationOverview({ dashboard }: { dashboard: VerificationDas
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-success">
-            Evidence đã mở khóa
+            Bằng chứng xác minh đã mở khóa
           </p>
           <h2 className="mt-2 text-xl font-semibold text-foreground">
             Xác minh đã sẵn sàng để đánh giá
           </h2>
           <p className="mt-1 text-sm leading-6 text-foreground-secondary">
-            Dữ liệu dưới đây thuộc đúng Submission và chỉ xuất hiện sau khi công ty mở khóa.
+            Dữ liệu dưới đây thuộc đúng bài nộp và chỉ xuất hiện sau khi doanh nghiệp mở khóa.
           </p>
         </div>
         <div className="rounded-xl border border-success/30 bg-background/70 px-4 py-3 text-right">
@@ -64,7 +64,8 @@ export function VerificationTimelineSection({
 
   return (
     <section className="rounded-2xl border border-border-secondary bg-background-secondary p-5">
-      <h2 className="text-lg font-semibold text-foreground">Timeline</h2>
+      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-accent">Tiến trình</p>
+      <h2 className="mt-1 text-xl font-semibold text-foreground">Các mốc xác minh</h2>
       <div className="mt-5 space-y-0">
         {events.map(([label, value], index) => (
           <div key={label} className="grid grid-cols-[20px_minmax(0,1fr)] gap-3">
@@ -96,7 +97,8 @@ export function VerificationStatisticsSection({
 
   return (
     <section className="rounded-2xl border border-border-secondary bg-background-secondary p-5">
-      <h2 className="text-lg font-semibold text-foreground">Statistics</h2>
+      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-accent">Tổng quan</p>
+      <h2 className="mt-1 text-xl font-semibold text-foreground">Thống kê phiên xác minh</h2>
       <p className="mt-1 text-xs leading-5 text-foreground-secondary">
         Tổng quan về cấu trúc và thời lượng của phiên xác minh.
       </p>
@@ -117,6 +119,7 @@ export function VerificationIntegritySignalsSection({
 }: {
   statistics: VerificationDashboardStatistics;
 }) {
+  // Client-reported signals are supporting context, never an automatic fraud verdict.
   const signals = [
     {
       label: 'Camera gián đoạn',
@@ -126,18 +129,19 @@ export function VerificationIntegritySignalsSection({
     {
       label: 'Thời gian camera gián đoạn',
       value: formatDuration(statistics.cameraInterruptionDurationSeconds),
-      explanation: 'Tổng thời gian gián đoạn camera do Backend tính từ các sự kiện được báo cáo.',
+      explanation:
+        'Tổng thời gian camera bị gián đoạn do hệ thống tính từ các tín hiệu được ghi nhận.',
     },
     {
-      label: 'Mất focus',
+      label: 'Rời cửa sổ làm bài',
       value: statistics.focusLossCount,
       explanation:
-        'Số lần trình duyệt báo trang làm bài mất focus. Hộp thoại hệ thống hoặc đổi cửa sổ đều có thể tạo tín hiệu này.',
+        'Số lần cửa sổ làm bài không còn được ưu tiên hiển thị. Hộp thoại hệ thống hoặc đổi cửa sổ đều có thể tạo tín hiệu này.',
     },
     {
       label: 'Thao tác dán bị chặn',
       value: statistics.pasteBlockedCount,
-      explanation: 'Số lần trình soạn thảo chặn thao tác paste trong phần trả lời tự luận.',
+      explanation: 'Số lần trình soạn thảo chặn thao tác dán trong phần trả lời tự luận.',
     },
     {
       label: 'Chọn tất cả bị chặn',
@@ -147,7 +151,7 @@ export function VerificationIntegritySignalsSection({
     {
       label: 'Sao chép bị chặn',
       value: statistics.copyBlockedCount,
-      explanation: 'Số lần trình soạn thảo chặn thao tác copy trong phần trả lời tự luận.',
+      explanation: 'Số lần trình soạn thảo chặn thao tác sao chép trong phần trả lời tự luận.',
     },
     {
       label: 'Kéo thả bị chặn',
@@ -159,13 +163,18 @@ export function VerificationIntegritySignalsSection({
   return (
     <section className="rounded-2xl border border-border-secondary bg-background-secondary p-5">
       <div className="flex flex-wrap items-center gap-2">
-        <h2 className="text-lg font-semibold text-foreground">Integrity signals</h2>
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-accent">
+            Thông tin hỗ trợ
+          </p>
+          <h2 className="mt-1 text-xl font-semibold text-foreground">Tín hiệu trong phiên</h2>
+        </div>
         <span className="rounded-full border border-border-secondary bg-background px-2.5 py-1 text-2xs font-medium text-foreground-secondary">
-          Client-reported signals
+          Do trình duyệt ghi nhận
         </span>
       </div>
       <p className="mt-2 text-xs leading-5 text-foreground-secondary">
-        Các số liệu này do trình duyệt của Candidate báo cáo để bổ sung ngữ cảnh. Chúng không đủ để
+        Các số liệu này do trình duyệt của ứng viên báo cáo để bổ sung ngữ cảnh. Chúng không đủ để
         tự động kết luận hành vi hay gian lận.
       </p>
 
@@ -211,7 +220,15 @@ export function VerificationQuestionAnswersSection({
 
   return (
     <section className="rounded-2xl border border-border-secondary bg-background-secondary p-5">
-      <h2 className="text-lg font-semibold text-foreground">Questions & Answers</h2>
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-accent">
+          Phần tự luận
+        </p>
+        <h2 className="mt-1 text-xl font-semibold text-foreground">Câu trả lời phần tự luận</h2>
+        <p className="mt-2 text-sm leading-6 text-foreground-secondary">
+          Nội dung ứng viên tự nhập ngay sau phần trình bày qua camera.
+        </p>
+      </div>
       <div className="mt-5 space-y-4">
         {questions.map((question, index) => (
           <article

@@ -161,7 +161,7 @@ function WorkspaceSettingsPanel() {
           {section === 'profile' && (
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="text-sm text-foreground-secondary">
-                Tên workspace
+                Tên không gian làm việc
                 <input
                   value={settings.workspaceName}
                   onChange={(event) => updateSettings({ workspaceName: event.target.value })}
@@ -253,7 +253,7 @@ function WorkspaceSettingsPanel() {
                     }}
                     className={`h-10 rounded-lg border px-4 text-sm font-medium ${settings.theme === theme ? 'border-accent bg-background-tertiary text-foreground' : 'border-border text-foreground-secondary'}`}
                   >
-                    {theme === 'dark' ? 'Dark' : 'Light'}
+                    {theme === 'dark' ? 'Tối' : 'Sáng'}
                   </button>
                 ))}
               </div>
@@ -262,12 +262,12 @@ function WorkspaceSettingsPanel() {
           {section === 'privacy' && (
             <div className="space-y-3">
               <SettingToggle
-                label="Ẩn danh ứng viên trước unlock"
+                label="Ẩn danh ứng viên trước khi mở khóa"
                 checked={settings.hideCandidateIdentity}
                 onChange={(checked) => updateSettings({ hideCandidateIdentity: checked })}
               />
               <SettingToggle
-                label="Workspace riêng tư"
+                label="Không gian làm việc riêng tư"
                 checked={settings.privateWorkspace}
                 onChange={(checked) => updateSettings({ privateWorkspace: checked })}
               />
@@ -411,10 +411,9 @@ export function EmployerOverview({ user }: { user: User }) {
           className="flex flex-col gap-3 rounded-xl border border-warning bg-warning-bg px-4 py-3 sm:flex-row sm:items-center"
         >
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-medium text-warning">Backend hiện không khả dụng</p>
+            <p className="text-sm font-medium text-warning">Dữ liệu tạm thời chưa khả dụng</p>
             <p className="mt-0.5 text-xs text-foreground-secondary">
-              Không thể tải challenge và submission. Settings và dữ liệu lưu cục bộ vẫn có thể sử
-              dụng.
+              Chưa thể tải thử thách và bài nộp. Vui lòng thử kết nối lại sau ít phút.
             </p>
             {error instanceof Error && (
               <p className="mt-1 truncate text-xs text-foreground-tertiary">{error.message}</p>
@@ -447,13 +446,13 @@ export function EmployerOverview({ user }: { user: User }) {
         />
         {isError ? (
           <div className="card py-8 text-center text-sm text-warning">
-            Challenge chưa thể tải vì Backend API đang offline.
+            Chưa thể tải danh sách thử thách vào lúc này.
           </div>
         ) : data.challenges.length === 0 ? (
           <div className="card py-10 text-center">
             <p className="font-medium text-foreground">{EMPLOYER_COPY.noChallenges}</p>
             <p className="mt-1 text-sm text-foreground-tertiary">
-              Dùng nút “Tạo thử thách” trên topbar để bắt đầu.
+              Dùng nút “Tạo thử thách” trên thanh công cụ để bắt đầu.
             </p>
           </div>
         ) : (
@@ -513,7 +512,7 @@ export function EmployerOverview({ user }: { user: User }) {
           <SectionHeader title={EMPLOYER_COPY.reviewQueue} />
           {isError ? (
             <div className="card py-8 text-center text-sm text-warning">
-              Review Queue chưa khả dụng.
+              Danh sách bài cần chấm chưa khả dụng.
             </div>
           ) : isReviewQueueLoading ? (
             <div
@@ -524,9 +523,11 @@ export function EmployerOverview({ user }: { user: User }) {
             </div>
           ) : hasReviewQueueError ? (
             <div className="card py-8 text-center">
-              <p className="text-sm font-medium text-warning">Chưa thể tải Review Queue.</p>
+              <p className="text-sm font-medium text-warning">
+                Chưa thể tải danh sách bài cần chấm.
+              </p>
               <p className="mt-1 text-xs text-foreground-tertiary">
-                Dữ liệu challenge và các phần khác vẫn có thể sử dụng.
+                Dữ liệu thử thách và các phần khác vẫn có thể sử dụng.
               </p>
             </div>
           ) : data.reviewQueue.length === 0 ? (
@@ -544,7 +545,7 @@ export function EmployerOverview({ user }: { user: User }) {
                   />
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium text-foreground">
-                      Candidate {item.candidateCode.slice(0, 8)}
+                      Ứng viên {item.candidateCode.slice(0, 8)}
                     </p>
                     <p className="truncate text-xs text-foreground-tertiary">
                       {item.challengeTitle} · {formatRelativeTime(item.submittedAt)}
@@ -565,7 +566,7 @@ export function EmployerOverview({ user }: { user: User }) {
           <SectionHeader title={EMPLOYER_COPY.tasks} />
           {isError ? (
             <div className="card py-8 text-center text-sm text-warning">
-              Việc cần làm sẽ xuất hiện khi kết nối lại Backend.
+              Việc cần làm sẽ xuất hiện khi hệ thống tải lại được dữ liệu.
             </div>
           ) : data.tasks.length === 0 ? (
             <div className="card py-8 text-center text-sm text-foreground-tertiary">

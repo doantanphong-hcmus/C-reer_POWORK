@@ -20,31 +20,31 @@ const statusDetails: Record<
 > = {
   NotStarted: {
     label: 'Chưa bắt đầu',
-    description: 'Candidate chưa bắt đầu phiên xác minh sau khi nộp bài.',
+    description: 'Ứng viên chưa bắt đầu phiên xác minh sau khi nộp bài.',
     tone: 'border-border-secondary bg-background-tertiary',
     dot: 'bg-foreground-tertiary',
   },
   PendingCamera: {
     label: 'Đang chuẩn bị',
-    description: 'Candidate đang chuẩn bị camera và microphone cho phiên xác minh.',
+    description: 'Ứng viên đang chuẩn bị camera và microphone cho phiên xác minh.',
     tone: 'border-info/35 bg-info-bg',
     dot: 'bg-info',
   },
   CameraActive: {
     label: 'Đang trình bày',
-    description: 'Candidate đang thực hiện phần trình bày qua camera.',
+    description: 'Ứng viên đang thực hiện phần trình bày qua camera.',
     tone: 'border-info/35 bg-info-bg',
     dot: 'bg-info',
   },
   GeneratingQuestions: {
     label: 'Đang tạo câu hỏi',
-    description: 'Hệ thống đang chuẩn bị bộ câu hỏi tự luận cho Candidate.',
+    description: 'Hệ thống đang chuẩn bị bộ câu hỏi tự luận cho ứng viên.',
     tone: 'border-info/35 bg-info-bg',
     dot: 'bg-info',
   },
   Answering: {
     label: 'Đang trả lời',
-    description: 'Candidate đang hoàn thiện phần trả lời tự luận.',
+    description: 'Ứng viên đang hoàn thiện phần trả lời tự luận.',
     tone: 'border-info/35 bg-info-bg',
     dot: 'bg-info',
   },
@@ -80,7 +80,7 @@ const statusDetails: Record<
   },
   Expired: {
     label: 'Phiên đã hết hạn',
-    description: 'Candidate chưa hoàn tất xác minh trong thời gian cho phép.',
+    description: 'Ứng viên chưa hoàn tất xác minh trong thời gian cho phép.',
     tone: 'border-border-secondary bg-background-tertiary',
     dot: 'bg-foreground-tertiary',
   },
@@ -147,7 +147,7 @@ export function VerificationSummaryCard({
   const details = statusDetails[summary.status];
   const description =
     summary.status === 'Ready' && !isUnlocked
-      ? 'Xác minh đã sẵn sàng. Nội dung chi tiết chỉ xuất hiện sau khi Submission được mở khóa.'
+      ? 'Xác minh đã sẵn sàng. Nội dung chi tiết chỉ xuất hiện sau khi bài nộp được mở khóa.'
       : details.description;
 
   return (
@@ -172,7 +172,7 @@ export function VerificationSummaryCard({
               href={`/employer/submissions/${submissionId}/verification`}
               className="mt-2 inline-flex text-xs font-semibold text-success underline underline-offset-4"
             >
-              Xem evidence xác minh
+              Xem bằng chứng xác minh
             </Link>
           )}
         </div>
@@ -183,7 +183,9 @@ export function VerificationSummaryCard({
             <dd className="mt-1 font-semibold text-foreground">{summary.questionCount}</dd>
           </div>
           <div className="rounded-lg border border-border/80 bg-background/65 px-3 py-2">
-            <dt className="text-2xs uppercase tracking-wide text-foreground-tertiary">Video</dt>
+            <dt className="text-2xs uppercase tracking-wide text-foreground-tertiary">
+              Bản ghi hình
+            </dt>
             <dd className="mt-1 font-semibold text-foreground">{scanLabels[summary.scanStatus]}</dd>
           </div>
           <div className="rounded-lg border border-border/80 bg-background/65 px-3 py-2">
